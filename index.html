@@ -284,7 +284,8 @@
         <label>实时转录</label>
         <div class="seg" role="group" aria-label="转录语言">
           <button id="langZh" aria-pressed="true">中文</button>
-          <button id="langEn" aria-pressed="false">英文</button>
+          <button id="langEn" aria-pressed="false" title="英式发音模型">英文</button>
+          <button id="langEnUs" aria-pressed="false" title="美式发音模型">美音</button>
           <button id="langOff" aria-pressed="false">关闭</button>
         </div>
       </div>
@@ -346,7 +347,8 @@
       <p class="note">
         主屏比例跟着画面走，看到的每一个像素都跟导出文件一致，不裁切。<br>
         五官微调、面部修饰、滤镜、马赛克、日期烙印会烧进文件；提词条、红点、时码、音量条、编辑手柄只在屏幕上，不会录进去。<br>
-        文字自动保存，视频只存在这次会话里，关掉页面就没了，录完记得下载。
+        美颜、滤镜、纹路位置和提词设置会存在这台电脑的浏览器里，下次打开自动恢复；换电脑用底部的导出设置。<br>
+        视频只存在这次会话里，关掉页面就没了，录完记得下载。
       </p>
     </main>
 
@@ -435,6 +437,9 @@
     <button class="key" id="btnDownloadAll" disabled>下载全部片段</button>
     <button class="key" id="btnExportMd" disabled>导出文字稿</button>
     <button class="key" id="btnExportSrt" disabled>导出字幕</button>
+    <button class="key" id="btnExportCfg" title="把当前所有参数存成文件，换电脑时导入">导出设置</button>
+    <button class="key" id="btnImportCfg">导入设置</button>
+    <input type="file" id="cfgFile" accept="application/json,.json" hidden>
     <button class="key" id="btnClear">清空</button>
   </div>
 </div>
@@ -582,7 +587,7 @@
     source:"cam", lang:"zh-CN", stream:null, canvasStream:null, recorder:null,
     recording:false, paused:false, takes:[], counter:0,
     startAt:0, elapsed:0, chunks:[], finalText:"", interimText:"",
-    recog:null, recogWanted:false, audioCtx:null, analyser:null, audioData:null,
+    recog:null, recogWanted:false, altText:"", audioCtx:null, analyser:null, audioData:null,
     raf:0, tick:0, thumb:null, stamp:"", fx:"kodak", dateOn:true, flip:false,
     frame:0, custom:{}, recFx:"KODAK",
     skin: JSON.parse(JSON.stringify(SKIN_DEFAULT)),
@@ -904,66 +909,119 @@
     });
   })();
 
-  /* 跟读匹配 */
-  function normText(s){
-    return (s||"").toLowerCase().replace(/[^\u4e00-\u9fa5a-z0-9]/g,"");
-  }
-  /* 把整份稿子拉平成一串字符，每个字记住它属于哪一句。
-     跟读时不是去猜「下一句开头对不对」，而是把刚听到的一小段
-     对齐到稿子里最像的位置，指针走到哪句就翻到哪句。 */
-  var cueChars = [];
-  function buildCueIndex(){
-    cueChars = [];
-    S.cueLines.forEach(function(l,li){
-      var n = normText(l);
-      for (var i=0;i<n.length;i++) cueChars.push({ c:n[i], l:li });
-    });
-    S.cuePtr = 0;
-  }
-  function syncPtr(){
-    S.cuePtr = 0;
-    for (var i=0;i<cueChars.length;i++){
-      if (cueChars[i].l >= S.cueIdx){ S.cuePtr = i; return; }
+  /* 跟读匹配
+     中文按字对齐没问题，但英文如果也按字母对齐就会失效：
+     去掉空格后 the、and 这些词的字母在任何一段英文里都凑得齐，
+     相似度虚高，指针就乱跳。所以这里统一按「词」来对齐，
+     中文一个字算一个词，英文一个单词算一个词。 */
+  function isCJK(t){ return /[\u4e00-\u9fa5]/.test(t); }
+  function tokenize(s){
+    var out = [], re = /[\u4e00-\u9fa5]|[a-z0-9']+/g, m;
+    var str = (s||"").toLowerCase().replace(/[’']/g,"'");
+    while ((m = re.exec(str))){
+      var t = m[0].replace(/'/g,"");
+      if (t) out.push(t);
     }
-    S.cuePtr = cueChars.length;
+    return out;
   }
-  function lcsLen(a,b){
-    var n = a.length, m = b.length;
+  /* 长词更能说明位置，the、a、is 这种给很低的权重，
+     免得一堆虚词把分数顶上去 */
+  function tokWeight(t){
+    if (isCJK(t)) return 1.2;
+    if (t.length <= 2) return 0.35;
+    if (t.length === 3) return 0.8;
+    return Math.min(3, 0.8 + (t.length-3)*0.4);
+  }
+  /* 英文识别常把词尾、单复数、时态听错，允许一个字符的出入 */
+  function nearEq(a,b){
+    if (a === b) return true;
+    if (isCJK(a) || isCJK(b)) return false;
+    var la = a.length, lb = b.length;
+    if (Math.max(la,lb) < 4) return false;
+    if (la >= 5 && lb >= 5 && a.slice(0,4) === b.slice(0,4)) return true;
+    if (Math.abs(la-lb) > 1) return false;
+    var i = 0, j = 0, diff = 0;
+    while (i < la && j < lb){
+      if (a[i] === b[j]){ i++; j++; continue; }
+      if (++diff > 1) return false;
+      if (la > lb) i++;
+      else if (lb > la) j++;
+      else { i++; j++; }
+    }
+    if (i < la || j < lb) diff++;
+    return diff <= 1;
+  }
+  function wlcs(A,B){
+    var n = A.length, m = B.length;
     if (!n || !m) return 0;
-    var prev = new Uint16Array(m+1), cur = new Uint16Array(m+1);
+    var prev = new Float32Array(m+1), cur = new Float32Array(m+1);
     for (var i=1;i<=n;i++){
       for (var j=1;j<=m;j++){
-        cur[j] = (a[i-1] === b[j-1]) ? prev[j-1]+1 : Math.max(prev[j], cur[j-1]);
+        cur[j] = nearEq(A[i-1],B[j-1]) ? prev[j-1] + tokWeight(A[i-1])
+                                       : Math.max(prev[j], cur[j-1]);
       }
       prev.set(cur); cur.fill(0);
     }
     return prev[m];
   }
+
+  var cueToks = [];
+  function buildCueIndex(){
+    cueToks = [];
+    S.cueLines.forEach(function(l,li){
+      tokenize(l).forEach(function(t){ cueToks.push({ t:t, l:li }); });
+    });
+    S.cuePtr = 0;
+  }
+  function syncPtr(){
+    S.cuePtr = 0;
+    for (var i=0;i<cueToks.length;i++){
+      if (cueToks[i].l >= S.cueIdx){ S.cuePtr = i; return; }
+    }
+    S.cuePtr = cueToks.length;
+  }
   function cueStatus(txt){ $("cueStat").textContent = txt; }
 
-  function advanceCue(){
-    if (!S.cueAuto || !cueChars.length) return;
-    var heard = normText(S.finalText + S.interimText);
-    if (heard.length < 3) return;
-    var tail = heard.slice(-14);
-    var lo = Math.max(0, (S.cuePtr||0) - 4);
-    var hi = Math.min(cueChars.length, (S.cuePtr||0) + 90);
-    var segLen = tail.length + 6;
+  function scoreAt(tailToks, totalW, lo, hi, segLen){
     var best = -1, bestScore = 0;
-    for (var p = lo + Math.min(4, segLen); p <= hi; p++){
+    for (var p = lo + Math.min(2, segLen); p <= hi; p++){
       var from = Math.max(lo, p - segLen);
-      var seg = "";
-      for (var q = from; q < p; q++) seg += cueChars[q].c;
-      var sc = lcsLen(tail, seg) / tail.length;
+      var seg = [];
+      for (var q = from; q < p; q++) seg.push(cueToks[q].t);
+      var sc = wlcs(tailToks, seg) / totalW;
       if (sc > bestScore){ bestScore = sc; best = p; }
     }
-    if (best > 0 && bestScore >= 0.32){
-      if (best > (S.cuePtr||0)) S.cuePtr = best;
-      var li = cueChars[Math.min(S.cuePtr, cueChars.length-1)].l;
+    return { p:best, sc:bestScore };
+  }
+
+  function advanceCue(){
+    if (!S.cueAuto || !cueToks.length) return;
+    /* 语音识别给的备选结果也拿来试，英文口音下第二候选经常才是对的 */
+    var cands = [S.finalText + S.interimText];
+    if (S.altText) cands.push(S.finalText + S.altText);
+
+    var lo = Math.max(0, (S.cuePtr||0) - 3);
+    var hi = Math.min(cueToks.length, (S.cuePtr||0) + 45);
+    var best = null;
+    for (var c=0;c<cands.length;c++){
+      var toks = tokenize(cands[c]);
+      if (toks.length < 2) continue;
+      var tail = toks.slice(-8);
+      var totalW = 0;
+      tail.forEach(function(t){ totalW += tokWeight(t); });
+      if (totalW < 1.2) continue;                 // 全是虚词，等下一批
+      var r = scoreAt(tail, totalW, lo, hi, tail.length + 4);
+      if (!best || r.sc > best.sc) best = r;
+    }
+    if (!best) return;
+
+    if (best.p > 0 && best.sc >= 0.45){
+      if (best.p > (S.cuePtr||0)) S.cuePtr = best.p;
+      var li = cueToks[Math.min(S.cuePtr, cueToks.length-1)].l;
       if (li !== S.cueIdx){ S.cueIdx = li; renderCue(); }
-      cueStatus("跟读中：第 " + (S.cueIdx+1) + " 句，匹配 " + Math.round(bestScore*100) + "%");
+      cueStatus("跟读中：第 " + (S.cueIdx+1) + " 句，匹配 " + Math.round(best.sc*100) + "%");
     } else {
-      cueStatus("跟读中：还没对上稿子，可以用上下方向键手动翻。");
+      cueStatus("跟读中：这几个词没对上（" + Math.round(best.sc*100) + "%），继续念或用方向键手动翻。");
     }
   }
 
@@ -1842,11 +1900,13 @@
     S.lang = v;
     $("langZh").setAttribute("aria-pressed", v==="zh-CN");
     $("langEn").setAttribute("aria-pressed", v==="en-GB");
+    $("langEnUs").setAttribute("aria-pressed", v==="en-US");
     $("langOff").setAttribute("aria-pressed", v==="off");
     save();
   }
   $("langZh").onclick = function(){ setLang("zh-CN"); };
-  $("langEn").onclick = function(){ setLang("en-GB"); };
+  $("langEn").onclick = function(){ setLang("en-GB"); cueHint(); };
+  $("langEnUs").onclick = function(){ setLang("en-US"); cueHint(); };
   $("langOff").onclick = function(){ setLang("off"); cueHint(); };
 
   /* ================== 连接 ================== */
@@ -1885,6 +1945,7 @@
       setupMeter(stream);
       if (!S.raf) drawFrame();
       if (!FILTER_OK) warn("这个浏览器的画布不支持滤镜和磨皮，会按原样录制。用 Chrome 打开就正常。");
+      else if (!mp4Status()) warn("这个浏览器不能直接录 MP4，会存成 WebM（画质一样，多数剪辑软件都能读）。想要 MP4 请把浏览器升级到新版 Chrome 或用 Safari。");
       stream.getVideoTracks()[0].addEventListener("ended", function(){
         warn("画面来源断了。按一下开启画面重新连接。");
         if (S.recording) stopRec(true);
@@ -1932,8 +1993,10 @@
     try {
       S.recog = new SR();
       S.recog.lang = S.lang; S.recog.continuous = true; S.recog.interimResults = true;
+      S.recog.maxAlternatives = 3;
       S.recog.onresult = function(e){
         var interim = "";
+        S.altText = "";
         for (var i=e.resultIndex;i<e.results.length;i++){
           var r = e.results[i];
           if (r.isFinal){ S.finalText += r[0].transcript; } else { interim += r[0].transcript; }
@@ -1961,12 +2024,26 @@
   }
 
   /* ================== 录制 ================== */
-  function pickMime(){
-    var list = ["video/webm;codecs=vp9,opus","video/webm;codecs=vp8,opus","video/webm","video/mp4"];
+  /* 优先录 MP4。浏览器支持情况不一样：新版 Chrome 和 Safari 可以直接录
+     H.264 的 MP4，老一点的只能录 WebM，这时如实告诉你，别假装导出的是 MP4。 */
+  var MP4_LIST = [
+    "video/mp4;codecs=avc1.42E01E,mp4a.40.2",
+    "video/mp4;codecs=avc1.4d002a,mp4a.40.2",
+    "video/mp4;codecs=h264,aac",
+    "video/mp4"
+  ];
+  var WEBM_LIST = ["video/webm;codecs=vp9,opus","video/webm;codecs=vp8,opus","video/webm"];
+  function supported(list){
     for (var i=0;i<list.length;i++){
       if (window.MediaRecorder && MediaRecorder.isTypeSupported(list[i])) return list[i];
     }
     return "";
+  }
+  function pickMime(){ return supported(MP4_LIST) || supported(WEBM_LIST) || ""; }
+  var MP4_OK = null;
+  function mp4Status(){
+    if (MP4_OK === null) MP4_OK = !!supported(MP4_LIST);
+    return MP4_OK;
   }
   btnRec.onclick = function(){ S.recording ? stopRec(false) : startRec(); };
   btnPause.onclick = function(){ S.paused ? resumeRec() : pauseRec(); };
@@ -2204,57 +2281,124 @@
     S.takes = []; S.counter = 0; render(); save();
   };
 
-  /* ================== 存档 ================== */
-  function save(){
-    if (!window.storage) return;
-    var payload = {
-      lang:S.lang, fx:S.fx, dateOn:S.dateOn, flip:S.flip, counter:S.counter,
-      custom:S.custom, skin:S.skin, warp:S.warp, rgn:S.rgn, mo:S.mo, moP:S.moP, faceOn:S.faceOn,
+  /* ================== 存档 ==================
+     放在 GitHub Pages 上时没有 window.storage，改用浏览器自己的 localStorage，
+     设置就存在你这台电脑的这个浏览器里，换机器不会跟着走，
+     所以另外给了导出和导入设置文件的按钮。 */
+  var SKEY = "takerec:session";
+  var Store = {
+    get:function(k){
+      if (window.storage) return window.storage.get(k);
+      try { var v = localStorage.getItem(k); return Promise.resolve(v ? { key:k, value:v } : null); }
+      catch(e){ return Promise.resolve(null); }
+    },
+    set:function(k,v){
+      if (window.storage) return window.storage.set(k,v);
+      localStorage.setItem(k,v);
+      return Promise.resolve(null);
+    }
+  };
+  function settingsOnly(){
+    return {
+      v:1,
+      lang:S.lang, fx:S.fx, dateOn:S.dateOn, flip:S.flip,
+      custom:S.custom, skin:S.skin, warp:S.warp, rgn:S.rgn,
+      mo:S.mo, moP:S.moP, faceOn:S.faceOn,
       cue:S.cue, cueColor:S.cueColor, cueAlign:S.cueAlign, cuePos:S.cuePos,
-      cueRaw:S.cueRaw, cueAuto:S.cueAuto, cueOn:S.cueOn,
-      takes:S.takes.map(function(t){
-        return { id:t.id,n:t.n,dur:t.dur,text:t.text,note:t.note,thumb:t.thumb,stamp:t.stamp,fx:t.fx };
-      })
+      cueRaw:S.cueRaw, cueAuto:S.cueAuto, cueOn:S.cueOn
     };
-    try { window.storage.set("takerec:session", JSON.stringify(payload)); } catch(e){}
+  }
+  function payloadOf(withThumbs){
+    var o = settingsOnly();
+    o.counter = S.counter;
+    o.takes = S.takes.map(function(t){
+      return { id:t.id, n:t.n, dur:t.dur, text:t.text, note:t.note,
+               thumb: withThumbs ? t.thumb : null, stamp:t.stamp, fx:t.fx };
+    });
+    return o;
+  }
+  var saveTimer = 0, saveWarned = false;
+  function save(){
+    clearTimeout(saveTimer);
+    saveTimer = setTimeout(doSave, 300);
+  }
+  function doSave(){
+    try {
+      Store.set(SKEY, JSON.stringify(payloadOf(true)));
+    } catch(e){
+      /* 多半是缩略图把配额撑爆了，去掉缩略图重存，设置本身一定要留住 */
+      try { Store.set(SKEY, JSON.stringify(payloadOf(false))); }
+      catch(e2){
+        try { Store.set(SKEY, JSON.stringify(settingsOnly())); } catch(e3){}
+        if (!saveWarned){
+          saveWarned = true;
+          warn("浏览器存储空间不够，片段缩略图没能保存，但你的美颜和滤镜设置已经存下来了。");
+        }
+      }
+    }
+  }
+  function applySettings(p){
+    if (!p) return;
+    if (p.custom) S.custom = p.custom;
+    if (p.skin){ Object.keys(SKIN_DEFAULT).forEach(function(k){ if (p.skin[k]!==undefined) S.skin[k]=p.skin[k]; }); }
+    if (p.warp){ Object.keys(WARP_DEFAULT).forEach(function(k){ if (p.warp[k]!==undefined) S.warp[k]=p.warp[k]; }); }
+    if (p.rgn){ RGN_KEYS.forEach(function(k){ if (p.rgn[k]) S.rgn[k]=p.rgn[k]; }); }
+    if (p.moP){ Object.keys(MO_DEFAULT).forEach(function(k){ if (p.moP[k]!==undefined) S.moP[k]=p.moP[k]; }); }
+    if (p.cue){ Object.keys(CUE_DEFAULT).forEach(function(k){ if (p.cue[k]!==undefined) S.cue[k]=p.cue[k]; }); }
+    if (p.cueColor) S.cueColor = p.cueColor;
+    if (p.cueAlign) S.cueAlign = p.cueAlign;
+    if (p.cuePos) S.cuePos = p.cuePos;
+    if (p.cueRaw){ S.cueRaw = p.cueRaw; S.cueLines = splitCue(p.cueRaw); $("cueText").value = p.cueRaw; buildCueIndex(); }
+    if (p.cueAuto === false){ S.cueAuto = false; $("cueAuto").setAttribute("aria-pressed","false"); }
+    if (p.cueOn === false){ S.cueOn = false; $("togglePrompt").setAttribute("aria-pressed","false"); }
+    if (p.lang) setLang(p.lang);
+    if (p.dateOn === false){ S.dateOn = false; $("toggleDate").setAttribute("aria-pressed","false"); }
+    if (p.flip === true){ S.flip = true; $("toggleFlip").setAttribute("aria-pressed","true"); }
+    if (p.faceOn === false){ S.faceOn = false; $("toggleFace").setAttribute("aria-pressed","false"); }
+    setFx(p.fx && PRESETS[p.fx] ? p.fx : S.fx);
+    setMo(p.mo && MOSAIC[p.mo] ? p.mo : S.mo);
+    document.querySelectorAll(".swatch").forEach(function(o,i){
+      o.setAttribute("aria-pressed", CUE_COLORS[i] === S.cueColor);
+    });
+    $("cueAlignL").setAttribute("aria-pressed", S.cueAlign==="left");
+    $("cueAlignC").setAttribute("aria-pressed", S.cueAlign==="center");
+    warpUI.sync(); localUI.sync(); skinUI.sync(); moUI.sync(); cueUI.sync();
+    syncPtr(); renderCue(); cueHint();
   }
   function load(){
     setFx(S.fx); setMo(S.mo); setRgn(S.rgnSel);
     warpUI.sync(); localUI.sync(); skinUI.sync(); moUI.sync(); cueUI.sync();
     buildCueIndex(); renderCue(); cueHint();
-    if (!window.storage){ render(); return; }
-    window.storage.get("takerec:session").then(function(res){
+    Store.get(SKEY).then(function(res){
       if (!res || !res.value){ render(); return; }
       var p = JSON.parse(res.value);
       S.counter = p.counter || 0;
       S.takes = (p.takes||[]).map(function(t){ t.blob = null; t.url = null; return t; });
-      if (p.custom) S.custom = p.custom;
-      if (p.skin){ Object.keys(SKIN_DEFAULT).forEach(function(k){ if (p.skin[k]!==undefined) S.skin[k]=p.skin[k]; }); }
-      if (p.warp){ Object.keys(WARP_DEFAULT).forEach(function(k){ if (p.warp[k]!==undefined) S.warp[k]=p.warp[k]; }); }
-      if (p.rgn){ RGN_KEYS.forEach(function(k){ if (p.rgn[k]) S.rgn[k]=p.rgn[k]; }); }
-      if (p.moP){ Object.keys(MO_DEFAULT).forEach(function(k){ if (p.moP[k]!==undefined) S.moP[k]=p.moP[k]; }); }
-      if (p.cue){ Object.keys(CUE_DEFAULT).forEach(function(k){ if (p.cue[k]!==undefined) S.cue[k]=p.cue[k]; }); }
-      if (p.cueColor) S.cueColor = p.cueColor;
-      if (p.cueAlign) S.cueAlign = p.cueAlign;
-      if (p.cuePos) S.cuePos = p.cuePos;
-      if (p.cueRaw){ S.cueRaw = p.cueRaw; S.cueLines = splitCue(p.cueRaw); $("cueText").value = p.cueRaw; buildCueIndex(); }
-      if (p.cueAuto === false){ S.cueAuto = false; $("cueAuto").setAttribute("aria-pressed","false"); }
-      if (p.cueOn === false){ S.cueOn = false; $("togglePrompt").setAttribute("aria-pressed","false"); }
-      if (p.lang) setLang(p.lang);
-      if (p.dateOn === false){ S.dateOn = false; $("toggleDate").setAttribute("aria-pressed","false"); }
-      if (p.flip === true){ S.flip = true; $("toggleFlip").setAttribute("aria-pressed","true"); }
-      if (p.faceOn === false){ S.faceOn = false; $("toggleFace").setAttribute("aria-pressed","false"); }
-      setFx(p.fx && PRESETS[p.fx] ? p.fx : S.fx);
-      setMo(p.mo && MOSAIC[p.mo] ? p.mo : S.mo);
-      document.querySelectorAll(".swatch").forEach(function(o,i){
-        o.setAttribute("aria-pressed", CUE_COLORS[i] === S.cueColor);
-      });
-      $("cueAlignL").setAttribute("aria-pressed", S.cueAlign==="left");
-      $("cueAlignC").setAttribute("aria-pressed", S.cueAlign==="center");
-      warpUI.sync(); localUI.sync(); skinUI.sync(); moUI.sync(); cueUI.sync();
-      syncPtr(); renderCue(); cueHint(); render();
+      applySettings(p);
+      render();
     }).catch(function(){ render(); });
   }
+
+  $("btnExportCfg").onclick = function(){
+    dlText(JSON.stringify(settingsOnly(), null, 2),
+      "dv8-设置-" + $("today").textContent + ".json", "application/json");
+  };
+  $("btnImportCfg").onclick = function(){ $("cfgFile").click(); };
+  $("cfgFile").addEventListener("change", function(){
+    var f = this.files && this.files[0];
+    if (!f) return;
+    var fr = new FileReader();
+    fr.onload = function(){
+      try {
+        applySettings(JSON.parse(fr.result));
+        save();
+        warn("");
+        liveEl.innerHTML = "<i>设置已导入。</i>";
+      } catch(e){ warn("这个文件读不出来，可能不是导出的设置文件。"); }
+    };
+    fr.readAsText(f);
+    this.value = "";
+  });
 
   document.addEventListener("keydown", function(e){
     if (e.target.tagName === "TEXTAREA" || e.target.tagName === "INPUT") return;
