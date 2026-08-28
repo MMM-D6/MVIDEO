@@ -11,46 +11,42 @@
 </head>
 <body>
 <div class="wrap">
+<div class="device">
 
   <header>
     <div class="titlebar">
       <span class="mark">DV-8</span>
       <span class="cn-title">分段录制台</span>
-      <span class="date" id="today"></span>
-      <button class="help-fab" id="btnHelp" type="button" aria-haspopup="dialog" aria-label="使用说明和须知">?</button>
-    </div>
-    <p class="steps">选画面来源 → 开启画面 → 按红色按钮录一段 → 不满意就重录。参数都在右边，调的时候不会挡住主屏。</p>
-    <div class="rowset">
-      <div class="group">
-        <label>画面来源</label>
+      <nav class="menubar" aria-label="快速设置">
         <div class="seg" role="group" aria-label="画面来源">
           <button id="srcCam" aria-pressed="true">摄像头</button>
           <button id="srcScreen" aria-pressed="false">屏幕</button>
-          <button id="srcBoth" aria-pressed="false">屏幕加麦克风</button>
+          <button id="srcBoth" aria-pressed="false">屏幕+麦克风</button>
         </div>
-      </div>
-      <div class="group">
-        <label>实时转录</label>
+        <span class="msep" aria-hidden="true">|</span>
         <div class="seg" role="group" aria-label="转录语言">
           <button id="langZh" aria-pressed="true">中文</button>
           <button id="langEn" aria-pressed="false" title="英式发音模型">英文</button>
           <button id="langEnUs" aria-pressed="false" title="美式发音模型">美音</button>
           <button id="langOff" aria-pressed="false">关闭</button>
         </div>
-      </div>
-      <div class="group">
-        <label>屏幕显示</label>
+        <span class="msep" aria-hidden="true">|</span>
         <div class="seg">
           <button id="toggleDate" aria-pressed="true">日期烙印</button>
           <button id="toggleFlip" aria-pressed="false">左右翻转</button>
         </div>
-      </div>
+      </nav>
+      <span class="date" id="today"></span>
+      <button class="help-fab" id="btnHelp" type="button" aria-haspopup="dialog" aria-label="使用说明和须知">?</button>
+      <span class="wctl" aria-hidden="true" tabindex="-1"><i></i><i></i><i></i></span>
     </div>
+    <p class="steps">选画面来源 → 开启画面 → 按红色按钮录一段 → 不满意就重录。参数都在右边，调的时候不会挡住主屏。</p>
   </header>
 
   <div class="layout">
     <main>
       <div class="lcd-shell">
+        <div class="lcd-label">DV-8 HANDYCAM MONITOR</div>
         <div class="stage" id="stage">
           <canvas id="canvas"></canvas>
           <video id="preview" playsinline muted></video>
@@ -92,6 +88,8 @@
         还没有片段。第一条通常会僵，很正常，先录三十秒再决定留不留。
       </div>
     </main>
+
+    <div class="hinge" aria-hidden="true"><i></i><i></i><i></i></div>
 
     <aside class="side">
 
@@ -221,6 +219,7 @@
 
     </aside>
   </div>
+</div>
 </div>
 
 
