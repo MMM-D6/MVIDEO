@@ -43,8 +43,8 @@
     <p class="steps">选画面来源 → 开启画面 → 按红色按钮录一段 → 不满意就重录。参数都在右边，调的时候不会挡住主屏。</p>
   </header>
 
-  <div class="layout">
-    <main>
+  <main>
+    <div class="camera-unit">
       <div class="lcd-shell">
         <div class="lcd-label">DV-8 HANDYCAM MONITOR</div>
         <div class="stage" id="stage">
@@ -68,32 +68,11 @@
         </div>
       </div>
 
-      <div class="deck">
-        <button class="key" id="btnConnect"><span class="en">POWER</span>开启画面</button>
-        <button class="key record" id="btnRec" disabled><span class="en">REC</span>录这一段</button>
-        <button class="key" id="btnPause" disabled><span class="en">PAUSE</span>暂停</button>
-        <button class="key" id="btnDiscard" disabled><span class="en">ERASE</span>丢弃这条</button>
-        <span class="hint">空格开始或结束，P 暂停，上下方向键切提词</span>
-      </div>
+      <div class="hinge" aria-hidden="true"><i></i><i></i><i></i></div>
 
-      <div class="warn" id="warn" hidden></div>
-      <div class="live" id="live"><i>录制时，语音转成的文字会出现在这里。</i></div>
+      <aside class="side">
 
-      <div class="index-head">
-        <b>TAPE INDEX</b><span class="cn">已录片段</span><span class="count" id="tally">0 段</span>
-      </div>
-      <div id="takes"></div>
-      <div class="empty-takes" id="noTakes">
-        <b>TAPE EMPTY</b>
-        还没有片段。第一条通常会僵，很正常，先录三十秒再决定留不留。
-      </div>
-    </main>
-
-    <div class="hinge" aria-hidden="true"><i></i><i></i><i></i></div>
-
-    <aside class="side">
-
-      <div class="cat-card">
+        <div class="cat-card">
         <div class="cat-head">
           <span class="cat-label">提词</span>
           <button class="toggle" id="togglePrompt" aria-pressed="true" aria-label="提词条开关"></button>
@@ -217,8 +196,29 @@
         </div>
       </div>
 
-    </aside>
-  </div>
+      </aside>
+    </div>
+
+    <div class="deck">
+      <button class="key" id="btnConnect"><span class="en">POWER</span>开启画面</button>
+      <button class="key record" id="btnRec" disabled><span class="en">REC</span>录这一段</button>
+      <button class="key" id="btnPause" disabled><span class="en">PAUSE</span>暂停</button>
+      <button class="key" id="btnDiscard" disabled><span class="en">ERASE</span>丢弃这条</button>
+      <span class="hint">空格开始或结束，P 暂停，上下方向键切提词</span>
+    </div>
+
+    <div class="warn" id="warn" hidden></div>
+    <div class="live" id="live"><i>录制时，语音转成的文字会出现在这里。</i></div>
+
+    <div class="index-head">
+      <b>TAPE INDEX</b><span class="cn">已录片段</span><span class="count" id="tally">0 段</span>
+    </div>
+    <div id="takes"></div>
+    <div class="empty-takes" id="noTakes">
+      <b>TAPE EMPTY</b>
+      还没有片段。第一条通常会僵，很正常，先录三十秒再决定留不留。
+    </div>
+  </main>
 </div>
 </div>
 
