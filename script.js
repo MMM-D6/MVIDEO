@@ -4,64 +4,69 @@
   function x2(v){ return v.toFixed(2)+"x"; }
   var $ = function(id){ return document.getElementById(id); };
 
-  /* ================== 滤镜 ================== */
-  var PRESETS = {
-    ccd:  { cn:"CCD", en:"CCD", desc:"二〇〇几年卡片机：对比高、颜色浓、微微偏绿，带细颗粒和一点镜头光晕。",
-            tintColor:"#7FBF6A",
-            p:{bri:1.06,con:1.12,sat:1.18,hue:-3,sep:0,gry:0,blr:0,tint:0,bloom:.10,grain:.05,scan:0,vig:.4} },
-    kodak:{ cn:"暖胶片", en:"KODAK", desc:"暖黄底子，肤色红润，高光化开。拍人最讨好的一档。",
-            tintColor:"#FFC46B", warm:1,
-            p:{bri:1.06,con:1.06,sat:1.18,hue:-6,sep:.10,gry:0,blr:.1,tint:.14,bloom:.16,grain:.05,scan:0,vig:.3} },
-    cream:{ cn:"奶油", en:"CREAM", desc:"高调柔和，对比压低，气色好、不锐利，适合近距离说话。",
-            tintColor:"#FFE3C0", warm:1,
-            p:{bri:1.12,con:.9,sat:.98,hue:0,sep:.1,gry:0,blr:.25,tint:.16,bloom:.22,grain:.03,scan:0,vig:.2} },
-    fuji: { cn:"冷胶片", en:"FUJI", desc:"青绿底子，通透干净，白天靠窗最好看。",
-            tintColor:"#7FD4C0",
-            p:{bri:1.06,con:1.04,sat:1.02,hue:7,sep:0,gry:0,blr:0,tint:.10,bloom:.10,grain:.04,scan:0,vig:.28} },
-    pola: { cn:"拍立得", en:"POLA", desc:"一次成像：亮、对比低、泛奶黄，边缘轻轻发白。",
-            tintColor:"#FFD9A0", warm:1,
-            p:{bri:1.12,con:.9,sat:1.12,hue:0,sep:.18,gry:0,blr:.1,tint:.13,bloom:.2,grain:.05,scan:0,vig:.28} },
-    teal: { cn:"青橙", en:"TEAL", desc:"电影调色方向：暗部偏青，肤色偏暖，立体感强。",
-            tintColor:"#2E8B8B",
-            p:{bri:1.02,con:1.14,sat:1.15,hue:-6,sep:0,gry:0,blr:0,tint:.14,bloom:.08,grain:.03,scan:0,vig:.4} },
-    crt:  { cn:"显像管", en:"CRT", desc:"老电视的荧光感：颜色发亮、高光化开、边角发暗，没有横条纹。",
-            tintColor:"#8FD8FF",
-            p:{bri:1.05,con:1.12,sat:1.24,hue:0,sep:0,gry:0,blr:.35,tint:.06,bloom:.34,grain:.05,scan:0,vig:.42} },
-    vhs:  { cn:"录像带", en:"VHS", desc:"家用录像带：色彩溢出、轻微失焦、亮部发糊，没有雪花和条纹。",
-            tintColor:"#FFB0C8",
-            p:{bri:1.08,con:.94,sat:1.42,hue:0,sep:0,gry:0,blr:.75,tint:.08,bloom:.28,grain:.06,scan:0,vig:.32} },
-    "8mm":{ cn:"八毫米", en:"8MM", desc:"老家庭录像的暖棕调，柔和、边缘压暗。", warm:1,
-            p:{bri:1.02,con:1.1,sat:1.28,hue:0,sep:.45,gry:0,blr:.25,tint:0,bloom:.18,grain:.10,scan:0,vig:.55} },
-    fade: { cn:"褪色", en:"FADE", desc:"放旧了的照片，颜色掉一半，黑位发灰。",
-            tintColor:"#E8D8C0",
-            p:{bri:1.1,con:.82,sat:.7,hue:0,sep:.25,gry:0,blr:0,tint:.15,bloom:.12,grain:.06,scan:0,vig:.2} },
-    cool: { cn:"冷调", en:"COOL", desc:"偏蓝的清冷调子，深夜说话的感觉。", tintColor:"#4A78FF", cold:1,
-            p:{bri:1.04,con:1.12,sat:.82,hue:-16,sep:0,gry:0,blr:0,tint:.10,bloom:.1,grain:.04,scan:0,vig:.5} },
-    bw:   { cn:"黑白", en:"B&W", desc:"高反差黑白，只剩表情和光线。",
-            p:{bri:1.05,con:1.32,sat:1,hue:0,sep:0,gry:1,blr:0,tint:0,bloom:.1,grain:.06,scan:0,vig:.5} },
-    silver:{cn:"银盐", en:"SILVER", desc:"柔一点的黑白，中灰厚，接近老照片。",
-            p:{bri:1.06,con:1.1,sat:1,hue:0,sep:.15,gry:1,blr:.2,tint:0,bloom:.16,grain:.09,scan:0,vig:.4} },
-    nv:   { cn:"夜视", en:"NV", desc:"绿色夜视仪：高增益、噪点重、边缘压黑，没有扫描线。",
-            p:{bri:1.12,con:1.45,sat:4,hue:55,sep:1,gry:1,blr:.15,tint:0,bloom:.26,grain:.16,scan:0,vig:.78} },
-    ir:   { cn:"红外", en:"IR", desc:"红外摄影：草木发白，整体泛品红。", tintColor:"#FF69B4",
-            p:{bri:1.05,con:1.2,sat:3,hue:-40,sep:1,gry:1,blr:0,tint:.18,bloom:.14,grain:.06,scan:0,vig:.5} },
-    off:  { cn:"原图", en:"OFF", desc:"不做任何颜色处理。",
-            p:{bri:1,con:1,sat:1,hue:0,sep:0,gry:0,blr:0,tint:0,bloom:0,grain:0,scan:0,vig:0} }
-  };
-  var SLIDERS = [
-    { k:"bri",cn:"亮度",tip:"整体明暗",min:.4,max:1.8,step:.01,fmt:x2 },
-    { k:"con",cn:"对比",tip:"黑白拉开程度",min:.4,max:2.2,step:.01,fmt:x2 },
-    { k:"sat",cn:"饱和",tip:"颜色浓淡",min:0,max:4,step:.05,fmt:x2 },
-    { k:"hue",cn:"色相",tip:"偏色方向",min:-180,max:180,step:1,fmt:function(v){return Math.round(v)+"°"} },
-    { k:"sep",cn:"怀旧棕",tip:"往老照片的棕靠",min:0,max:1,step:.01,fmt:pc },
-    { k:"gry",cn:"去色",tip:"抽掉原始颜色",min:0,max:1,step:.01,fmt:pc },
-    { k:"tint",cn:"染色",tip:"滤镜自带的颜色",min:0,max:.5,step:.01,fmt:pc },
-    { k:"blr",cn:"柔焦",tip:"轻微失焦",min:0,max:4,step:.05,fmt:function(v){return v.toFixed(2)+"px"} },
-    { k:"bloom",cn:"光晕",tip:"亮部化开，古早镜头感",min:0,max:.8,step:.01,fmt:pc },
-    { k:"grain",cn:"颗粒",tip:"胶片噪点",min:0,max:.4,step:.01,fmt:function(v){return Math.round(v*250)+""} },
-    { k:"scan",cn:"横纹",tip:"默认关闭",min:0,max:.35,step:.01,fmt:function(v){return v<=0?"关":Math.round(v*280)+""} },
-    { k:"vig",cn:"暗角",tip:"四周压暗",min:0,max:1,step:.01,fmt:pc }
+  /* ================== 调色引擎 ==================
+     分两层，跟审美无关的和跟审美有关的分开：
+     「校正」针对这台摄像头本身——白平衡、曝光、阴影/高光、锐化。
+     换摄像头基本只需要重新点一次白平衡取色校准，其余不用再调。
+     「风格」是校正之上叠的审美——饱和度、分离色调、颗粒、暗角、光晕、柔焦。
+     调好之后可以存成"我的预设"，下次打开自动用你上次留下的那一份。 */
+  function pctSigned(v){ return (v>0?"+":"") + Math.round(v*100) + "%"; }
+  var CORRECT = [
+    { k:"wbTemp",cn:"色温",tip:"负值偏冷，正值偏暖；先用下面的取色校准，这里再微调",min:-1,max:1,step:.01,fmt:pctSigned },
+    { k:"wbTint",cn:"色调",tip:"负值偏绿，正值偏品红",min:-1,max:1,step:.01,fmt:pctSigned },
+    { k:"exposure",cn:"曝光",tip:"整体明暗，单位是档（EV）",min:-2,max:2,step:.02,fmt:function(v){return (v>0?"+":"")+v.toFixed(2)+" EV";} },
+    { k:"shadows",cn:"阴影",tip:"只动暗部：负值更暗，正值提亮，不影响亮部",min:-1,max:1,step:.01,fmt:pctSigned },
+    { k:"highlights",cn:"高光",tip:"只动亮部：负值压暗找回细节，正值更亮更炸，不影响暗部",min:-1,max:1,step:.01,fmt:pctSigned },
+    { k:"sharpen",cn:"锐化",tip:"网络摄像头大多偏软，适度加一点画面更清楚",min:0,max:1,step:.01,fmt:pc }
   ];
+  var CORRECT_DEFAULT = { wbTemp:0, wbTint:0, exposure:0, shadows:0, highlights:0, sharpen:.15 };
+
+  var LOOK = [
+    { k:"sat",cn:"饱和度",tip:"负值往黑白靠，正值加浓但会自动少动肤色，不容易假",min:-1,max:1,step:.01,fmt:pctSigned },
+    { k:"con",cn:"反差",tip:"黑白拉开的程度，跟校正里的阴影/高光是两回事——这个是风格的一部分",min:.5,max:1.8,step:.01,fmt:x2 },
+    { k:"toneAmt",cn:"分离色调强度",tip:"配合下面选的两个颜色，阴影高光分别染色",min:0,max:1,step:.01,fmt:pc },
+    { k:"grain",cn:"颗粒",tip:"胶片噪点感",min:0,max:.4,step:.01,fmt:function(v){return Math.round(v*250)+"";} },
+    { k:"vig",cn:"暗角",tip:"四周压暗",min:0,max:1,step:.01,fmt:pc },
+    { k:"bloom",cn:"光晕",tip:"亮部化开",min:0,max:.8,step:.01,fmt:pc },
+    { k:"soft",cn:"柔焦",tip:"轻微失焦",min:0,max:4,step:.05,fmt:function(v){return v.toFixed(2)+"px";} }
+  ];
+  var TONE_HUES = ["#3C6E9E","#2E8B8B","#6A6FB0","#9E6AA8","#C77A3C","#E0A052","#B0522E","#8A8A8A"];
+  var LOOK_DEFAULT = { sat:0, con:1, toneAmt:0, toneShadowHue:"#3C6E9E", toneHighHue:"#E0A052", grain:0, vig:0, bloom:0, soft:0 };
+
+  /* 起点：只是把 LOOK_DEFAULT 换一套数字，点一下直接套到当前风格上，
+     不是持久的"选中态"——真正要长期用的看下面「我的预设」。
+     这十几个是原来那批复古滤镜换到新引擎里的样子：原来是靠色相旋转/棕褐/去色
+     这些整体滤镜实现的，现在改成对比、智能饱和度、阴影高光分离染色来还原同样的味道。 */
+  var LOOKS = {
+    ccd:  { cn:"CCD", en:"CCD", desc:"二〇〇几年卡片机：对比高、颜色浓、微微偏绿，带细颗粒和一点镜头光晕。",
+            p:{ sat:.18, con:1.12, toneAmt:.12, toneShadowHue:"#5E9E52", toneHighHue:"#9ED88A", grain:.05, vig:.4, bloom:.10, soft:0 } },
+    kodak:{ cn:"暖胶片", en:"KODAK", desc:"暖黄底子，肤色红润，高光化开。拍人最讨好的一档。",
+            p:{ sat:.18, con:1.06, toneAmt:.4, toneShadowHue:"#8A5A2E", toneHighHue:"#FFC46B", grain:.05, vig:.3, bloom:.16, soft:.1 } },
+    cream:{ cn:"奶油", en:"CREAM", desc:"高调柔和，对比压低，气色好、不锐利，适合近距离说话。",
+            p:{ sat:0, con:.9, toneAmt:.35, toneShadowHue:"#C9A06A", toneHighHue:"#FFE3C0", grain:.03, vig:.2, bloom:.22, soft:.25 } },
+    fuji: { cn:"冷胶片", en:"FUJI", desc:"青绿底子，通透干净，白天靠窗最好看。",
+            p:{ sat:.02, con:1.04, toneAmt:.3, toneShadowHue:"#2E7D6E", toneHighHue:"#8FE0C8", grain:.04, vig:.28, bloom:.10, soft:0 } },
+    pola: { cn:"拍立得", en:"POLA", desc:"一次成像：亮、对比低、泛奶黄，边缘轻轻发白。",
+            p:{ sat:.12, con:.9, toneAmt:.35, toneShadowHue:"#B8975A", toneHighHue:"#FFD9A0", grain:.05, vig:.28, bloom:.2, soft:.1 } },
+    teal: { cn:"青橙", en:"TEAL", desc:"电影调色方向：暗部偏青，肤色偏暖，立体感强。",
+            p:{ sat:.15, con:1.14, toneAmt:.5, toneShadowHue:"#2E6E7A", toneHighHue:"#D68A4A", grain:.03, vig:.4, bloom:.08, soft:0 } },
+    crt:  { cn:"显像管", en:"CRT", desc:"老电视的荧光感：颜色发亮、高光化开、边角发暗。",
+            p:{ sat:.24, con:1.12, toneAmt:.25, toneShadowHue:"#3C6E9E", toneHighHue:"#8FD8FF", grain:.05, vig:.42, bloom:.34, soft:.35 } },
+    vhs:  { cn:"录像带", en:"VHS", desc:"家用录像带：色彩溢出、轻微失焦、亮部发糊。",
+            p:{ sat:.42, con:.94, toneAmt:.3, toneShadowHue:"#B0527A", toneHighHue:"#FFB0C8", grain:.06, vig:.32, bloom:.28, soft:.75 } },
+    "8mm":{ cn:"八毫米", en:"8MM", desc:"老家庭录像的暖棕调，柔和、边缘压暗。",
+            p:{ sat:.28, con:1.1, toneAmt:.55, toneShadowHue:"#5A3A20", toneHighHue:"#D8A868", grain:.10, vig:.55, bloom:.18, soft:.25 } },
+    fade: { cn:"褪色", en:"FADE", desc:"放旧了的照片，颜色掉一半，黑位发灰。",
+            p:{ sat:-.3, con:.82, toneAmt:.3, toneShadowHue:"#8A7A62", toneHighHue:"#E8D8C0", grain:.06, vig:.2, bloom:.12, soft:0 } },
+    cool: { cn:"冷调", en:"COOL", desc:"偏蓝的清冷调子，深夜说话的感觉。",
+            p:{ sat:-.18, con:1.12, toneAmt:.4, toneShadowHue:"#2E4E8A", toneHighHue:"#7FA8E8", grain:.04, vig:.5, bloom:.1, soft:0 } },
+    bw:   { cn:"黑白", en:"B&W", desc:"高反差黑白，只剩表情和光线。",
+            p:{ sat:-1, con:1.32, toneAmt:0, toneShadowHue:"#3C6E9E", toneHighHue:"#E0A052", grain:.06, vig:.5, bloom:.1, soft:0 } },
+    silver:{cn:"银盐", en:"SILVER", desc:"柔一点的黑白，中灰厚，接近老照片，带一点暖色。",
+            p:{ sat:-1, con:1.1, toneAmt:.35, toneShadowHue:"#4A3A2E", toneHighHue:"#D8C09A", grain:.09, vig:.4, bloom:.16, soft:.2 } },
+    off:  { cn:"原图", en:"OFF", desc:"不叠任何风格，只用校正层的结果。",
+            p:{ sat:0, con:1, toneAmt:0, toneShadowHue:"#3C6E9E", toneHighHue:"#E0A052", grain:0, vig:0, bloom:0, soft:0 } }
+  };
 
   var WARP = [
     { k:"eye",cn:"大眼",tip:"以眼球为中心放大",min:0,max:1,step:.01,fmt:pc },
@@ -141,12 +146,17 @@
     recording:false, paused:false, takes:[], counter:0,
     startAt:0, elapsed:0, chunks:[], finalText:"", interimText:"",
     recog:null, recogWanted:false, altText:"", cueMarks:[], asrMarks:[], audioCtx:null, analyser:null, audioData:null,
-    raf:0, tick:0, thumb:null, stamp:"", fx:"kodak", dateOn:true, flip:false,
-    frame:0, custom:{}, recFx:"KODAK",
+    raf:0, tick:0, thumb:null, stamp:"", dateOn:true, flip:false,
+    frame:0, recFx:"",
+    correct: JSON.parse(JSON.stringify(CORRECT_DEFAULT)),
+    wbCal: { r:1, g:1, b:1 },
+    look: JSON.parse(JSON.stringify(LOOK_DEFAULT)),
+    looks: {}, curLookName:null, wbPicking:false,
+    colorOn:true, colorIntensity:100,
     skin: JSON.parse(JSON.stringify(SKIN_DEFAULT)),
-    warp: JSON.parse(JSON.stringify(WARP_DEFAULT)),
+    warp: JSON.parse(JSON.stringify(WARP_DEFAULT)), faceIntensity:100,
     rgn: rgnDefault(), rgnSel:"troughL",
-    mo:"off", moP: JSON.parse(JSON.stringify(MO_DEFAULT)),
+    mo:"off", moP: JSON.parse(JSON.stringify(MO_DEFAULT)), moLastStyle:"block",
     faceOn:true, editing:false, lm:null, sm:null, lmAt:0, faceState:"loading",
     cue: JSON.parse(JSON.stringify(CUE_DEFAULT)),
     sub: null,
@@ -176,6 +186,7 @@
     try { ctx.filter = "blur(1px)"; var ok = ctx.filter !== "none"; ctx.filter = "none"; return ok; }
     catch(e){ return false; }
   })();
+  var warnedNoGL = false;
 
   var grainTile = mkc(); grainTile.width = grainTile.height = 96;
   (function(){
@@ -265,29 +276,70 @@
       });
     }};
   }
-  function params(fx){
-    if (!S.custom[fx]) S.custom[fx] = JSON.parse(JSON.stringify(PRESETS[fx].p));
-    return S.custom[fx];
-  }
-  function cur(){ return params(S.fx); }
-
   var vigCache = null, vigKey = "";
-  var fxUI    = buildSliders($("sliders"),  SLIDERS,   cur, function(){ vigKey = ""; });
+  var correctUI = buildSliders($("correctBox"), CORRECT, function(){ return S.correct; }, function(){ vigKey = ""; });
+  var lookUI    = buildSliders($("lookBox"),    LOOK,    function(){ return S.look; },    function(){ vigKey = ""; });
   var warpUI  = buildSliders($("warpBox"),  WARP,      function(){ return S.warp; });
   var localUI = buildSliders($("localBox"), LOCAL,     function(){ return S.skin; });
   var skinUI  = buildSliders($("skinBox"),  SKIN,      function(){ return S.skin; });
   var moUI    = buildSliders($("mosliders"),MOSLIDERS, function(){ return S.moP; });
   var cueUI   = buildSliders($("cueBox"),   CUE_SLIDERS, function(){ return S.cue; }, function(){ renderCue(); });
 
-  Object.keys(PRESETS).forEach(function(k){
+  Object.keys(LOOKS).forEach(function(k){
     var b = document.createElement("button");
-    b.className = "chip"; b.type = "button"; b.dataset.fx = k; b.title = PRESETS[k].desc;
+    b.className = "chip"; b.type = "button"; b.dataset.look = k; b.title = LOOKS[k].desc;
     b.innerHTML = "<b></b><span></span>";
-    b.querySelector("b").textContent = PRESETS[k].cn;
-    b.querySelector("span").textContent = PRESETS[k].en;
-    b.onclick = function(){ setFx(k); };
-    $("chips").appendChild(b);
+    b.querySelector("b").textContent = LOOKS[k].cn;
+    b.querySelector("span").textContent = LOOKS[k].en;
+    b.onclick = function(){ applyStartLook(k); };
+    $("lookChips").appendChild(b);
   });
+  function mkToneSwatches(container, key){
+    TONE_HUES.forEach(function(c){
+      var b = document.createElement("button");
+      b.className = "swatch"; b.type = "button"; b.style.background = c; b.dataset.color = c;
+      b.setAttribute("aria-label","选这个染色");
+      b.onclick = function(){ S.look[key] = c; syncToneSwatches(); vigKey=""; save(); };
+      container.appendChild(b);
+    });
+  }
+  function syncToneSwatches(){
+    document.querySelectorAll("#toneShadowChips .swatch").forEach(function(o){
+      o.setAttribute("aria-pressed", o.dataset.color === S.look.toneShadowHue);
+    });
+    document.querySelectorAll("#toneHighChips .swatch").forEach(function(o){
+      o.setAttribute("aria-pressed", o.dataset.color === S.look.toneHighHue);
+    });
+  }
+  mkToneSwatches($("toneShadowChips"), "toneShadowHue");
+  mkToneSwatches($("toneHighChips"), "toneHighHue");
+  function renderMyLooks(){
+    var box = $("myLooksBox");
+    box.innerHTML = "";
+    var names = Object.keys(S.looks);
+    if (!names.length){
+      var p = document.createElement("p");
+      p.className = "desc"; p.textContent = "还没有存过预设。调好风格后点下面「存成我的预设」，下次打开自动用最近用的这一份。";
+      box.appendChild(p);
+      return;
+    }
+    names.forEach(function(name){
+      var row = document.createElement("div");
+      row.style.cssText = "display:flex;align-items:center;gap:6px;margin-bottom:6px";
+      var nameEl = document.createElement("span");
+      nameEl.style.cssText = "flex:1;min-width:0;font-size:var(--fs);overflow:hidden;text-overflow:ellipsis;white-space:nowrap;color:"
+        + (name === S.curLookName ? "var(--ink)" : "var(--ink-soft)");
+      nameEl.textContent = (name === S.curLookName ? "▶ " : "") + name;
+      var useBtn = document.createElement("button");
+      useBtn.className = "key"; useBtn.type = "button"; useBtn.style.cssText = "font-size:11px;padding:5px 8px";
+      useBtn.textContent = "用它"; useBtn.onclick = function(){ applyMyLook(name); };
+      var delBtn = document.createElement("button");
+      delBtn.className = "key"; delBtn.type = "button"; delBtn.style.cssText = "font-size:11px;padding:5px 8px";
+      delBtn.textContent = "删除"; delBtn.onclick = function(){ deleteMyLook(name); };
+      row.appendChild(nameEl); row.appendChild(useBtn); row.appendChild(delBtn);
+      box.appendChild(row);
+    });
+  }
   Object.keys(MOSAIC).forEach(function(k){
     var b = document.createElement("button");
     b.className = "chip"; b.type = "button"; b.dataset.mo = k; b.title = MOSAIC[k].desc;
@@ -318,27 +370,102 @@
     $("cueColors").appendChild(b);
   });
 
-  function setFx(v){
-    S.fx = v;
-    document.querySelectorAll("#chips .chip").forEach(function(b){ b.setAttribute("aria-pressed", b.dataset.fx === v); });
-    $("fxdesc").textContent = PRESETS[v].desc;
-    params(v); fxUI.sync(); vigKey = ""; save();
+  function applyStartLook(k){
+    if (!LOOKS[k]) return;
+    S.look = JSON.parse(JSON.stringify(LOOKS[k].p));
+    S.curLookName = null;
+    lookUI.sync(); syncToneSwatches(); renderMyLooks(); vigKey = ""; save();
+  }
+  function applyMyLook(name){
+    if (!S.looks[name]) return;
+    S.look = JSON.parse(JSON.stringify(S.looks[name]));
+    S.curLookName = name;
+    lookUI.sync(); syncToneSwatches(); renderMyLooks(); vigKey = ""; save();
+  }
+  function deleteMyLook(name){
+    if (!S.looks[name]) return;
+    if (!window.confirm("删除预设「" + name + "」？")) return;
+    delete S.looks[name];
+    if (S.curLookName === name) S.curLookName = null;
+    renderMyLooks(); save();
+  }
+  function updateWbStatus(){
+    var el = $("wbStatus");
+    if (!el) return;
+    var neutral = Math.abs(S.wbCal.r-1)<.01 && Math.abs(S.wbCal.g-1)<.01 && Math.abs(S.wbCal.b-1)<.01;
+    el.className = "status" + (neutral ? "" : " ok");
+    el.textContent = neutral ? "还没有针对这台摄像头校准过白平衡。" : "已针对这台摄像头校准过白平衡（R×"+S.wbCal.r.toFixed(2)+" G×"+S.wbCal.g.toFixed(2)+" B×"+S.wbCal.b.toFixed(2)+"）。";
   }
   function setMo(v){
     S.mo = v;
+    if (v !== "off") S.moLastStyle = v;
     document.querySelectorAll("#mochips .chip").forEach(function(b){ b.setAttribute("aria-pressed", b.dataset.mo === v); });
     $("modesc").textContent = MOSAIC[v].desc;
     save();
+  }
+  function toggleMosaicMaster(){
+    setMo(S.mo === "off" ? (S.moLastStyle || "block") : "off");
   }
   function setRgn(v){
     S.rgnSel = v;
     document.querySelectorAll("#rgnChips .chip").forEach(function(b){ b.setAttribute("aria-pressed", b.dataset.rgn === v); });
     $("editTip").textContent = "正在调整「" + RGN_LABEL[v] + "」。拖两端圆点定起止和倾斜，白点整体移动，方块调粗细。";
   }
-  $("btnResetFx").onclick = function(){
-    S.custom[S.fx] = JSON.parse(JSON.stringify(PRESETS[S.fx].p));
-    fxUI.sync(); vigKey = ""; save();
+  $("btnResetCorrect").onclick = function(){
+    S.correct = JSON.parse(JSON.stringify(CORRECT_DEFAULT));
+    S.wbCal = { r:1, g:1, b:1 };
+    correctUI.sync(); updateWbStatus(); vigKey = ""; save();
   };
+  $("btnResetLook").onclick = function(){
+    S.look = JSON.parse(JSON.stringify(LOOK_DEFAULT));
+    S.curLookName = null;
+    lookUI.sync(); syncToneSwatches(); renderMyLooks(); vigKey = ""; save();
+  };
+  $("btnSaveLook").onclick = function(){
+    var name = window.prompt("给这份风格起个名字（会存进「我的预设」）：", S.curLookName || "");
+    if (!name) return;
+    S.looks[name] = JSON.parse(JSON.stringify(S.look));
+    S.curLookName = name;
+    renderMyLooks(); save();
+  };
+  var wbc = mkc(), wbx = wbc.getContext("2d", { willReadFrequently:true });
+  $("btnWbPick").onclick = function(){
+    if (S.wbPicking){ S.wbPicking = false; stage.style.cursor = ""; warn(""); return; }
+    if (!S.stream || !cv.width){ warn("先开启画面再校准白平衡。"); return; }
+    S.wbPicking = true;
+    stage.style.cursor = "crosshair";
+    warn("点画面里一处应该是白色或灰色的地方（比如墙面、纸、衣服）。再点一次这个按钮可以取消。");
+  };
+  stage.addEventListener("click", function(e){
+    if (!S.wbPicking) return;
+    S.wbPicking = false; stage.style.cursor = "";
+    if (!preview.videoWidth || !cv.width){ warn(""); return; }
+    var rect = cv.getBoundingClientRect();
+    var x = Math.round((e.clientX-rect.left)/rect.width*cv.width);
+    var y = Math.round((e.clientY-rect.top)/rect.height*cv.height);
+    x = Math.max(0, Math.min(cv.width-1, x));
+    y = Math.max(0, Math.min(cv.height-1, y));
+    if (wbc.width !== cv.width || wbc.height !== cv.height){ wbc.width = cv.width; wbc.height = cv.height; }
+    wbx.setTransform(1,0,0,1,0,0);
+    wbx.save();
+    if (S.flip){ wbx.translate(cv.width,0); wbx.scale(-1,1); }
+    wbx.drawImage(preview,0,0,cv.width,cv.height);
+    wbx.restore();
+    var d;
+    try { d = wbx.getImageData(x,y,1,1).data; }
+    catch(e2){ warn("这个浏览器不允许读取画面颜色，白平衡校准用不了，手动拖上面的色温色调滑块吧。"); return; }
+    var r = d[0]/255, g = d[1]/255, b = d[2]/255;
+    if (r<0.02 && g<0.02 && b<0.02){ warn("这一点太暗，读不准颜色，换个亮一点、接近白色或灰色的地方再点一次。"); return; }
+    var gray = (r+g+b)/3;
+    S.wbCal = {
+      r: Math.max(.5, Math.min(2, gray/Math.max(.02,r))),
+      g: Math.max(.5, Math.min(2, gray/Math.max(.02,g))),
+      b: Math.max(.5, Math.min(2, gray/Math.max(.02,b)))
+    };
+    updateWbStatus();
+    warn("已校准这台摄像头的白平衡。效果不满意可以重新点，或者用上面的色温、色调再微调。");
+    save();
+  });
   $("btnResetSkin").onclick = function(){
     S.skin = JSON.parse(JSON.stringify(SKIN_DEFAULT));
     S.warp = JSON.parse(JSON.stringify(WARP_DEFAULT));
@@ -351,16 +478,66 @@
   };
   $("btnResetRgn").onclick = function(){ S.rgn = rgnDefault(); save(); };
 
-  var tabs = [["tabCue","paneCue"],["tabSkin","paneSkin"],["tabFx","paneFx"],["tabMo","paneMo"]];
-  tabs.forEach(function(t){
+  ["tabCue","tabSkin","tabFx","tabMo"].forEach(function(id){
+    var paneId = "pane" + id.slice(3);
+    $(id).setAttribute("aria-expanded","false");
+    $(id).onclick = function(){
+      var open = $(paneId).hidden;
+      $(paneId).hidden = !open;
+      $(id).setAttribute("aria-expanded", open);
+    };
+  });
+  var subtabs = [["subCorrect","paneCorrect"],["subLook","paneLook"]];
+  subtabs.forEach(function(t){
     $(t[0]).onclick = function(){
-      tabs.forEach(function(o){
+      subtabs.forEach(function(o){
         var on = o[0] === t[0];
         $(o[0]).setAttribute("aria-selected", on);
         $(o[1]).hidden = !on;
       });
     };
   });
+  $("btnHelp").onclick = function(){ $("helpDrawer").hidden = false; };
+  $("btnHelpClose").onclick = function(){ $("helpDrawer").hidden = true; };
+  $("helpDrawer").addEventListener("click", function(e){
+    if (e.target === $("helpDrawer")) $("helpDrawer").hidden = true;
+  });
+
+  /* ============ 四个分类卡片的总开关 + 总强度（折叠时只看这两样，
+     展开才看到完整的细滑块） ============ */
+  function wireMacroSlider(inputId, get, set, onChange){
+    var el = $(inputId);
+    el.addEventListener("input", function(){
+      set(parseFloat(el.value));
+      if (onChange) onChange();
+      save();
+    });
+    return { sync:function(){ el.value = get(); } };
+  }
+  function toggleColor(){
+    S.colorOn = !S.colorOn;
+    $("toggleColor").setAttribute("aria-pressed", S.colorOn);
+    vigKey = ""; save();
+  }
+  $("toggleColor").onclick = toggleColor;
+  $("toggleMosaic").onclick = toggleMosaicMaster;
+  var cueMacro = wireMacroSlider("cueOpacityMacro",
+    function(){ return Math.round(S.cue.opacity*100); },
+    function(v){ S.cue.opacity = v/100; cueUI.sync(); renderCue(); });
+  var faceMacro = wireMacroSlider("faceIntensityMacro",
+    function(){ return S.faceIntensity; },
+    function(v){ S.faceIntensity = v; });
+  var colorMacro = wireMacroSlider("colorIntensityMacro",
+    function(){ return S.colorIntensity; },
+    function(v){ S.colorIntensity = v; vigKey = ""; });
+  var mosaicMacro = wireMacroSlider("mosaicAmountMacro",
+    function(){ return Math.round(S.moP.amount*100); },
+    function(v){ S.moP.amount = v/100; moUI.sync(); });
+  function syncMacros(){
+    cueMacro.sync(); faceMacro.sync(); colorMacro.sync(); mosaicMacro.sync();
+    $("toggleColor").setAttribute("aria-pressed", S.colorOn !== false);
+    $("toggleMosaic").setAttribute("aria-pressed", S.mo !== "off");
+  }
 
   /* ================== 提词器 ================== */
   function splitCue(raw){
@@ -649,6 +826,43 @@
     "uniform vec2 uYr;",      // 轮廓采样的 y 范围
     "uniform float uCx[16];", // 每一层的脸中轴
     "uniform float uHw[16];", // 每一层的半宽
+    "uniform vec3 uWbGain,uToneShadowColor,uToneHighColor;",
+    "uniform float uExposure,uShadows,uHighlights,uSat,uToneAmt,uSharpen,uLookCon,uGradeAmt;",
+    "uniform vec2 uTexel;",
+    "vec3 grade(vec2 uvf){",
+    " vec3 raw=texture2D(uTex,uvf).rgb;",
+    " vec3 col=raw;",
+    " if(uSharpen>0.0){",
+    "  vec3 sum=texture2D(uTex,clamp(uvf+vec2(uTexel.x,0.0),0.001,0.999)).rgb",
+    "   +texture2D(uTex,clamp(uvf-vec2(uTexel.x,0.0),0.001,0.999)).rgb",
+    "   +texture2D(uTex,clamp(uvf+vec2(0.0,uTexel.y),0.001,0.999)).rgb",
+    "   +texture2D(uTex,clamp(uvf-vec2(0.0,uTexel.y),0.001,0.999)).rgb;",
+    "  vec3 blur=sum*0.25;",
+    "  col=col+(col-blur)*uSharpen*1.6;",
+    " }",
+    " col*=uWbGain;",
+    " col*=exp2(uExposure);",
+    " float luma=dot(col,vec3(0.299,0.587,0.114));",
+    " float sMask=1.0-smoothstep(0.0,0.55,luma);",
+    " float hMask=smoothstep(0.45,1.0,luma);",
+    " col+=vec3(uShadows)*0.5*sMask;",
+    " col+=vec3(uHighlights)*0.5*hMask;",
+    " col=(col-0.5)*uLookCon+0.5;",
+    " float mx=max(col.r,max(col.g,col.b));",
+    " float mn=min(col.r,min(col.g,col.b));",
+    " float chroma=mx-mn;",
+    " float gray=dot(col,vec3(0.299,0.587,0.114));",
+    " if(uSat>=0.0){ float amt=uSat*(1.0-chroma)*1.2; col=mix(vec3(gray),col,1.0+amt); }",
+    " else { col=mix(col,vec3(gray),-uSat); }",
+    " if(uToneAmt>0.0){",
+    "  float g2=dot(col,vec3(0.299,0.587,0.114));",
+    "  float sm=1.0-smoothstep(0.0,0.6,g2), hm=smoothstep(0.4,1.0,g2);",
+    "  col+=(uToneShadowColor-vec3(0.5))*sm*uToneAmt*0.5;",
+    "  col+=(uToneHighColor-vec3(0.5))*hm*uToneAmt*0.5;",
+    " }",
+    " col=mix(raw,col,uGradeAmt);",
+    " return clamp(col,0.0,1.0);",
+    "}",
     "vec2 contour(float y){",
     " float t=clamp((y-uYr.x)/max(1e-5,uYr.y-uYr.x),0.0,1.0)*15.0;",
     " vec2 r=vec2(uCx[15],uHw[15]);",
@@ -697,7 +911,7 @@
     " uv=sc(uv,uEyeL,uR.x,uA.x); uv=sc(uv,uEyeR,uR.x,uA.x);",
     " uv=sc(uv,uNose,uR.y,uA.y); uv=sc(uv,uMouth,uR.z,uA.z);",
     " uv=ps(uv,uBrowL,uInL,uRBrow,uABrow); uv=ps(uv,uBrowR,uInR,uRBrow,uABrow);",
-    " gl_FragColor=texture2D(uTex,clamp(uv,0.001,0.999));}"
+    " gl_FragColor=vec4(grade(clamp(uv,0.001,0.999)),1.0);}"
   ].join("\n");
 
   function initGL(){
@@ -728,7 +942,9 @@
       gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR);
       gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.LINEAR);
       ["uTex","uAspect","uFlip","uEyeL","uEyeR","uNose","uMouth",
-       "uInL","uInR","uBrowL","uBrowR","uR","uA","uSlim","uChinP","uYr","uRBrow","uABrow"]
+       "uInL","uInR","uBrowL","uBrowR","uR","uA","uSlim","uChinP","uYr","uRBrow","uABrow",
+       "uWbGain","uExposure","uShadows","uHighlights","uSat","uToneAmt",
+       "uToneShadowColor","uToneHighColor","uSharpen","uTexel","uLookCon","uGradeAmt"]
         .forEach(function(n){ glU[n] = gl.getUniformLocation(glProg,n); });
       glU.uCx = gl.getUniformLocation(glProg,"uCx[0]");
       glU.uHw = gl.getUniformLocation(glProg,"uHw[0]");
@@ -780,7 +996,29 @@
     gl.uniform1f(glU.uAspect, aspect);
     gl.uniform1f(glU.uFlip, S.flip ? 1 : 0);
 
-    var w = S.warp, has = S.lm && S.faceOn;
+    var co = S.correct, lk = S.look, cal = S.wbCal;
+    var temp = co.wbTemp, tint = co.wbTint;
+    gl.uniform3f(glU.uWbGain,
+      cal.r * (1 + temp*0.35 + tint*0.15),
+      cal.g * (1 - tint*0.30),
+      cal.b * (1 - temp*0.35 + tint*0.15));
+    gl.uniform1f(glU.uExposure, co.exposure);
+    gl.uniform1f(glU.uShadows, co.shadows);
+    gl.uniform1f(glU.uHighlights, co.highlights);
+    gl.uniform1f(glU.uSharpen, co.sharpen);
+    gl.uniform1f(glU.uSat, lk.sat);
+    gl.uniform1f(glU.uLookCon, lk.con);
+    var gAmt = S.colorOn===false ? 0 : (S.colorIntensity===undefined?100:S.colorIntensity)/100;
+    gl.uniform1f(glU.uGradeAmt, gAmt);
+    gl.uniform1f(glU.uToneAmt, lk.toneAmt);
+    var tS = hexRgb(lk.toneShadowHue), tH = hexRgb(lk.toneHighHue);
+    gl.uniform3f(glU.uToneShadowColor, tS[0]/255, tS[1]/255, tS[2]/255);
+    gl.uniform3f(glU.uToneHighColor, tH[0]/255, tH[1]/255, tH[2]/255);
+    gl.uniform2f(glU.uTexel, 1/W, 1/H);
+
+    var fi = (S.faceIntensity===undefined?100:S.faceIntensity)/100;
+    var w0 = S.warp, has = S.lm && S.faceOn;
+    var w = { eye:w0.eye*fi, nose:w0.nose*fi, mouth:w0.mouth*fi, slim:w0.slim*fi, chin:w0.chin*fi, brow:w0.brow*fi };
     var zero = [0,0,0,0];
     if (!has || (!w.eye && !w.nose && !w.mouth && !w.slim && !w.chin && !w.brow)){
       ["uEyeL","uEyeR","uNose","uMouth","uInL","uInR","uBrowL","uBrowR"]
@@ -1143,7 +1381,11 @@
   }
 
   function retouch(W,H){
-    var s = S.skin;
+    var fi = (S.faceIntensity===undefined?100:S.faceIntensity)/100;
+    var s0 = S.skin, s = {};
+    ["trough","fold","eyeLight","lipBoost","teeth","smooth","detail","even","warm","lift","glow"]
+      .forEach(function(k){ s[k] = s0[k]*fi; });
+    s.range = s0.range; s.feather = s0.feather;
     var any = s.trough||s.fold||s.eyeLight||s.lipBoost||s.teeth||s.smooth||s.even||s.warm||s.lift||s.glow;
     if (!any || !FILTER_OK) return;
     ensureWork(W,H);
@@ -1275,12 +1517,12 @@
   }
 
   /* ================== 主循环 ================== */
-  function vignette(w,h,strength,cold,warm){
-    var key = w+"x"+h+":"+strength+":"+(cold||0)+":"+(warm||0);
+  function vignette(w,h,strength){
+    var key = w+"x"+h+":"+strength;
     if (key === vigKey && vigCache) return vigCache;
     var g = ctx.createRadialGradient(w/2,h/2,Math.min(w,h)*0.25,w/2,h/2,Math.max(w,h)*0.72);
     g.addColorStop(0,"rgba(0,0,0,0)");
-    g.addColorStop(1, warm?"rgba(50,18,0,"+strength+")":cold?"rgba(0,8,32,"+strength+")":"rgba(0,0,0,"+strength+")");
+    g.addColorStop(1,"rgba(0,0,0,"+strength+")");
     vigCache = g; vigKey = key;
     return g;
   }
@@ -1297,18 +1539,27 @@
       stage.style.aspectRatio = W + " / " + H;
       renderCue();
     }
-    var def = PRESETS[S.fx], p = cur();
+    var lk = S.look;
+    var gAmt = S.colorOn===false ? 0 : (S.colorIntensity===undefined?100:S.colorIntensity)/100;
+    var soft = lk.soft*gAmt, grain = lk.grain*gAmt, vig = lk.vig*gAmt, bloomAmt = (lk.bloom||0)*gAmt;
     var src = renderWarp(W,H);
+    if (!src && !warnedNoGL){
+      warnedNoGL = true;
+      warn("这个浏览器不支持完整调色（需要 WebGL），只能用最基础的亮度效果，五官微调也用不了。建议用新版 Chrome 或 Edge 打开。");
+    }
 
     ctx.setTransform(1,0,0,1,0,0);
     ctx.globalAlpha = 1; ctx.globalCompositeOperation = "source-over";
-    if (FILTER_OK){
-      ctx.filter = "brightness("+p.bri+") contrast("+p.con+") saturate("+p.sat+
-                   ") hue-rotate("+p.hue+"deg) sepia("+p.sep+") grayscale("+p.gry+
-                   ") blur("+p.blr+"px)";
-    }
+    if (FILTER_OK && soft > 0) ctx.filter = "blur(" + soft + "px)";
     if (src){ ctx.drawImage(src,0,0,W,H); }
     else {
+      /* 没有 WebGL 时的兜底：只做曝光和饱和度的粗略近似 */
+      if (FILTER_OK){
+        var expPct = Math.round((Math.pow(2,S.correct.exposure*gAmt))*100);
+        var satPct = Math.round((1+S.look.sat*gAmt)*100);
+        var conPct = Math.round((1+(lk.con-1)*gAmt)*100);
+        ctx.filter = (soft>0?"blur("+soft+"px) ":"") + "brightness("+expPct+"%) contrast("+conPct+"%) saturate("+Math.max(0,satPct)+"%)";
+      }
       ctx.save();
       if (S.flip){ ctx.translate(W,0); ctx.scale(-1,1); }
       ctx.drawImage(preview,0,0,W,H);
@@ -1316,27 +1567,13 @@
     }
     if (FILTER_OK) ctx.filter = "none";
 
-    if (p.tint > 0 && def.tintColor){
-      var rgb = hexRgb(def.tintColor);
-      ctx.globalCompositeOperation = "overlay";
-      ctx.globalAlpha = p.tint;
-      ctx.fillStyle = "rgb("+rgb[0]+","+rgb[1]+","+rgb[2]+")";
-      ctx.fillRect(0,0,W,H);
-      ctx.globalCompositeOperation = "source-over"; ctx.globalAlpha = 1;
-    }
-
     retouch(W,H);
-    bloom(W,H,p.bloom||0);
+    bloom(W,H,bloomAmt);
     mosaic(W,H);
 
-    if (p.scan > 0){
-      ctx.fillStyle = "rgba(0,0,0,"+p.scan+")";
-      var step = Math.max(3, Math.round(H/240));
-      for (var y=0;y<H;y+=step){ ctx.fillRect(0,y,W,1); }
-    }
-    if (p.grain > 0 && grainPat){
+    if (grain > 0 && grainPat){
       ctx.globalCompositeOperation = "overlay";
-      ctx.globalAlpha = p.grain;
+      ctx.globalAlpha = grain;
       ctx.save();
       ctx.translate(-Math.random()*96,-Math.random()*96);
       ctx.fillStyle = grainPat;
@@ -1344,7 +1581,7 @@
       ctx.restore();
       ctx.globalCompositeOperation = "source-over"; ctx.globalAlpha = 1;
     }
-    if (p.vig > 0){ ctx.fillStyle = vignette(W,H,p.vig,def.cold,def.warm); ctx.fillRect(0,0,W,H); }
+    if (vig > 0){ ctx.fillStyle = vignette(W,H,vig); ctx.fillRect(0,0,W,H); }
     if (S.dateOn){
       var size = Math.round(H*0.055);
       ctx.font = size + 'px "VT323", monospace';
@@ -1372,7 +1609,7 @@
     for (var i=0;i<bars.length;i++){
       var v = S.audioData[i*3] || 0;
       bars[i].style.height = (2 + Math.round(v/255*14)) + "px";
-      bars[i].style.background = v > 190 ? "#FF6A5E" : (v > 60 ? "#FF8A1E" : "#8FA07F");
+      bars[i].style.background = v > 190 ? "#E4392F" : (v > 60 ? "#FF8A1E" : "#6BCB4E");
     }
   }
 
@@ -1637,7 +1874,7 @@
     S.recorder.start(1000);
     S.recording = true; S.paused = false;
     S.startAt = Date.now(); S.elapsed = 0;
-    S.recFx = PRESETS[S.fx].en + (S.mo !== "off" ? "+" + MOSAIC[S.mo].en : "");
+    S.recFx = (S.curLookName || "") + (S.mo !== "off" ? (S.curLookName ? "+" : "") + MOSAIC[S.mo].en : "");
     S.thumb = grabThumb();
     S.cueIdx = 0; syncPtr(); renderCue();
     btnRec.innerHTML = '<span class="en">STOP</span>结束这一段';
@@ -2978,10 +3215,12 @@
   };
   function settingsOnly(){
     return {
-      v:1,
-      lang:S.lang, fx:S.fx, dateOn:S.dateOn, flip:S.flip,
-      custom:S.custom, skin:S.skin, warp:S.warp, rgn:S.rgn,
-      mo:S.mo, moP:S.moP, faceOn:S.faceOn,
+      v:3,
+      lang:S.lang, dateOn:S.dateOn, flip:S.flip,
+      correct:S.correct, wbCal:S.wbCal, look:S.look, looks:S.looks, curLookName:S.curLookName,
+      colorOn:S.colorOn, colorIntensity:S.colorIntensity,
+      skin:S.skin, warp:S.warp, rgn:S.rgn, faceIntensity:S.faceIntensity,
+      mo:S.mo, moP:S.moP, moLastStyle:S.moLastStyle, faceOn:S.faceOn,
       cue:S.cue, cueColor:S.cueColor, cueAlign:S.cueAlign, cuePos:S.cuePos,
       cueRaw:S.cueRaw, cueAuto:S.cueAuto, cueOn:S.cueOn, sub:S.sub
     };
@@ -3017,11 +3256,19 @@
   }
   function applySettings(p){
     if (!p) return;
-    if (p.custom) S.custom = p.custom;
+    if (p.correct){ Object.keys(CORRECT_DEFAULT).forEach(function(k){ if (p.correct[k]!==undefined) S.correct[k]=p.correct[k]; }); }
+    if (p.wbCal && typeof p.wbCal.r==="number"){ S.wbCal = p.wbCal; }
+    if (p.look){ Object.keys(LOOK_DEFAULT).forEach(function(k){ if (p.look[k]!==undefined) S.look[k]=p.look[k]; }); }
+    if (p.looks) S.looks = p.looks;
+    if (p.curLookName) S.curLookName = p.curLookName;
+    if (p.colorOn === false) S.colorOn = false;
+    if (typeof p.colorIntensity === "number") S.colorIntensity = p.colorIntensity;
     if (p.skin){ Object.keys(SKIN_DEFAULT).forEach(function(k){ if (p.skin[k]!==undefined) S.skin[k]=p.skin[k]; }); }
     if (p.warp){ Object.keys(WARP_DEFAULT).forEach(function(k){ if (p.warp[k]!==undefined) S.warp[k]=p.warp[k]; }); }
+    if (typeof p.faceIntensity === "number") S.faceIntensity = p.faceIntensity;
     if (p.rgn){ RGN_KEYS.forEach(function(k){ if (p.rgn[k]) S.rgn[k]=p.rgn[k]; }); }
     if (p.moP){ Object.keys(MO_DEFAULT).forEach(function(k){ if (p.moP[k]!==undefined) S.moP[k]=p.moP[k]; }); }
+    if (p.moLastStyle && MOSAIC[p.moLastStyle]) S.moLastStyle = p.moLastStyle;
     if (p.cue){ Object.keys(CUE_DEFAULT).forEach(function(k){ if (p.cue[k]!==undefined) S.cue[k]=p.cue[k]; }); }
     if (p.cueColor) S.cueColor = p.cueColor;
     if (p.cueAlign) S.cueAlign = p.cueAlign;
@@ -3034,19 +3281,24 @@
     if (p.dateOn === false){ S.dateOn = false; $("toggleDate").setAttribute("aria-pressed","false"); }
     if (p.flip === true){ S.flip = true; $("toggleFlip").setAttribute("aria-pressed","true"); }
     if (p.faceOn === false){ S.faceOn = false; $("toggleFace").setAttribute("aria-pressed","false"); }
-    setFx(p.fx && PRESETS[p.fx] ? p.fx : S.fx);
+    correctUI.sync(); updateWbStatus();
+    lookUI.sync(); syncToneSwatches(); renderMyLooks(); vigKey = "";
     setMo(p.mo && MOSAIC[p.mo] ? p.mo : S.mo);
-    document.querySelectorAll(".swatch").forEach(function(o,i){
+    document.querySelectorAll("#cueColors .swatch").forEach(function(o,i){
       o.setAttribute("aria-pressed", CUE_COLORS[i] === S.cueColor);
     });
     $("cueAlignL").setAttribute("aria-pressed", S.cueAlign==="left");
     $("cueAlignC").setAttribute("aria-pressed", S.cueAlign==="center");
     warpUI.sync(); localUI.sync(); skinUI.sync(); moUI.sync(); cueUI.sync();
+    syncMacros();
     syncPtr(); renderCue(); cueHint();
   }
   function load(){
-    setFx(S.fx); setMo(S.mo); setRgn(S.rgnSel);
+    correctUI.sync(); updateWbStatus();
+    lookUI.sync(); syncToneSwatches(); renderMyLooks();
+    setMo(S.mo); setRgn(S.rgnSel);
     warpUI.sync(); localUI.sync(); skinUI.sync(); moUI.sync(); cueUI.sync();
+    syncMacros();
     buildCueIndex(); renderCue(); cueHint();
     Store.get(SKEY).then(function(res){
       if (!res || !res.value){ render(); return; }

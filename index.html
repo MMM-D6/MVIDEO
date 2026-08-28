@@ -17,6 +17,7 @@
       <span class="mark">DV-8</span>
       <span class="cn-title">分段录制台</span>
       <span class="date" id="today"></span>
+      <button class="help-fab" id="btnHelp" type="button" aria-haspopup="dialog" aria-label="使用说明和须知">?</button>
     </div>
     <p class="steps">选画面来源 → 开启画面 → 按红色按钮录一段 → 不满意就重录。参数都在右边，调的时候不会挡住主屏。</p>
     <div class="rowset">
@@ -40,7 +41,6 @@
       <div class="group">
         <label>屏幕显示</label>
         <div class="seg">
-          <button id="togglePrompt" aria-pressed="true">提词条</button>
           <button id="toggleDate" aria-pressed="true">日期烙印</button>
           <button id="toggleFlip" aria-pressed="false">左右翻转</button>
         </div>
@@ -91,92 +91,152 @@
         <b>TAPE EMPTY</b>
         还没有片段。第一条通常会僵，很正常，先录三十秒再决定留不留。
       </div>
-
-      <p class="note">
-        主屏比例跟着画面走，看到的每一个像素都跟导出文件一致，不裁切。<br>
-        五官微调、面部修饰、滤镜、马赛克、日期烙印会烧进文件；提词条、红点、时码、音量条、编辑手柄只在屏幕上，不会录进去。<br>
-        美颜、滤镜、纹路位置和提词设置会存在这台电脑的浏览器里，下次打开自动恢复；换电脑用底部的导出设置。<br>
-        选好保存文件夹之后，所有片段和文字都会直接写进那个文件夹，下次打开还是它。<br>
-        视频只存在这次会话里，关掉页面就没了，录完记得保存。
-      </p>
     </main>
 
     <aside class="side">
-      <div class="tabs" role="tablist">
-        <button class="tab" id="tabCue" role="tab" aria-selected="true">提词</button>
-        <button class="tab" id="tabSkin" role="tab" aria-selected="false">面部</button>
-        <button class="tab" id="tabFx" role="tab" aria-selected="false">滤镜</button>
-        <button class="tab" id="tabMo" role="tab" aria-selected="false">马赛克</button>
-      </div>
 
-      <div class="pane" id="paneCue" role="tabpanel">
-        <div class="subhead first">稿子（一行一句，空行分段）</div>
-        <textarea class="cueText" id="cueText" placeholder="一行写一句话。&#10;录的时候它会跟着你讲到哪句自动往下走。&#10;讲错了没关系，这条不要就重录。"></textarea>
-        <div class="btnrow">
-          <button class="key" id="cuePrev">上一句</button>
-          <button class="key" id="cueNext">下一句</button>
-          <button class="key" id="cueTop">回到开头</button>
+      <div class="cat-card">
+        <div class="cat-head">
+          <span class="cat-label">提词</span>
+          <button class="toggle" id="togglePrompt" aria-pressed="true" aria-label="提词条开关"></button>
+          <input type="range" class="macro" id="cueOpacityMacro" min="20" max="100" step="1" aria-label="提词条总强度">
+          <button class="cat-exp" id="tabCue" aria-expanded="false" aria-controls="paneCue" aria-label="展开提词详细设置"><span class="chev">⌄</span></button>
         </div>
+        <div class="cat-body" id="paneCue" hidden>
+          <div class="subhead first">稿子（一行一句，空行分段）</div>
+          <textarea class="cueText" id="cueText" placeholder="一行写一句话。&#10;录的时候它会跟着你讲到哪句自动往下走。&#10;讲错了没关系，这条不要就重录。"></textarea>
+          <div class="btnrow">
+            <button class="key" id="cuePrev">上一句</button>
+            <button class="key" id="cueNext">下一句</button>
+            <button class="key" id="cueTop">回到开头</button>
+          </div>
 
-        <div class="subhead">跟读</div>
-        <div class="seg">
-          <button id="cueAuto" aria-pressed="true">自动跟读</button>
-          <button id="cueRehearse" aria-pressed="false">排练监听</button>
-        </div>
-        <p class="desc" id="cueStat">自动跟读靠语音识别判断你讲到哪句。录制时自动生效；不录制想练习就开排练监听。</p>
+          <div class="subhead">跟读</div>
+          <div class="seg">
+            <button id="cueAuto" aria-pressed="true">自动跟读</button>
+            <button id="cueRehearse" aria-pressed="false">排练监听</button>
+          </div>
+          <p class="desc" id="cueStat">自动跟读靠语音识别判断你讲到哪句。录制时自动生效；不录制想练习就开排练监听。</p>
 
-        <div class="subhead">位置和外观</div>
-        <div class="seg" style="margin-bottom:9px">
-          <button id="cuePosTop">贴顶</button>
-          <button id="cuePosMid">居中</button>
-          <button id="cuePosBot">贴底</button>
-        </div>
-        <div class="seg" style="margin-bottom:9px">
-          <button id="cueAlignL">左对齐</button>
-          <button id="cueAlignC" aria-pressed="true">居中</button>
-        </div>
-        <div style="display:flex;gap:6px;margin-bottom:10px" id="cueColors"></div>
-        <div class="sliders" id="cueBox"></div>
-        <p class="desc">在画面上直接拖提词条就能换位置。字号、透明度、行数、背景都在上面调。</p>
-      </div>
-
-      <div class="pane" id="paneSkin" role="tabpanel" hidden>
-        <div class="status" id="faceStatus">面部追踪：正在加载模型</div>
-        <div class="seg" style="margin-bottom:4px">
-          <button id="toggleFace" aria-pressed="true">面捕</button>
-          <button id="toggleEdit" aria-pressed="false">调整纹路</button>
-        </div>
-        <div class="chips" id="rgnChips" style="margin-top:8px"></div>
-
-        <div class="subhead">五官微调</div>
-        <div class="sliders" id="warpBox"></div>
-
-        <div class="subhead">局部修饰</div>
-        <div class="sliders" id="localBox"></div>
-
-        <div class="subhead">整脸质感</div>
-        <div class="sliders" id="skinBox"></div>
-
-        <div class="btnrow">
-          <button class="key" id="btnResetSkin">恢复默认</button>
-          <button class="key" id="btnZeroSkin">全部归零</button>
-          <button class="key" id="btnResetRgn">重置纹路</button>
+          <div class="subhead">位置和外观</div>
+          <div class="seg" style="margin-bottom:9px">
+            <button id="cuePosTop">贴顶</button>
+            <button id="cuePosMid">居中</button>
+            <button id="cuePosBot">贴底</button>
+          </div>
+          <div class="seg" style="margin-bottom:9px">
+            <button id="cueAlignL">左对齐</button>
+            <button id="cueAlignC" aria-pressed="true">居中</button>
+          </div>
+          <div style="display:flex;gap:6px;margin-bottom:10px" id="cueColors"></div>
+          <div class="sliders" id="cueBox"></div>
+          <p class="desc">在画面上直接拖提词条就能换位置。字号、透明度、行数、背景都在上面调；上面的总强度滑块调的是提词条整体透明度。</p>
         </div>
       </div>
 
-      <div class="pane" id="paneFx" role="tabpanel" hidden>
-        <div class="chips" id="chips"></div>
-        <p class="desc" id="fxdesc"></p>
-        <div class="sliders" id="sliders" style="margin-top:11px;padding-top:11px;border-top:1px solid #8C8981"></div>
-        <div class="btnrow"><button class="key" id="btnResetFx">恢复这个滤镜的默认</button></div>
+      <div class="cat-card">
+        <div class="cat-head">
+          <span class="cat-label">面部</span>
+          <button class="toggle" id="toggleFace" aria-pressed="true" aria-label="面部效果开关"></button>
+          <input type="range" class="macro" id="faceIntensityMacro" min="0" max="100" step="1" aria-label="面部效果总强度">
+          <button class="cat-exp" id="tabSkin" aria-expanded="false" aria-controls="paneSkin" aria-label="展开面部详细设置"><span class="chev">⌄</span></button>
+        </div>
+        <div class="cat-body" id="paneSkin" hidden>
+          <div class="status" id="faceStatus">面部追踪：正在加载模型</div>
+          <p class="desc">上面的总强度是所有面部效果一起缩放的总闸门；下面这些细滑块调的是各自的具体比例，两者叠加生效。</p>
+          <div class="seg" style="margin-bottom:4px">
+            <button id="toggleEdit" aria-pressed="false">调整纹路</button>
+          </div>
+          <div class="chips" id="rgnChips" style="margin-top:8px"></div>
+
+          <div class="subhead">五官微调</div>
+          <div class="sliders" id="warpBox"></div>
+
+          <div class="subhead">局部修饰</div>
+          <div class="sliders" id="localBox"></div>
+
+          <div class="subhead">整脸质感</div>
+          <div class="sliders" id="skinBox"></div>
+
+          <div class="btnrow">
+            <button class="key" id="btnResetSkin">恢复默认</button>
+            <button class="key" id="btnZeroSkin">全部归零</button>
+            <button class="key" id="btnResetRgn">重置纹路</button>
+          </div>
+        </div>
       </div>
 
-      <div class="pane" id="paneMo" role="tabpanel" hidden>
-        <div class="chips" id="mochips"></div>
-        <p class="desc" id="modesc"></p>
-        <div class="sliders" id="mosliders" style="margin-top:11px;padding-top:11px;border-top:1px solid #8C8981"></div>
+      <div class="cat-card">
+        <div class="cat-head">
+          <span class="cat-label">调色</span>
+          <button class="toggle" id="toggleColor" aria-pressed="true" aria-label="调色开关"></button>
+          <input type="range" class="macro" id="colorIntensityMacro" min="0" max="100" step="1" aria-label="调色总强度">
+          <button class="cat-exp" id="tabFx" aria-expanded="false" aria-controls="paneFx" aria-label="展开调色详细设置"><span class="chev">⌄</span></button>
+        </div>
+        <div class="cat-body" id="paneFx" hidden>
+          <div class="subtabs" role="tablist">
+            <button class="subtab" id="subCorrect" role="tab" aria-selected="true">校正</button>
+            <button class="subtab" id="subLook" role="tab" aria-selected="false">风格</button>
+          </div>
+
+          <div class="subpane" id="paneCorrect" role="tabpanel">
+            <p class="desc">这台摄像头拍出来偏什么颜色，在这里一次校准好，风格随便换都不会跑偏。换摄像头时重新点一次取色校准就行。</p>
+            <button class="key" id="btnWbPick">点画面取色，校准白平衡</button>
+            <div class="status" id="wbStatus" style="margin-top:8px">还没有校准过。</div>
+            <div class="sliders" id="correctBox" style="margin-top:11px;padding-top:11px;border-top:1px solid #8C8981"></div>
+            <div class="btnrow"><button class="key" id="btnResetCorrect">恢复这台摄像头的默认校正</button></div>
+          </div>
+
+          <div class="subpane" id="paneLook" role="tabpanel" hidden>
+            <div class="subhead first">起点（点一下直接套用，可以再调）</div>
+            <div class="chips" id="lookChips"></div>
+            <div class="sliders" id="lookBox" style="margin-top:11px;padding-top:11px;border-top:1px solid #8C8981"></div>
+            <div class="subhead">阴影染色</div>
+            <div style="display:flex;gap:6px;flex-wrap:wrap" id="toneShadowChips"></div>
+            <div class="subhead">高光染色</div>
+            <div style="display:flex;gap:6px;flex-wrap:wrap" id="toneHighChips"></div>
+            <div class="btnrow">
+              <button class="key" id="btnSaveLook">存成我的预设</button>
+              <button class="key" id="btnResetLook">恢复默认风格</button>
+            </div>
+            <div class="subhead">我的预设</div>
+            <div id="myLooksBox"></div>
+          </div>
+        </div>
       </div>
+
+      <div class="cat-card">
+        <div class="cat-head">
+          <span class="cat-label">马赛克</span>
+          <button class="toggle" id="toggleMosaic" aria-pressed="false" aria-label="马赛克开关"></button>
+          <input type="range" class="macro" id="mosaicAmountMacro" min="10" max="100" step="1" aria-label="马赛克总强度">
+          <button class="cat-exp" id="tabMo" aria-expanded="false" aria-controls="paneMo" aria-label="展开马赛克详细设置"><span class="chev">⌄</span></button>
+        </div>
+        <div class="cat-body" id="paneMo" hidden>
+          <div class="chips" id="mochips"></div>
+          <p class="desc" id="modesc"></p>
+          <div class="sliders" id="mosliders" style="margin-top:11px;padding-top:11px;border-top:1px solid #8C8981"></div>
+        </div>
+      </div>
+
     </aside>
+  </div>
+</div>
+
+
+<div class="help-drawer" id="helpDrawer" hidden>
+  <div class="help-panel" role="dialog" aria-label="使用说明和须知">
+    <div class="help-head">
+      <b>使用说明 / 须知</b>
+      <button class="help-x" id="btnHelpClose" type="button" aria-label="关闭">×</button>
+    </div>
+    <p>选画面来源 → 开启画面 → 按红色按钮录一段 → 不满意就重录。参数都在右边，调的时候不会挡住主屏。</p>
+    <p>主屏比例跟着画面走，看到的每一个像素都跟导出文件一致，不裁切。</p>
+    <p>五官微调、面部修饰、调色、马赛克、日期烙印会烧进文件；提词条、红点、时码、音量条、编辑手柄只在屏幕上，不会录进去。</p>
+    <p>换了新摄像头？去右边「调色 → 校正」点一下取色校准白平衡，再按需要微调，比每次重新挑滤镜省事，效果也更稳定。</p>
+    <p>美颜、调色、纹路位置和提词设置会存在这台电脑的浏览器里，下次打开自动恢复；换电脑用底部的导出设置。</p>
+    <p>选好保存文件夹之后，所有片段和文字都会直接写进那个文件夹，下次打开还是它。</p>
+    <p>视频只存在这次会话里，关掉页面就没了，录完记得保存。</p>
   </div>
 </div>
 
