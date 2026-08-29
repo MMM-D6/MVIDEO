@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>DV-8 分段录制台</title>
+<title>MMM</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=VT323&family=Silkscreen&family=Press+Start+2P&family=DotGothic16&family=Zen+Dots&family=Special+Elite&family=Courier+Prime:ital,wght@0,400;0,700;1,400&family=LXGW+WenKai+TC:wght@400;700&family=Noto+Serif+SC:wght@400;700&display=swap" rel="stylesheet">
@@ -27,14 +27,22 @@
   }
   *{box-sizing:border-box;margin:0;padding:0}
   html,body{
+    height:100%;
     color:var(--ink);font-family:var(--sans);font-size:15px;line-height:1.7;
     background:
       repeating-linear-gradient(0deg,rgba(255,255,255,.05) 0 1px,rgba(0,0,0,.045) 1px 3px),
       radial-gradient(120% 80% at 50% -10%,#C6C2B6 0%,var(--shell) 45%,#97948B 100%);
     background-attachment:fixed;
   }
-  body{padding:0 0 86px}
-  .wrap{max-width:1240px;margin:0 auto;padding:0 16px}
+  body{padding:0 0 60px;overflow:hidden}
+  .wrap{max-width:1800px;margin:0 auto;padding:0 16px}
+  /* 整个页面本身不滚动，主屏所在的这一整块天然就不会动；
+     只有右边编辑栏自己单独滚，参见下面 main / .side 的规则 */
+  body > .wrap{height:100%;display:flex;flex-direction:column;box-sizing:border-box}
+  @media(max-width:1060px){
+    body{overflow:visible}
+    body > .wrap{height:auto;display:block}
+  }
 
   /* ============ 统一的控件语言 ============
      面板：浅灰渐变 + 内高光 + 细边
@@ -68,12 +76,19 @@
     transform:translateY(2px);box-shadow:0 0 0 #6B6860,inset 0 1px 3px rgba(0,0,0,.28)}
   button.key:disabled,.tools button:disabled{opacity:.38;cursor:not-allowed}
   button.key .en{font-family:var(--plate);font-size:9px;letter-spacing:.1em;color:var(--ink-soft);margin-right:6px}
-  button.key.record{background:linear-gradient(180deg,#E05A4E,#B62A20);color:#FFF0EC;border-color:#6E1811;
-    box-shadow:0 3px 0 #6E1811,inset 0 1px 0 rgba(255,255,255,.35)}
-  button.key.record .en{color:#FFD3CC}
-  button.key.record:hover:not(:disabled){background:linear-gradient(180deg,#EC6B5E,#C33328)}
+  button.key.record{background:linear-gradient(180deg,#FF6E5C,var(--rec) 58%,#8E1D15);color:#FFF3EE;border-color:#5A130D;
+    box-shadow:0 3px 0 #5A130D,inset 0 1px 0 rgba(255,255,255,.4),0 0 16px rgba(216,52,42,.5);
+    letter-spacing:.02em}
+  button.key.record .en{color:#FFE3DC;display:inline-flex;align-items:center;gap:5px}
+  button.key.record .en::before{content:"";display:inline-block;width:7px;height:7px;border-radius:50%;
+    background:#FFF3EE;box-shadow:0 0 6px #FFF3EE}
+  button.key.record:hover:not(:disabled){background:linear-gradient(180deg,#FF8271,#E23E30 58%,#9E241B)}
+  button.key.record:disabled{opacity:1;background:linear-gradient(180deg,#C79289,#A8564C);
+    color:#F4DDD8;border-color:#7A3830;box-shadow:0 3px 0 #7A3830,inset 0 1px 0 rgba(255,255,255,.3)}
+  button.key.record:disabled .en::before{background:#F4DDD8;box-shadow:none}
   button.key.record.armed{background:linear-gradient(180deg,#8E8B82,#6E6B64);color:#FFD9CF;border-color:#4A4842;
     box-shadow:0 3px 0 #4A4842,inset 0 1px 3px rgba(0,0,0,.4)}
+  button.key.record.armed .en::before{background:var(--rec);box-shadow:0 0 6px var(--rec);animation:blink 1.2s steps(1,end) infinite}
   :focus-visible{outline:2px solid var(--stamp);outline-offset:2px}
 
   .seg{display:inline-flex;padding:2px;gap:2px;flex-wrap:wrap;
@@ -102,6 +117,9 @@
   .chip[aria-pressed="true"] span{color:#C3A87E}
   .swatch{width:26px;height:26px;border-radius:var(--r);border:1px solid #6B6860;cursor:pointer;box-shadow:0 2px 0 #6B6860}
   .swatch[aria-pressed="true"]{outline:2px solid var(--stamp);outline-offset:1px}
+  .swatch.none{background:
+    linear-gradient(45deg,transparent 46%,#D8342A 48%,#D8342A 52%,transparent 54%),
+    repeating-conic-gradient(#D8D4C8 0% 25%,#F2EEE2 0% 50%) 0/8px 8px}
 
   .sliders{display:flex;flex-direction:column;gap:9px}
   .sl{display:flex;flex-direction:column;gap:1px}
@@ -124,29 +142,43 @@
   select{font-size:var(--fs-md);padding:6px 8px;cursor:pointer}
 
   /* ============ 头部 ============ */
-  header{padding:20px 0 12px;margin-bottom:var(--gap-lg);
+  header{padding:10px 0 8px;margin-bottom:8px;flex:0 0 auto;
     border-bottom:2px solid var(--groove);box-shadow:0 1px 0 rgba(255,255,255,.45)}
   .titlebar{display:flex;align-items:baseline;gap:12px;flex-wrap:wrap}
   .mark{font-family:var(--plate);font-size:15px;letter-spacing:.16em;text-shadow:0 1px 0 rgba(255,255,255,.5)}
   .cn-title{font-size:16px;letter-spacing:.22em;color:var(--ink-soft)}
   .titlebar .date{margin-left:auto;font-family:var(--lcdfont);font-size:19px;color:var(--ink-soft)}
-  .steps{margin-top:6px;font-size:var(--fs-md);color:var(--ink-soft)}
-  .rowset{display:flex;gap:var(--gap-lg);flex-wrap:wrap;margin-top:12px}
+  .rowset{display:flex;gap:var(--gap-lg);flex-wrap:wrap;margin-top:8px}
   .group{display:flex;flex-direction:column;gap:4px}
-  .group > label{font-size:var(--fs-sm);letter-spacing:.14em;color:var(--ink-soft)}
 
-  .layout{display:grid;grid-template-columns:minmax(0,1fr) 344px;gap:18px;align-items:start}
-  @media(max-width:1060px){.layout{grid-template-columns:1fr}}
+  .layout{display:grid;grid-template-columns:minmax(420px,1150px) minmax(420px,1fr);gap:18px;
+    flex:1 1 auto;min-height:0;align-items:stretch}
+  @media(max-width:1060px){.layout{grid-template-columns:1fr;flex:none;min-height:0}}
 
-  /* ============ 屏幕 ============ */
+  /* ============ 屏幕 ============
+     主屏的高度不再靠猜一个像素常量去减，而是让它自己占满main栏刨去
+     录制条之后剩下的空间——这样以后不管头部、录制条改多高，主屏都会
+     自动补满剩下的高度，不用再一次次试错调整那个减法数字。 */
   .lcd-shell{position:relative;padding:11px;border-radius:var(--r-lg);
+    flex:1 1 auto;min-height:0;display:flex;align-items:center;justify-content:center;
     background:linear-gradient(180deg,#9B9890,#7A7770 60%,#8C8981);
     border:1px solid #5A574F;
     box-shadow:inset 0 1px 0 rgba(255,255,255,.45),inset 0 -2px 6px rgba(0,0,0,.35),0 10px 24px rgba(0,0,0,.26)}
   .stage{position:relative;background:var(--lcd);border-radius:var(--r);overflow:hidden;
-    aspect-ratio:4/3;box-shadow:inset 0 0 0 1px #000}
+    aspect-ratio:5/3;width:auto;height:auto;max-width:100%;max-height:100%;box-shadow:inset 0 0 0 1px #000}
+  @media(max-width:1060px){.lcd-shell{flex:none;display:block}.stage{width:100%;height:auto;max-height:none}}
   .stage canvas#canvas{display:block;width:100%;height:100%;background:var(--lcd)}
   .stage video{position:absolute;left:-9999px;width:1px;height:1px;opacity:0}
+
+  /* 字幕编辑时把片段画面借用主屏播放，摄像头相关的元素先藏起来 */
+  .stage.sub-editing > *:not(.subvidwrap){visibility:hidden}
+  .stage.sub-editing > .subvidwrap{position:absolute;inset:0;width:100%;height:100%;
+    visibility:visible;z-index:5}
+  .stage.sub-editing > .subvidwrap video.subvid{position:static;left:auto;width:100%;height:100%;
+    opacity:1;object-fit:contain;background:#000}
+  .stagesubtag{position:absolute;left:10px;top:10px;z-index:6;font-family:var(--lcdfont);
+    font-size:16px;letter-spacing:.08em;color:var(--osd);background:rgba(15,18,13,.72);
+    padding:3px 9px;border-radius:2px;pointer-events:none}
 
   .brackets{position:absolute;inset:12px;pointer-events:none;opacity:.4}
   .brackets i{position:absolute;width:15px;height:15px;border:2px solid var(--osd)}
@@ -198,24 +230,33 @@
   .stage > .tipbar[hidden]{display:none}
 
   /* ============ 控制台 ============ */
-  .deck{display:flex;align-items:center;gap:var(--gap);flex-wrap:wrap;
-    margin-top:12px;padding:12px;border-radius:var(--r-lg);
+  .deck{display:flex;align-items:stretch;justify-content:center;gap:10px;flex-wrap:wrap;
+    margin-top:10px;padding:9px;border-radius:var(--r-lg);
     background:linear-gradient(180deg,#B9B5AA,#A09D93);border:1px solid var(--edge);
     box-shadow:inset 0 1px 0 rgba(255,255,255,.5),0 4px 10px rgba(0,0,0,.15)}
-  .deck .hint{margin-left:auto}
+  .deck.deck-compact .key.record{flex:0 1 320px;min-width:160px;font-size:16px;padding:12px 16px;border-radius:var(--r-lg)}
+  .deck.deck-compact .subgrp{display:flex;gap:8px;padding-left:10px;border-left:1px solid rgba(0,0,0,.18)}
+  .deck.deck-compact .key.sub{font-size:var(--fs-sm);padding:0 16px;min-width:92px}
+  .deck.deck-compact .key.sub .en{display:none}
 
-  /* ============ 侧栏 ============ */
-  .side{position:sticky;top:12px;max-height:calc(100vh - 24px);display:flex;flex-direction:column;
-    border-radius:var(--r-lg);overflow:hidden;
+  /* ============ 左栏：主屏完全固定，不参与任何滚动 ============ */
+  main{display:flex;flex-direction:column;min-height:0;overflow-y:hidden}
+  .deck{flex:0 0 auto}
+  @media(max-width:1060px){main{display:block;overflow-y:visible}}
+
+  /* ============ 侧栏：右侧是唯一会滚动的地方，设置面板和片段列表都在这一栏里 ============ */
+  .side{display:flex;flex-direction:column;min-height:0;overflow-y:auto;
+    border-radius:var(--r-lg);
     background:linear-gradient(180deg,#BEBAAF,#A8A49A);border:1px solid var(--edge);
     box-shadow:inset 0 1px 0 rgba(255,255,255,.5),0 6px 16px rgba(0,0,0,.16)}
-  @media(max-width:1060px){.side{position:static;max-height:none}}
-  .tabs{display:flex;gap:2px;padding:8px 8px 0;background:linear-gradient(180deg,#A29E95,#B4B0A5)}
+  @media(max-width:1060px){.side{overflow-y:visible;max-height:none}}
+  .tabs{display:flex;gap:2px;padding:8px 8px 0;background:linear-gradient(180deg,#A29E95,#B4B0A5);flex:0 0 auto;
+    border-radius:var(--r-lg) var(--r-lg) 0 0}
   .tab{flex:1;background:linear-gradient(180deg,#CFCBBF,#ADA9A0);border:1px solid var(--edge);border-bottom:0;
     border-radius:var(--r) var(--r) 0 0;padding:8px 3px;cursor:pointer;
     font-family:var(--sans);font-size:var(--fs);color:var(--ink-soft)}
   .tab[aria-selected="true"]{background:linear-gradient(180deg,#E2DED2,#C6C2B6);color:var(--ink)}
-  .pane{padding:var(--pad);overflow-y:auto;flex:1}
+  .pane{padding:var(--pad)}
   .pane[hidden]{display:none}
   .pane .desc{font-size:var(--fs-sm);color:var(--ink-soft);line-height:1.7;margin:9px 0 4px}
   .subhead{font-size:var(--fs-sm);letter-spacing:.14em;color:var(--ink-soft);
@@ -230,12 +271,12 @@
   .pane textarea.cueText{width:100%;min-height:120px;resize:vertical;
     font-size:var(--fs-md);line-height:1.7;padding:8px 10px}
 
-  .live{margin-top:12px;padding:10px 13px;min-height:44px;
+  .live{margin:12px 12px 0;padding:10px 13px;min-height:44px;
     background:var(--lcd2);border:1px solid #4C4A43;border-radius:var(--r);
     box-shadow:inset 0 2px 8px rgba(0,0,0,.6);color:var(--osd);font-size:14px;line-height:1.7}
   .live b{font-weight:400}
   .live i{font-style:normal;color:#7E8E70}
-  .warn{margin-top:12px;padding:10px 13px;border-radius:var(--r);background:#3A2A14;
+  .warn{margin:12px 12px 0;padding:10px 13px;border-radius:var(--r);background:#3A2A14;
     border:1px solid #7A5A22;color:#FFCB84;font-size:var(--fs-md);line-height:1.7}
   .warn[hidden]{display:none}
 
@@ -282,10 +323,18 @@
   .subhead2{position:sticky;top:0;z-index:3;display:grid;
     grid-template-columns:minmax(0,300px) minmax(0,1fr);gap:11px;align-items:start;
     background:#C9C5B8;padding-bottom:9px;margin-bottom:9px;border-bottom:1px solid #9A968D}
+  .subhead2.vw-elevated{grid-template-columns:1fr}
+  .subhead2.vw-elevated .subvidwrap{display:none}
   @media(max-width:820px){.subhead2{grid-template-columns:1fr}}
   .subvidwrap{position:relative;background:#0F120D;border-radius:2px;overflow:hidden}
   .subvid{width:100%;display:block;background:#0F120D}
   .subcapcv{position:absolute;inset:0;width:100%;height:100%;pointer-events:none}
+  .subcapdrag{position:absolute;border:1px dashed rgba(255,200,120,.85);border-radius:2px;
+    cursor:move;pointer-events:auto;background:rgba(255,138,30,.06)}
+  .subcapdrag:hover{background:rgba(255,138,30,.14)}
+  .subcapdrag .rh{position:absolute;right:-7px;bottom:-7px;width:14px;height:14px;border-radius:50%;
+    background:var(--stamp);border:2px solid #FFF0E0;cursor:nwse-resize;pointer-events:auto}
+  .subcapdrag[hidden]{display:none}
   .subside{display:flex;flex-direction:column;gap:7px;min-width:0}
   .subctl{display:flex;gap:4px;flex-wrap:wrap;align-items:center}
   .subctl .playbtn{min-width:78px}
@@ -378,7 +427,6 @@
   @media(prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
   @media(max-width:700px){
     .take{grid-template-columns:1fr}.print{max-width:200px}
-    .deck .hint{margin-left:0;width:100%}
   }
 </style>
 </head>
@@ -387,14 +435,11 @@
 
   <header>
     <div class="titlebar">
-      <span class="mark">DV-8</span>
-      <span class="cn-title">分段录制台</span>
+      <span class="mark">MMM</span>
       <span class="date" id="today"></span>
     </div>
-    <p class="steps">选画面来源 → 开启画面 → 按红色按钮录一段 → 不满意就重录。参数都在右边，调的时候不会挡住主屏。</p>
     <div class="rowset">
       <div class="group">
-        <label>画面来源</label>
         <div class="seg" role="group" aria-label="画面来源">
           <button id="srcCam" aria-pressed="true">摄像头</button>
           <button id="srcScreen" aria-pressed="false">屏幕</button>
@@ -402,7 +447,6 @@
         </div>
       </div>
       <div class="group">
-        <label>实时转录</label>
         <div class="seg" role="group" aria-label="转录语言">
           <button id="langZh" aria-pressed="true">中文</button>
           <button id="langEn" aria-pressed="false" title="英式发音模型">英文</button>
@@ -411,8 +455,7 @@
         </div>
       </div>
       <div class="group">
-        <label>屏幕显示</label>
-        <div class="seg">
+        <div class="seg" role="group" aria-label="屏幕显示">
           <button id="togglePrompt" aria-pressed="true">提词条</button>
           <button id="toggleDate" aria-pressed="true">日期烙印</button>
           <button id="toggleFlip" aria-pressed="false">左右翻转</button>
@@ -445,36 +488,19 @@
         </div>
       </div>
 
-      <div class="deck">
-        <button class="key" id="btnConnect"><span class="en">POWER</span>开启画面</button>
+      <div class="deck deck-compact">
         <button class="key record" id="btnRec" disabled><span class="en">REC</span>录这一段</button>
-        <button class="key" id="btnPause" disabled><span class="en">PAUSE</span>暂停</button>
-        <button class="key" id="btnDiscard" disabled><span class="en">ERASE</span>丢弃这条</button>
-        <span class="hint">空格开始或结束，P 暂停，上下方向键切提词</span>
+        <div class="subgrp">
+          <button class="key sub" id="btnConnect"><span class="en">POWER</span>开启画面</button>
+          <button class="key sub" id="btnPause" disabled><span class="en">PAUSE</span>暂停</button>
+          <button class="key sub" id="btnDiscard" disabled><span class="en">ERASE</span>丢弃这条</button>
+        </div>
       </div>
-
-      <div class="warn" id="warn" hidden></div>
-      <div class="live" id="live"><i>录制时，语音转成的文字会出现在这里。</i></div>
-
-      <div class="index-head">
-        <b>TAPE INDEX</b><span class="cn">已录片段</span><span class="count" id="tally">0 段</span>
-      </div>
-      <div id="takes"></div>
-      <div class="empty-takes" id="noTakes">
-        <b>TAPE EMPTY</b>
-        还没有片段。第一条通常会僵，很正常，先录三十秒再决定留不留。
-      </div>
-
-      <p class="note">
-        主屏比例跟着画面走，看到的每一个像素都跟导出文件一致，不裁切。<br>
-        五官微调、面部修饰、滤镜、马赛克、日期烙印会烧进文件；提词条、红点、时码、音量条、编辑手柄只在屏幕上，不会录进去。<br>
-        美颜、滤镜、纹路位置和提词设置会存在这台电脑的浏览器里，下次打开自动恢复；换电脑用底部的导出设置。<br>
-        选好保存文件夹之后，所有片段和文字都会直接写进那个文件夹，下次打开还是它。<br>
-        视频只存在这次会话里，关掉页面就没了，录完记得保存。
-      </p>
     </main>
 
     <aside class="side">
+      <div class="warn" id="warn" hidden></div>
+      <div class="live" id="live"><i>录制时，语音转成的文字会出现在这里。</i></div>
       <div class="tabs" role="tablist">
         <button class="tab" id="tabCue" role="tab" aria-selected="true">提词</button>
         <button class="tab" id="tabSkin" role="tab" aria-selected="false">面部</button>
@@ -549,6 +575,23 @@
         <p class="desc" id="modesc"></p>
         <div class="sliders" id="mosliders" style="margin-top:11px;padding-top:11px;border-top:1px solid #8C8981"></div>
       </div>
+
+      <div class="index-head">
+        <b>TAPE INDEX</b><span class="cn">已录片段</span><span class="count" id="tally">0 段</span>
+      </div>
+      <div id="takes"></div>
+      <div class="empty-takes" id="noTakes">
+        <b>TAPE EMPTY</b>
+        还没有片段。第一条通常会僵，很正常，先录三十秒再决定留不留。
+      </div>
+
+      <p class="note">
+        主屏比例跟着画面走，看到的每一个像素都跟导出文件一致，不裁切。<br>
+        五官微调、面部修饰、滤镜、马赛克、日期烙印会烧进文件；提词条、红点、时码、音量条、编辑手柄只在屏幕上，不会录进去。<br>
+        美颜、滤镜、纹路位置和提词设置会存在这台电脑的浏览器里，下次打开自动恢复；换电脑用底部的导出设置。<br>
+        选好保存文件夹之后，所有片段和文字都会直接写进那个文件夹，下次打开还是它。<br>
+        视频只存在这次会话里，关掉页面就没了，录完记得保存。
+      </p>
     </aside>
   </div>
 </div>
@@ -611,10 +654,6 @@
             p:{bri:1.05,con:1.32,sat:1,hue:0,sep:0,gry:1,blr:0,tint:0,bloom:.1,grain:.06,scan:0,vig:.5} },
     silver:{cn:"银盐", en:"SILVER", desc:"柔一点的黑白，中灰厚，接近老照片。",
             p:{bri:1.06,con:1.1,sat:1,hue:0,sep:.15,gry:1,blr:.2,tint:0,bloom:.16,grain:.09,scan:0,vig:.4} },
-    nv:   { cn:"夜视", en:"NV", desc:"绿色夜视仪：高增益、噪点重、边缘压黑，没有扫描线。",
-            p:{bri:1.12,con:1.45,sat:4,hue:55,sep:1,gry:1,blr:.15,tint:0,bloom:.26,grain:.16,scan:0,vig:.78} },
-    ir:   { cn:"红外", en:"IR", desc:"红外摄影：草木发白，整体泛品红。", tintColor:"#FF69B4",
-            p:{bri:1.05,con:1.2,sat:3,hue:-40,sep:1,gry:1,blr:0,tint:.18,bloom:.14,grain:.06,scan:0,vig:.5} },
     off:  { cn:"原图", en:"OFF", desc:"不做任何颜色处理。",
             p:{bri:1,con:1,sat:1,hue:0,sep:0,gry:0,blr:0,tint:0,bloom:0,grain:0,scan:0,vig:0} }
   };
@@ -732,6 +771,35 @@
   var btnConnect = $("btnConnect"), btnRec = $("btnRec"),
       btnPause = $("btnPause"), btnDiscard = $("btnDiscard");
 
+  /* ================== 字幕编辑借用主屏 ==================
+     编辑字幕时画面太小不好操作，就把这条片段的播放画面搬到最上面那块大屏里，
+     跟拍摄时共用同一块地方；退出编辑或者要开摄像头、要录制了，就搬回去。 */
+  var stageSub = null; /* { vw, head, tag, onRetract } */
+  function retractStageSub(){
+    if (!stageSub) return;
+    var s = stageSub; stageSub = null;
+    s.head.classList.remove("vw-elevated");
+    s.head.insertBefore(s.vw, s.head.firstChild);
+    if (s.tag && s.tag.parentNode) s.tag.parentNode.removeChild(s.tag);
+    stage.classList.remove("sub-editing");
+    stage.style.aspectRatio = preview.videoWidth ? (cv.width + " / " + cv.height) : "";
+    if (s.onRetract) s.onRetract();
+  }
+  function elevateStageSub(label, vw, head, vid, onRetract){
+    if (stageSub && stageSub.vw === vw) return;
+    retractStageSub();
+    head.classList.add("vw-elevated");
+    stage.classList.add("sub-editing");
+    stage.appendChild(vw);
+    var tag = document.createElement("div");
+    tag.className = "stagesubtag";
+    tag.textContent = label;
+    stage.appendChild(tag);
+    stageSub = { vw:vw, head:head, tag:tag, onRetract:onRetract };
+    function syncAspect(){ if (vid.videoWidth) stage.style.aspectRatio = vid.videoWidth + " / " + vid.videoHeight; }
+    if (vid.readyState >= 1) syncAspect(); else vid.addEventListener("loadedmetadata", syncAspect, { once:true });
+  }
+
   function mkc(){ return document.createElement("canvas"); }
   var bc = mkc(), bx = bc.getContext("2d");
   var mk = mkc(), kx = mk.getContext("2d");
@@ -747,11 +815,17 @@
     catch(e){ return false; }
   })();
 
-  var grainTile = mkc(); grainTile.width = grainTile.height = 96;
+  /* 颗粒纹理：三次采样取平均，模拟胶片颗粒近似高斯分布的柔和感，
+     不用单次均匀随机（那样看着是数码噪点，不是胶片颗粒）。
+     尺寸也从 96 提到 128，减少画面上看得出的重复感。 */
+  var GRAIN_N = 128;
+  var grainTile = mkc(); grainTile.width = grainTile.height = GRAIN_N;
   (function(){
-    var g = grainTile.getContext("2d"), im = g.createImageData(96,96);
+    var g = grainTile.getContext("2d"), im = g.createImageData(GRAIN_N,GRAIN_N);
     for (var i=0;i<im.data.length;i+=4){
-      var v = 90 + Math.random()*165;
+      /* 两次采样取平均，变成三角分布：中间值出现得多，极端值少，
+         幅度仍是原来的 90-165，只是颗粒看起来更细腻不生硬，强度不会比之前更明显 */
+      var v = 90 + ((Math.random()+Math.random())/2) * 75;
       im.data[i]=im.data[i+1]=im.data[i+2]=v; im.data[i+3]=255;
     }
     g.putImageData(im,0,0);
@@ -1756,17 +1830,21 @@
     }
   }
 
+  /* 光晕：以前是"先模糊、再提亮对比"，等于把整张画面（包括中间调）一起揉糊了再叠上去，
+     看着是雾蒙蒙一片。现在改成"先用亮度+对比把非高光部分压黑，只留下真正的高光区域，
+     再对这个提取出来的高光做模糊"，光晕就只从亮部发出来，更像真实镜头的光斑感，
+     叠加强度上限也调低了一些，不会把画面整体糊掉。 */
   function bloom(W,H,amount){
     if (amount <= 0 || !FILTER_OK) return;
     var bw = Math.max(160, Math.round(W/3)), bh = Math.round(bw*H/W);
     if (bl.width !== bw || bl.height !== bh){ bl.width = bw; bl.height = bh; }
     lx.setTransform(1,0,0,1,0,0);
-    lx.filter = "blur(" + Math.max(3, bw*0.028) + "px) brightness(1.35) contrast(1.7) saturate(1.1)";
+    lx.filter = "brightness(1.5) contrast(2.3) saturate(1.15) blur(" + Math.max(3, bw*0.03) + "px)";
     lx.clearRect(0,0,bw,bh);
     lx.drawImage(cv,0,0,bw,bh);
     lx.filter = "none";
     ctx.globalCompositeOperation = "screen";
-    ctx.globalAlpha = Math.min(.8, amount*0.75);
+    ctx.globalAlpha = Math.min(.6, amount*0.65);
     ctx.drawImage(bl,0,0,W,H);
     ctx.globalCompositeOperation = "source-over"; ctx.globalAlpha = 1;
   }
@@ -1908,9 +1986,9 @@
       ctx.globalCompositeOperation = "overlay";
       ctx.globalAlpha = p.grain;
       ctx.save();
-      ctx.translate(-Math.random()*96,-Math.random()*96);
+      ctx.translate(-Math.random()*GRAIN_N,-Math.random()*GRAIN_N);
       ctx.fillStyle = grainPat;
-      ctx.fillRect(0,0,W+96,H+96);
+      ctx.fillRect(0,0,W+GRAIN_N,H+GRAIN_N);
       ctx.restore();
       ctx.globalCompositeOperation = "source-over"; ctx.globalAlpha = 1;
     }
@@ -2053,7 +2131,7 @@
     if (S.audioCtx){ try{ S.audioCtx.close(); }catch(e){} S.audioCtx = null; S.analyser = null; }
   }
   function connect(){
-    warn(""); stopStream();
+    warn(""); stopStream(); retractStageSub();
     var task;
     if (S.source === "cam"){
       task = navigator.mediaDevices.getUserMedia({
@@ -2193,6 +2271,7 @@
   function grabThumb(){ try { return cv.toDataURL("image/jpeg",0.6); } catch(e){ return null; } }
   function startRec(){
     if (!S.stream || !cv.width) return;
+    retractStageSub();
     warn("");
     S.chunks = []; S.finalText = ""; S.interimText = "";
     S.recAt = Date.now();
@@ -2289,17 +2368,19 @@
     { k:"sys",   cn:"系统黑体", css:'-apple-system, "PingFang SC", "Microsoft YaHei", sans-serif', sc:true, scale:1.0 }
   ];
   var SUB_COLORS = ["#FBFDF8","#FFD9A8","#FF8A1E","#B8E6A0","#9CD2FF","#FFB3C7","#F2E14C","#2B2A25"];
+  var SUB_BOX_COLORS = ["#0A0C08","#000000","#2B2A25","#3A2A1A","#0F1F2E","#FBFDF8"];
   var SUB_DEFAULT = {
-    font:"vt", size:6.4, color:"#FBFDF8", y:86, align:"center", width:88,
-    box:0.3, boxColor:"#0A0C08", stroke:0.5, shadow:0.7, letter:0.02, upper:0
+    font:"vt", size:6.4, color:"#FBFDF8", x:50, y:86, align:"center", width:88, bold:0,
+    box:0.3, boxColor:"#0A0C08", stroke:0.5, strokeColor:"#000000", shadow:0.7, letter:0.02, upper:0
   };
   var SUB_SL = [
-    { k:"size",   cn:"字号",   tip:"占画面高度",   min:2.5, max:14, step:.1, fmt:function(v){return v.toFixed(1)+"%"} },
-    { k:"y",      cn:"上下位置", tip:"离画面顶部",  min:2,   max:96, step:.5, fmt:function(v){return v.toFixed(0)+"%"} },
-    { k:"width",  cn:"宽度",   tip:"每行最宽",     min:30,  max:100, step:1, fmt:function(v){return Math.round(v)+"%"} },
-    { k:"box",    cn:"背景条", tip:"底色深浅",     min:0,   max:1,  step:.02, fmt:pc },
-    { k:"stroke", cn:"描边",   tip:"字的黑边",     min:0,   max:1,  step:.02, fmt:pc },
-    { k:"shadow", cn:"阴影",   tip:"字下面的暗影",  min:0,   max:1,  step:.02, fmt:pc },
+    { k:"size",   cn:"字号",   tip:"占画面高度，也可以直接拖右下角的点缩放", min:2.5, max:14, step:.1, fmt:function(v){return v.toFixed(1)+"%"} },
+    { k:"x",      cn:"左右位置", tip:"离左边距离，也可以直接在画面上拖字幕", min:0,   max:100, step:.5, fmt:function(v){return v.toFixed(0)+"%"} },
+    { k:"y",      cn:"上下位置", tip:"离画面顶部，也可以直接在画面上拖字幕", min:2,   max:96, step:.5, fmt:function(v){return v.toFixed(0)+"%"} },
+    { k:"width",  cn:"宽度",   tip:"每行最宽，超过就换行",     min:30,  max:100, step:1, fmt:function(v){return Math.round(v)+"%"} },
+    { k:"box",    cn:"背景条", tip:"底色深浅，拉到最低就是没有背景条",     min:0,   max:1,  step:.02, fmt:pc },
+    { k:"stroke", cn:"描边",   tip:"字的边框，粗一点更有立体感",     min:0,   max:1,  step:.02, fmt:pc },
+    { k:"shadow", cn:"阴影",   tip:"字下面的暗影，也是立体感的一部分",  min:0,   max:1,  step:.02, fmt:pc },
     { k:"letter", cn:"字距",   tip:"字与字的间隔",  min:0,   max:.3, step:.01, fmt:pc }
   ];
   S.sub = S.sub || JSON.parse(JSON.stringify(SUB_DEFAULT));
@@ -2346,12 +2427,15 @@
     return out.join("\n");
   }
   /* 把字幕画到画布上，预览和烧录用的是同一个函数，所见即所得 */
+  /* 位置用一个可以自由拖动的锚点(st.x,st.y)表示，对齐方式只决定文字挂在锚点的哪一侧，
+     不再用宽度去反推位置，这样拖动、缩放才能不受宽度/对齐设置牵连。
+     返回文字外框（画布像素坐标），供编辑器里的拖拽浮层跟着贴上去。 */
   function drawSub(c, W, H, text){
-    if (!text) return;
+    if (!text) return null;
     var st = S.sub, f = subFont(st.font);
     var px = H * st.size / 100 * f.scale;
     c.save();
-    c.font = px + "px " + f.css;
+    c.font = (st.bold ? "bold " : "") + px + "px " + f.css;
     c.textAlign = st.align === "left" ? "left" : (st.align === "right" ? "right" : "center");
     c.textBaseline = "alphabetic";
     var maxW = W * st.width / 100;
@@ -2368,17 +2452,25 @@
       if (cur.trim()) lines.push(cur.trim());
     });
     var lh = px * 1.32;
-    var x = st.align === "left" ? W*(100-st.width)/200
-          : st.align === "right" ? W - W*(100-st.width)/200 : W/2;
+    var x = W * (st.x === undefined ? 50 : st.x) / 100;
     var top = H * st.y / 100 - lines.length*lh + lh*0.25;
+    var bw = 0;
+    lines.forEach(function(l){ bw = Math.max(bw, c.measureText(l).width); });
+    bw += px*0.7;
+    var bx = st.align === "left" ? x - px*0.35
+           : st.align === "right" ? x - bw + px*0.35 : x - bw/2;
+    /* 包围盒用canvas量出来的真实字形上下边界算，不用固定系数猜——
+       不然换字体、开粗体、描边变粗的时候，框会比实际的字矮，把字截掉一截 */
+    var strokeHalf = st.stroke > 0 ? px * 0.13 * st.stroke / 2 : 0;
+    var firstM = c.measureText(lines[0] || "");
+    var lastM = c.measureText(lines[lines.length-1] || "");
+    var ascent = (firstM.actualBoundingBoxAscent || px*0.85) + strokeHalf;
+    var descent = (lastM.actualBoundingBoxDescent || px*0.25) + strokeHalf;
+    var boxTop = top - ascent - px*0.16;
+    var boxH = (top + (lines.length-1)*lh + descent + px*0.16) - boxTop;
     if (st.box > 0){
-      var bw = 0;
-      lines.forEach(function(l){ bw = Math.max(bw, c.measureText(l).width); });
-      bw += px*0.7;
-      var bx = st.align === "left" ? x - px*0.35
-             : st.align === "right" ? x - bw + px*0.35 : x - bw/2;
       c.fillStyle = "rgba(" + hexRgb(st.boxColor).join(",") + "," + st.box + ")";
-      c.fillRect(bx, top - lh*0.92, bw, lines.length*lh + px*0.35);
+      c.fillRect(bx, boxTop, bw, boxH);
     }
     if (st.letter > 0 && c.letterSpacing !== undefined){
       c.letterSpacing = (px*st.letter).toFixed(1) + "px";
@@ -2392,7 +2484,8 @@
       if (st.stroke > 0){
         c.lineWidth = px * 0.13 * st.stroke;
         c.lineJoin = "round";
-        c.strokeStyle = "rgba(0,0,0," + Math.min(1, st.stroke*1.2) + ")";
+        var srgb = hexRgb(st.strokeColor || "#000000");
+        c.strokeStyle = "rgba(" + srgb.join(",") + "," + Math.min(1, st.stroke*1.2) + ")";
         c.strokeText(l, x, y);
       }
       c.shadowBlur = 0; c.shadowOffsetY = 0;
@@ -2401,6 +2494,7 @@
     });
     if (c.letterSpacing !== undefined) c.letterSpacing = "0px";
     c.restore();
+    return { left:bx, top:boxTop, width:bw, height:boxH, fontPx:px };
   }
   function subAt(subs, ms){
     if (!subs) return "";
@@ -2485,7 +2579,13 @@
     if (t.url) vid.src = t.url;
     var capCv = document.createElement("canvas");
     capCv.className = "subcapcv";
-    vw.appendChild(vid); vw.appendChild(capCv);
+    var capDrag = document.createElement("div");
+    capDrag.className = "subcapdrag"; capDrag.hidden = true;
+    capDrag.title = "拖动改位置，拖右下角圆点改大小";
+    var capHandle = document.createElement("div");
+    capHandle.className = "rh"; capHandle.title = "拖动改字号大小";
+    capDrag.appendChild(capHandle);
+    vw.appendChild(vid); vw.appendChild(capCv); vw.appendChild(capDrag);
 
     var side = document.createElement("div");
     side.className = "subside";
@@ -2511,7 +2611,13 @@
     var undoB = mkBtn("↶ 撤销", doUndo);
     var redoB = mkBtn("↷ 重做", doRedo);
     ctl.appendChild(undoB); ctl.appendChild(redoB);
+    var bigB = mkBtn("⤢ 收起大屏", function(){
+      if (stageSub && stageSub.vw === vw){ retractStageSub(); bigB.textContent = "⤢ 放大到屏幕"; }
+      else { elevateBig(); bigB.textContent = "⤢ 收起大屏"; }
+    });
+    ctl.appendChild(bigB);
     side.appendChild(ctl);
+
 
     /* 时间轴 */
     var tlWrap = document.createElement("div");
@@ -2543,6 +2649,13 @@
 
     head.appendChild(vw); head.appendChild(side);
     wrap.appendChild(head);
+
+    function elevateBig(){
+      elevateStageSub("字幕预览 · " + (t.n?("第"+t.n+"条"):""), vw, head, vid, function(){
+        bigB.textContent = "⤢ 放大到屏幕";
+      });
+    }
+    elevateBig();
 
     /* ===== 工具条 ===== */
     var bar = document.createElement("div");
@@ -2590,8 +2703,8 @@
     var style = document.createElement("div");
     style.className = "substyle";
     var sBody = document.createElement("div");
-    sBody.hidden = true;
-    var sTog = mkBtn("字幕外观 ▾", function(){
+    sBody.hidden = false;
+    var sTog = mkBtn("字幕外观 ▴", function(){
       sBody.hidden = !sBody.hidden;
       sTog.textContent = sBody.hidden ? "字幕外观 ▾" : "字幕外观 ▴";
     });
@@ -2634,31 +2747,55 @@
     });
     upB.setAttribute("aria-pressed", !!S.sub.upper);
     fRow.appendChild(upB);
+    var boldB = mkBtn("粗体", function(){
+      S.sub.bold = S.sub.bold ? 0 : 1;
+      boldB.setAttribute("aria-pressed", !!S.sub.bold);
+      paintCap(); save();
+    });
+    boldB.setAttribute("aria-pressed", !!S.sub.bold);
+    fRow.appendChild(boldB);
     sBody.appendChild(fRow);
 
-    var cRow = document.createElement("div");
-    cRow.className = "row";
-    var cLab = document.createElement("span");
-    cLab.className = "lbl"; cLab.textContent = "颜色";
-    cRow.appendChild(cLab);
-    SUB_COLORS.forEach(function(col){
-      var b = document.createElement("button");
-      b.type = "button"; b.className = "swatch"; b.style.background = col;
-      b.setAttribute("aria-pressed", S.sub.color === col);
-      b.onclick = function(){
-        S.sub.color = col;
-        cRow.querySelectorAll(".swatch").forEach(function(o,oi){
-          o.setAttribute("aria-pressed", SUB_COLORS[oi] === col);
-        });
-        paintCap(); save();
-      };
-      cRow.appendChild(b);
-    });
-    sBody.appendChild(cRow);
+    function colorRow(label, getVal, setVal, palette, noneOpt){
+      var row = document.createElement("div");
+      row.className = "row";
+      var lab = document.createElement("span");
+      lab.className = "lbl"; lab.textContent = label;
+      row.appendChild(lab);
+      var swatches = [];
+      function refresh(){
+        swatches.forEach(function(o){ o.btn.setAttribute("aria-pressed", o.isActive()); });
+      }
+      if (noneOpt){
+        var nb = document.createElement("button");
+        nb.type = "button"; nb.className = "swatch none"; nb.title = "无颜色（不显示背景）";
+        nb.onclick = function(){ noneOpt.onClick(); refresh(); paintCap(); save(); };
+        row.appendChild(nb);
+        swatches.push({ btn:nb, isActive:noneOpt.isActive });
+      }
+      palette.forEach(function(col){
+        var b = document.createElement("button");
+        b.type = "button"; b.className = "swatch"; b.style.background = col;
+        b.onclick = function(){ setVal(col); refresh(); if (subSlUI) subSlUI.sync(); paintCap(); save(); };
+        row.appendChild(b);
+        swatches.push({ btn:b, isActive:function(){ return !(noneOpt&&noneOpt.isActive()) && getVal()===col; } });
+      });
+      refresh();
+      sBody.appendChild(row);
+    }
+    colorRow("文字颜色", function(){ return S.sub.color; }, function(v){ S.sub.color = v; }, SUB_COLORS);
+    colorRow("描边颜色", function(){ return S.sub.strokeColor; }, function(v){ S.sub.strokeColor = v; }, SUB_COLORS);
+    colorRow("背景颜色", function(){ return S.sub.boxColor; }, function(v){ S.sub.boxColor = v; if (S.sub.box<=0) S.sub.box=.3; },
+      SUB_BOX_COLORS, {
+        isActive:function(){ return S.sub.box<=0; },
+        onClick:function(){ S.sub.box = 0; if (subSlUI) subSlUI.sync(); }
+      });
+
     var slBox = document.createElement("div");
     slBox.className = "sliders";
     sBody.appendChild(slBox);
-    buildSliders(slBox, SUB_SL, function(){ return S.sub; }, paintCap).sync();
+    var subSlUI = buildSliders(slBox, SUB_SL, function(){ return S.sub; }, paintCap);
+    subSlUI.sync();
     wrap.appendChild(style);
 
     var toast = document.createElement("div");
@@ -2696,21 +2833,67 @@
       paintTL(true);
     }
 
-    var cvW = 480, cvH = 270;
+    var cvW = 480, cvH = 270, capDragging = null;
     function fitCanvas(){
       var r = vw.getBoundingClientRect();
       if (!r.width) return;
+      /* 优先用画面实际渲染出来的高度，这样不管是在小面板里还是借用大屏、
+         不管大屏的宽高比是不是刚好同步好了，canvas内部坐标永远跟屏幕上
+         看到的框对得上；只有这个高度明显不可靠（比如视频还没加载出来）
+         时才退回用视频原生比例去估。 */
       var ar = (vid.videoWidth && vid.videoHeight) ? vid.videoHeight/vid.videoWidth : 0.5625;
-      var w = Math.round(r.width), h = Math.round(r.width*ar);
-      if (capCv.width !== w || capCv.height !== h){ capCv.width = w; capCv.height = h; }
-      cvW = w; cvH = h;
+      var h = r.height > 4 ? r.height : r.width*ar;
+      var w = Math.round(r.width), hh = Math.round(h);
+      if (capCv.width !== w || capCv.height !== hh){ capCv.width = w; capCv.height = hh; }
+      cvW = w; cvH = hh;
     }
     function paintCap(){
       fitCanvas();
       var c = capCv.getContext("2d");
       c.clearRect(0,0,cvW,cvH);
-      drawSub(c, cvW, cvH, subAt(t.subs, ms()));
+      var box = drawSub(c, cvW, cvH, subAt(t.subs, ms()));
+      if (box){
+        capDrag.hidden = false;
+        capDrag.style.left = box.left + "px";
+        capDrag.style.top = box.top + "px";
+        capDrag.style.width = box.width + "px";
+        capDrag.style.height = box.height + "px";
+      } else {
+        capDrag.hidden = true;
+      }
     }
+    /* 容器尺寸只要一变（借用大屏、大屏异步同步宽高比、缩放窗口……）就重画，
+       不依赖某个具体事件"刚好"也会触发重绘 */
+    if (window.ResizeObserver){
+      new ResizeObserver(function(){ paintCap(); }).observe(vw);
+    }
+    /* 直接在画面上拖字幕：拖整个框改位置，拖右下角的点改字号 */
+    capDrag.addEventListener("pointerdown", function(e){
+      if (e.target === capHandle) return;
+      e.preventDefault();
+      capDragging = { mode:"move", x:e.clientX, y:e.clientY, ox:S.sub.x, oy:S.sub.y };
+      capDrag.setPointerCapture && capDrag.setPointerCapture(e.pointerId);
+    });
+    capHandle.addEventListener("pointerdown", function(e){
+      e.preventDefault(); e.stopPropagation();
+      capDragging = { mode:"resize", x:e.clientX, y:e.clientY, osize:S.sub.size };
+      capHandle.setPointerCapture && capHandle.setPointerCapture(e.pointerId);
+    });
+    window.addEventListener("pointermove", function(e){
+      if (!capDragging || !cvW || !cvH) return;
+      var dx = e.clientX - capDragging.x, dy = e.clientY - capDragging.y;
+      if (capDragging.mode === "move"){
+        S.sub.x = Math.max(0, Math.min(100, capDragging.ox + dx/cvW*100));
+        S.sub.y = Math.max(2, Math.min(96, capDragging.oy + dy/cvH*100));
+      } else {
+        var f = subFont(S.sub.font);
+        S.sub.size = Math.max(2.5, Math.min(14, capDragging.osize + dy*100/(cvH*f.scale)));
+      }
+      paintCap(); subSlUI.sync();
+    });
+    window.addEventListener("pointerup", function(){
+      if (capDragging){ capDragging = null; paintCap(); save(); }
+    });
     function activeIndex(){
       for (var i=0;i<t.subs.length;i++){
         if (ms() >= t.subs[i].s && ms() < t.subs[i].e) return i;
@@ -3261,6 +3444,7 @@
 
   /* ================== 列表 ================== */
   function render(){
+    retractStageSub();
     var box = $("takes");
     box.innerHTML = "";
     $("noTakes").style.display = S.takes.length ? "none" : "block";
@@ -3319,6 +3503,7 @@
       tools.appendChild(mkBtn("字幕" + ((t.subs&&t.subs.length)?(" "+t.subs.length):""), function(){
         subHost.hidden = !subHost.hidden;
         if (!subHost.hidden) buildSubEditor(t, subHost);
+        else retractStageSub();
       }));
       if (t.url) tools.appendChild(mkBtn("保存", function(){ saveTake(t); }));
       tools.appendChild(mkBtn("删除", function(){ del(idx); }));
@@ -3638,7 +3823,7 @@
 
   $("btnExportCfg").onclick = function(){
     dlText(JSON.stringify(settingsOnly(), null, 2),
-      "dv8-设置-" + $("today").textContent + ".json", "application/json");
+      "mmm-设置-" + $("today").textContent + ".json", "application/json");
   };
   $("btnImportCfg").onclick = function(){ $("cfgFile").click(); };
   $("cfgFile").addEventListener("change", function(){
