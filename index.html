@@ -1122,10 +1122,16 @@
     }
     return out;
   }
+  /* 中文的"的/了/是/在"这些字全文到处都是，随便两句话都可能凑巧对上几个，
+     之前跟内容字给一样的权重，会把不相关句子的匹配分数顶得虚高。
+     这里给一份高频虚字表，权重调低到跟英文的a/the/is一个量级 */
+  var CJK_STOP = "的了是在就也都和我你他她它这那有不一会到说着而与之或但又还很更被把让给从向为对上下中么什就着吗呢啊呀吧嘛么哦";
+  var CJK_STOP_SET = {};
+  for (var _i=0; _i<CJK_STOP.length; _i++) CJK_STOP_SET[CJK_STOP[_i]] = true;
   /* 长词更能说明位置，the、a、is 这种给很低的权重，
      免得一堆虚词把分数顶上去 */
   function tokWeight(t){
-    if (isCJK(t)) return 1.2;
+    if (isCJK(t)) return CJK_STOP_SET[t] ? 0.35 : 1.2;
     if (t.length <= 2) return 0.35;
     if (t.length === 3) return 0.8;
     return Math.min(3, 0.8 + (t.length-3)*0.4);
@@ -1210,20 +1216,26 @@
 
     var lo = Math.max(0, (S.cuePtr||0) - 3);
     var hi = Math.min(cueToks.length, (S.cuePtr||0) + 45);
-    var best = null;
+    var best = null, bestCJK = false;
     for (var c=0;c<cands.length;c++){
       var toks = tokenize(cands[c]);
       if (toks.length < 2) continue;
-      var tail = toks.slice(-8);
+      /* 中文一个字带的信息比英文一个单词少，8个词的尾巴对中文来说偏短，
+         容易随便找个地方就凑够分——尾巴拉长一点，累积更多证据再判断 */
+      var cjkDominant = toks.filter(isCJK).length > toks.length/2;
+      var tail = toks.slice(-(cjkDominant ? 14 : 8));
       var totalW = 0;
       tail.forEach(function(t){ totalW += tokWeight(t); });
       if (totalW < 1.2) continue;                 // 全是虚词，等下一批
       var r = scoreAt(tail, totalW, lo, hi, tail.length + 4);
-      if (!best || r.sc > best.sc) best = r;
+      if (!best || r.sc > best.sc){ best = r; bestCJK = cjkDominant; }
     }
     if (!best) return;
 
-    if (best.p > 0 && best.sc >= 0.45){
+    /* 中文这里不像英文允许一个字符的模糊容错，同音字认错了就是直接扣分，
+       门槛比英文松一点，不然经常明明念对了却一直卡在"没对上" */
+    var threshold = bestCJK ? 0.40 : 0.45;
+    if (best.p > 0 && best.sc >= threshold){
       if (best.p > (S.cuePtr||0)) S.cuePtr = best.p;
       var li = cueToks[Math.min(S.cuePtr, cueToks.length-1)].l;
       if (li !== S.cueIdx){ S.cueIdx = li; renderCue(); }
@@ -2208,13 +2220,19 @@
       S.recog.lang = S.lang; S.recog.continuous = true; S.recog.interimResults = true;
       S.recog.maxAlternatives = 3;
       S.recog.onresult = function(e){
-        var interim = "";
-        S.altText = "";
+        var interim = "", alt = "";
         for (var i=e.resultIndex;i<e.results.length;i++){
           var r = e.results[i];
-          if (r.isFinal){ S.finalText += r[0].transcript; } else { interim += r[0].transcript; }
+          if (r.isFinal){ S.finalText += r[0].transcript; }
+          else {
+            interim += r[0].transcript;
+            /* 备选候选：同一段还没定稿的话，取识别引擎给的第二种猜测；
+               之前这里从来没真正赋值过，跟读的"备选候选"功能形同虚设 */
+            alt += (r.length > 1 && r[1] && r[1].transcript) ? r[1].transcript : r[0].transcript;
+          }
         }
         S.interimText = interim;
+        S.altText = alt;
         renderLive(); advanceCue();
       };
       S.recog.onend = function(){ if (S.recogWanted){ try{ S.recog.start(); }catch(e){} } };
