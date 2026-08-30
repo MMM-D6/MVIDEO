@@ -6,7 +6,9 @@
 <title>MMM</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=VT323&family=Silkscreen&family=Press+Start+2P&family=DotGothic16&family=Zen+Dots&family=Special+Elite&family=Courier+Prime:ital,wght@0,400;0,700;1,400&family=LXGW+WenKai+TC:wght@400;700&family=Noto+Serif+SC:wght@400;700&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=VT323&family=Silkscreen&family=Press+Start+2P&family=DotGothic16&family=Zen+Dots&family=Special+Elite&family=Courier+Prime:ital,wght@0,400;0,700;1,400&display=swap" rel="stylesheet">
+<!-- 文泉驿点阵宋体：老式Linux/Unix系统和中文软件常用的经典点阵字体，不在Google Fonts上，用公共webfont CDN引入 -->
+<link rel="stylesheet" href="https://static.zeoseven.com/zsft/169/main/result.css">
 <style>
   :root{
     /* 机身 */
@@ -145,6 +147,10 @@
   header{padding:10px 0 8px;margin-bottom:8px;flex:0 0 auto;
     border-bottom:2px solid var(--groove);box-shadow:0 1px 0 rgba(255,255,255,.45)}
   .titlebar{display:flex;align-items:baseline;gap:12px;flex-wrap:wrap}
+  .langswitch{font-family:var(--lcdfont);font-size:12px;letter-spacing:.06em;color:var(--ink-soft);
+    background:linear-gradient(180deg,#CFCBBF,#ADA9A0);border:1px solid var(--edge);border-radius:12px;
+    padding:3px 10px;cursor:pointer;box-shadow:inset 0 1px 0 rgba(255,255,255,.5)}
+  .langswitch:hover{color:var(--ink)}
   .mark{font-family:var(--plate);font-size:15px;letter-spacing:.16em;text-shadow:0 1px 0 rgba(255,255,255,.5)}
   .cn-title{font-size:16px;letter-spacing:.22em;color:var(--ink-soft)}
   .titlebar .date{margin-left:auto;font-family:var(--lcdfont);font-size:19px;color:var(--ink-soft)}
@@ -369,7 +375,7 @@
     font-size:var(--fs-xs);padding:3px 7px;border-radius:2px;cursor:pointer;box-shadow:0 1px 0 #A08256 !important}
 
   .subbar{display:flex;gap:5px;flex-wrap:wrap;margin-bottom:7px}
-  .subbar .primary{background:linear-gradient(180deg,#E8C88F,#C79E5C);border-color:#8A6C33}
+  .subbar .primary,.subside .primary{background:linear-gradient(180deg,#E8C88F,#C79E5C);border-color:#8A6C33}
   .shiftpanel{display:flex;gap:5px;flex-wrap:wrap;align-items:center;margin-bottom:8px;padding:8px;
     background:#D8D4C7;border:1px solid #9A968D;border-radius:2px;font-size:var(--fs-sm);color:var(--ink-soft)}
   .shiftpanel button{font-size:var(--fs-xs);padding:4px 8px;background:linear-gradient(180deg,var(--shell-hi),#ADA9A0);
@@ -436,29 +442,30 @@
   <header>
     <div class="titlebar">
       <span class="mark">MMM</span>
+      <button class="langswitch" id="langSwitch" type="button" title="Switch interface language / 切换界面语言">EN / 中</button>
       <span class="date" id="today"></span>
     </div>
     <div class="rowset">
       <div class="group">
-        <div class="seg" role="group" aria-label="画面来源">
-          <button id="srcCam" aria-pressed="true">摄像头</button>
-          <button id="srcScreen" aria-pressed="false">屏幕</button>
-          <button id="srcBoth" aria-pressed="false">屏幕加麦克风</button>
+        <div class="seg" role="group" aria-label="Video source" data-i18n-aria="grpSource">
+          <button id="srcCam" aria-pressed="true" data-i18n="srcCam">摄像头</button>
+          <button id="srcScreen" aria-pressed="false" data-i18n="srcScreen">屏幕</button>
+          <button id="srcBoth" aria-pressed="false" data-i18n="srcBoth">屏幕加麦克风</button>
         </div>
       </div>
       <div class="group">
-        <div class="seg" role="group" aria-label="转录语言">
-          <button id="langZh" aria-pressed="true">中文</button>
-          <button id="langEn" aria-pressed="false" title="英式发音模型">英文</button>
-          <button id="langEnUs" aria-pressed="false" title="美式发音模型">美音</button>
-          <button id="langOff" aria-pressed="false">关闭</button>
+        <div class="seg" role="group" aria-label="Transcription language" data-i18n-aria="grpLang">
+          <button id="langZh" aria-pressed="true" data-i18n="langZh">中文</button>
+          <button id="langEn" aria-pressed="false" title="英式发音模型" data-i18n="langEn" data-i18n-title="langEnTip">英文</button>
+          <button id="langEnUs" aria-pressed="false" title="美式发音模型" data-i18n="langEnUs" data-i18n-title="langEnUsTip">美音</button>
+          <button id="langOff" aria-pressed="false" data-i18n="langOff">关闭</button>
         </div>
       </div>
       <div class="group">
-        <div class="seg" role="group" aria-label="屏幕显示">
-          <button id="togglePrompt" aria-pressed="true">提词条</button>
-          <button id="toggleDate" aria-pressed="true">日期烙印</button>
-          <button id="toggleFlip" aria-pressed="false">左右翻转</button>
+        <div class="seg" role="group" aria-label="On-screen display" data-i18n-aria="grpOsd">
+          <button id="togglePrompt" aria-pressed="true" data-i18n="togglePrompt">提词条</button>
+          <button id="toggleDate" aria-pressed="true" data-i18n="toggleDate">日期烙印</button>
+          <button id="toggleFlip" aria-pressed="false" data-i18n="toggleFlip">左右翻转</button>
         </div>
       </div>
     </div>
@@ -472,7 +479,7 @@
           <video id="preview" playsinline muted></video>
           <div class="empty" id="stageEmpty">
             <div class="big">NO SIGNAL</div>
-            <p>还没有画面。按下面的开启画面，浏览器会问你要摄像头或屏幕权限。</p>
+            <p data-i18n="noSignalDesc">还没有画面。按下面的开启画面，浏览器会问你要摄像头或屏幕权限。</p>
           </div>
           <div class="brackets"><i></i><i></i><i></i><i></i></div>
           <div class="osd" id="osd">
@@ -482,84 +489,84 @@
           </div>
           <div class="edit" id="editLayer">
             <svg id="editSvg"><path id="editPath" fill="none" stroke="rgba(255,138,30,.9)" stroke-linecap="round"></path></svg>
-            <div class="tipbar" id="editTip">拖两端的圆点定义这道纹路的起止和倾斜，白点整体移动，方块调粗细。</div>
+            <div class="tipbar" id="editTip" data-i18n="editTip">拖两端的圆点定义这道纹路的起止和倾斜，白点整体移动，方块调粗细。</div>
           </div>
           <div class="cue" id="cue"><div class="grip"></div></div>
         </div>
       </div>
 
       <div class="deck deck-compact">
-        <button class="key record" id="btnRec" disabled><span class="en">REC</span>录这一段</button>
+        <button class="key record" id="btnRec" disabled><span class="en">REC</span><span data-i18n="btnRec">录这一段</span></button>
         <div class="subgrp">
-          <button class="key sub" id="btnConnect"><span class="en">POWER</span>开启画面</button>
-          <button class="key sub" id="btnPause" disabled><span class="en">PAUSE</span>暂停</button>
-          <button class="key sub" id="btnDiscard" disabled><span class="en">ERASE</span>丢弃这条</button>
+          <button class="key sub" id="btnConnect"><span class="en">POWER</span><span data-i18n="btnConnect">开启画面</span></button>
+          <button class="key sub" id="btnPause" disabled><span class="en">PAUSE</span><span data-i18n="btnPause">暂停</span></button>
+          <button class="key sub" id="btnDiscard" disabled><span class="en">ERASE</span><span data-i18n="btnDiscard">丢弃这条</span></button>
         </div>
       </div>
     </main>
 
     <aside class="side">
       <div class="warn" id="warn" hidden></div>
-      <div class="live" id="live"><i>录制时，语音转成的文字会出现在这里。</i></div>
+      <div class="live" id="live"><i data-i18n="livePlaceholder">录制时，语音转成的文字会出现在这里。</i></div>
       <div class="tabs" role="tablist">
-        <button class="tab" id="tabCue" role="tab" aria-selected="true">提词</button>
-        <button class="tab" id="tabSkin" role="tab" aria-selected="false">面部</button>
-        <button class="tab" id="tabFx" role="tab" aria-selected="false">滤镜</button>
-        <button class="tab" id="tabMo" role="tab" aria-selected="false">马赛克</button>
+        <button class="tab" id="tabCue" role="tab" aria-selected="true" data-i18n="tabCue">提词</button>
+        <button class="tab" id="tabSkin" role="tab" aria-selected="false" data-i18n="tabSkin">面部</button>
+        <button class="tab" id="tabFx" role="tab" aria-selected="false" data-i18n="tabFx">滤镜</button>
+        <button class="tab" id="tabMo" role="tab" aria-selected="false" data-i18n="tabMo">马赛克</button>
       </div>
 
       <div class="pane" id="paneCue" role="tabpanel">
-        <div class="subhead first">稿子（一行一句，空行分段）</div>
-        <textarea class="cueText" id="cueText" placeholder="一行写一句话。&#10;录的时候它会跟着你讲到哪句自动往下走。&#10;讲错了没关系，这条不要就重录。"></textarea>
+        <div class="subhead first" data-i18n="cueScriptHead">稿子（一行一句，空行分段）</div>
+        <textarea class="cueText" id="cueText" data-i18n-placeholder="cueTextPlaceholder" placeholder="一行写一句话。&#10;录的时候它会跟着你讲到哪句自动往下走。&#10;讲错了没关系，这条不要就重录。"></textarea>
         <div class="btnrow">
-          <button class="key" id="cuePrev">上一句</button>
-          <button class="key" id="cueNext">下一句</button>
-          <button class="key" id="cueTop">回到开头</button>
+          <button class="key" id="cuePrev" data-i18n="cuePrev">上一句</button>
+          <button class="key" id="cueNext" data-i18n="cueNext">下一句</button>
+          <button class="key" id="cueTop" data-i18n="cueTop">回到开头</button>
         </div>
 
-        <div class="subhead">跟读</div>
+        <div class="subhead" data-i18n="cueFollowHead">跟读</div>
         <div class="seg">
-          <button id="cueAuto" aria-pressed="true">自动跟读</button>
-          <button id="cueRehearse" aria-pressed="false">排练监听</button>
+          <button id="cueAuto" aria-pressed="true" data-i18n="cueAuto">自动跟读</button>
+          <button id="cueRehearse" aria-pressed="false" data-i18n="cueRehearse">排练监听</button>
         </div>
-        <p class="desc" id="cueStat">自动跟读靠语音识别判断你讲到哪句。录制时自动生效；不录制想练习就开排练监听。</p>
+        <p class="desc" id="cueStat" data-i18n="cueStatDefault">自动跟读靠语音识别判断你讲到哪句。录制时自动生效；不录制想练习就开排练监听。</p>
 
-        <div class="subhead">位置和外观</div>
+        <div class="subhead" data-i18n="cuePosHead">位置和外观</div>
         <div class="seg" style="margin-bottom:9px">
-          <button id="cuePosTop">贴顶</button>
-          <button id="cuePosMid">居中</button>
-          <button id="cuePosBot">贴底</button>
+          <button id="cuePosTop" data-i18n="cuePosTop">贴顶</button>
+          <button id="cuePosMid" data-i18n="cuePosMid">居中</button>
+          <button id="cuePosBot" data-i18n="cuePosBot">贴底</button>
         </div>
         <div class="seg" style="margin-bottom:9px">
-          <button id="cueAlignL">左对齐</button>
-          <button id="cueAlignC" aria-pressed="true">居中</button>
+          <button id="cueAlignL" data-i18n="cueAlignL">左对齐</button>
+          <button id="cueAlignC" aria-pressed="true" data-i18n="cueAlignC">居中</button>
         </div>
         <div style="display:flex;gap:6px;margin-bottom:10px" id="cueColors"></div>
         <div class="sliders" id="cueBox"></div>
-        <p class="desc">在画面上直接拖提词条就能换位置。字号、透明度、行数、背景都在上面调。</p>
+        <p class="desc" data-i18n="cueFooterDesc">在画面上直接拖提词条就能换位置。字号、透明度、行数、背景都在上面调。</p>
       </div>
 
       <div class="pane" id="paneSkin" role="tabpanel" hidden>
-        <div class="status" id="faceStatus">面部追踪：正在加载模型</div>
+        <div class="status" id="faceStatus" data-i18n="faceStatusDefault">面部追踪：正在加载模型</div>
         <div class="seg" style="margin-bottom:4px">
-          <button id="toggleFace" aria-pressed="true">面捕</button>
-          <button id="toggleEdit" aria-pressed="false">调整纹路</button>
+          <button id="toggleFace" aria-pressed="true" data-i18n="toggleFace">面捕</button>
+          <button id="toggleEdit" aria-pressed="false" data-i18n="toggleEdit">调整纹路</button>
         </div>
         <div class="chips" id="rgnChips" style="margin-top:8px"></div>
 
-        <div class="subhead">五官微调</div>
+        <div class="subhead" data-i18n="warpHead">五官微调</div>
         <div class="sliders" id="warpBox"></div>
 
-        <div class="subhead">局部修饰</div>
+        <div class="subhead" data-i18n="localHead">局部修饰</div>
         <div class="sliders" id="localBox"></div>
 
-        <div class="subhead">整脸质感</div>
+        <div class="subhead" data-i18n="skinHead">整脸质感</div>
         <div class="sliders" id="skinBox"></div>
 
         <div class="btnrow">
-          <button class="key" id="btnResetSkin">恢复默认</button>
-          <button class="key" id="btnZeroSkin">全部归零</button>
-          <button class="key" id="btnResetRgn">重置纹路</button>
+          <button class="key" id="btnResetSkin" data-i18n="btnResetSkin">恢复默认</button>
+          <button class="key" id="btnZeroSkin" data-i18n="btnZeroSkin">全部归零</button>
+          <button class="key" id="btnResetRgn" data-i18n="btnResetRgn">重置纹路</button>
         </div>
       </div>
 
@@ -567,7 +574,7 @@
         <div class="chips" id="chips"></div>
         <p class="desc" id="fxdesc"></p>
         <div class="sliders" id="sliders" style="margin-top:11px;padding-top:11px;border-top:1px solid #8C8981"></div>
-        <div class="btnrow"><button class="key" id="btnResetFx">恢复这个滤镜的默认</button></div>
+        <div class="btnrow"><button class="key" id="btnResetFx" data-i18n="btnResetFx">恢复这个滤镜的默认</button></div>
       </div>
 
       <div class="pane" id="paneMo" role="tabpanel" hidden>
@@ -577,20 +584,20 @@
       </div>
 
       <div class="index-head">
-        <b>TAPE INDEX</b><span class="cn">已录片段</span><span class="count" id="tally">0 段</span>
+        <b>TAPE INDEX</b><span class="cn" data-i18n="indexHeadCn">已录片段</span><span class="count" id="tally">0 段</span>
       </div>
       <div id="takes"></div>
       <div class="empty-takes" id="noTakes">
         <b>TAPE EMPTY</b>
-        还没有片段。第一条通常会僵，很正常，先录三十秒再决定留不留。
+        <span data-i18n="noTakesDesc">还没有片段。第一条通常会僵，很正常，先录三十秒再决定留不留。</span>
       </div>
 
       <p class="note">
-        主屏比例跟着画面走，看到的每一个像素都跟导出文件一致，不裁切。<br>
-        五官微调、面部修饰、滤镜、马赛克、日期烙印会烧进文件；提词条、红点、时码、音量条、编辑手柄只在屏幕上，不会录进去。<br>
-        美颜、滤镜、纹路位置和提词设置会存在这台电脑的浏览器里，下次打开自动恢复；换电脑用底部的导出设置。<br>
-        选好保存文件夹之后，所有片段和文字都会直接写进那个文件夹，下次打开还是它。<br>
-        视频只存在这次会话里，关掉页面就没了，录完记得保存。
+        <span data-i18n="note1">主屏比例跟着画面走，看到的每一个像素都跟导出文件一致，不裁切。</span><br>
+        <span data-i18n="note2">五官微调、面部修饰、滤镜、马赛克、日期烙印会烧进文件；提词条、红点、时码、音量条、编辑手柄只在屏幕上，不会录进去。</span><br>
+        <span data-i18n="note3">美颜、滤镜、纹路位置和提词设置会存在这台电脑的浏览器里，下次打开自动恢复；换电脑用底部的导出设置。</span><br>
+        <span data-i18n="note4">选好保存文件夹之后，所有片段和文字都会直接写进那个文件夹，下次打开还是它。</span><br>
+        <span data-i18n="note5">视频只存在这次会话里，关掉页面就没了，录完记得保存。</span>
       </p>
     </aside>
   </div>
@@ -599,14 +606,14 @@
 <div class="foot">
   <div class="wrap">
     <span class="tally" id="footTally">0:00:00</span>
-    <button class="key" id="btnFolder">选择保存文件夹</button>
-    <button class="key" id="btnDownloadAll" disabled>保存全部片段</button>
-    <button class="key" id="btnExportMd" disabled>导出文字稿</button>
-    <button class="key" id="btnExportSrt" disabled>导出字幕</button>
-    <button class="key" id="btnExportCfg" title="把当前所有参数存成文件，换电脑时导入">导出设置</button>
-    <button class="key" id="btnImportCfg">导入设置</button>
+    <button class="key" id="btnFolder" data-i18n="btnFolder">选择保存文件夹</button>
+    <button class="key" id="btnDownloadAll" disabled data-i18n="btnDownloadAll">保存全部片段</button>
+    <button class="key" id="btnExportMd" disabled data-i18n="btnExportMd">导出文字稿</button>
+    <button class="key" id="btnExportSrt" disabled data-i18n="btnExportSrt">导出字幕</button>
+    <button class="key" id="btnExportCfg" title="把当前所有参数存成文件，换电脑时导入" data-i18n="btnExportCfg" data-i18n-title="btnExportCfgTip">导出设置</button>
+    <button class="key" id="btnImportCfg" data-i18n="btnImportCfg">导入设置</button>
     <input type="file" id="cfgFile" accept="application/json,.json" hidden>
-    <button class="key" id="btnClear">清空</button>
+    <button class="key" id="btnClear" data-i18n="btnClear">清空</button>
   </div>
 </div>
 
@@ -616,88 +623,253 @@
   function pc(v){ return Math.round(v*100)+"%"; }
   function x2(v){ return v.toFixed(2)+"x"; }
   var $ = function(id){ return document.getElementById(id); };
+  /* 字体从网络异步加载，画布文字不会在加载完成后自动重画——
+     打开的字幕/封面编辑器把自己的重绘函数登记在这里，字体真正就绪后统一喊一遍 */
+  var pendingRepaints = [];
+
+  /* ================== 界面语言 ================== */
+  var I18N = {
+    en: {
+      grpSource:"Video source", grpLang:"Transcription language", grpOsd:"On-screen display",
+      srcCam:"Camera", srcScreen:"Screen", srcBoth:"Screen + mic",
+      langZh:"Chinese", langEn:"English", langEnTip:"British accent model",
+      langEnUs:"US accent", langEnUsTip:"American accent model", langOff:"Off",
+      togglePrompt:"Teleprompter", toggleDate:"Date stamp", toggleFlip:"Mirror flip",
+      noSignalDesc:"No picture yet. Press Power below — your browser will ask for camera or screen permission.",
+      editTip:"Drag the two end dots to set where this line starts, ends, and tilts. The white dot moves the whole line; the square adjusts thickness.",
+      btnRec:"Record this take", btnConnect:"Turn on camera", btnPause:"Pause", btnDiscard:"Discard this take",
+      livePlaceholder:"While recording, the transcribed text will appear here.",
+      tabCue:"Cue", tabSkin:"Face", tabFx:"Filter", tabMo:"Mosaic",
+      cueScriptHead:"Script (one line per sentence, blank line = new section)",
+      cueTextPlaceholder:"Write one sentence per line.\nWhile recording, it follows along as you speak.\nMisspoke? No problem — just don't keep that take and redo it.",
+      cuePrev:"Previous line", cueNext:"Next line", cueTop:"Back to start",
+      cueFollowHead:"Auto-follow",
+      cueAuto:"Auto-follow", cueRehearse:"Rehearse (listen only)",
+      cueStatDefault:"Auto-follow uses speech recognition to track which line you're on. It kicks in automatically while recording; turn on Rehearse to practice without recording.",
+      cuePosHead:"Position & appearance",
+      cuePosTop:"Top", cuePosMid:"Middle", cuePosBot:"Bottom",
+      cueAlignL:"Left align", cueAlignC:"Center",
+      cueFooterDesc:"Drag the teleprompter box directly on screen to reposition it. Size, opacity, line count, and background are all adjustable above.",
+      faceStatusDefault:"Face tracking: loading model",
+      toggleFace:"Face tracking", toggleEdit:"Edit contours",
+      warpHead:"Feature tweaks", localHead:"Spot touch-up", skinHead:"Overall skin",
+      btnResetSkin:"Reset to default", btnZeroSkin:"Zero everything", btnResetRgn:"Reset contours",
+      btnResetFx:"Reset this filter to default",
+      indexHeadCn:"Recorded takes",
+      noTakesDesc:"No takes yet. The first one is usually awkward — that's normal. Record 30 seconds, then decide if you want to keep it.",
+      note1:"The main screen's ratio follows the picture — every pixel you see matches the exported file, nothing is cropped.",
+      note2:"Feature tweaks, skin touch-up, filters, mosaic, and the date stamp are burned into the file; the teleprompter, red dot, timecode, level meter, and edit handles are on-screen only and never get recorded.",
+      note3:"Beauty, filter, contour position, and cue settings are saved in this computer's browser and restored automatically next time; use the export settings button at the bottom when switching computers.",
+      note4:"Once you pick a save folder, every take and its text are written straight into that folder, and it stays the same one next time you open this.",
+      note5:"Video only exists for this session — closing the page loses it, so remember to save after recording.",
+      btnFolder:"Choose save folder", btnDownloadAll:"Save all takes",
+      btnExportMd:"Export transcript", btnExportSrt:"Export captions",
+      btnExportCfg:"Export settings", btnExportCfgTip:"Save all current settings to a file, to import on another computer",
+      btnImportCfg:"Import settings", btnClear:"Clear all",
+      takeMoveUp:"Move up", takeMoveDown:"Move down", takeRetake:"Retake",
+      takeSub:"Captions", takeSave:"Save", takeDelete:"Delete", takeCover:"Cover",
+      coverPickFrame:"● Use this frame", coverPlaceholder:"Cover title text",
+      coverDurLabel:"Cover duration", coverExport:"Export video with cover",
+      coverNoFrame:"Pick a frame first", coverNoText:"Add some cover text first",
+      coverEmptyTip:"Play to a frame you like, then click \u201cUse this frame\u201d below.",
+      coverBurning:"Rendering cover ", coverStop:"Stopping", coverCancelled:"Cover export cancelled.",
+      coverSaved:"Video with cover saved to ", coverDownloaded:"Video with cover downloaded",
+      coverLabel:"Cover preview · "
+    },
+    zh: {
+      grpSource:"画面来源", grpLang:"转录语言", grpOsd:"屏幕显示",
+      srcCam:"摄像头", srcScreen:"屏幕", srcBoth:"屏幕加麦克风",
+      langZh:"中文", langEn:"英文", langEnTip:"英式发音模型",
+      langEnUs:"美音", langEnUsTip:"美式发音模型", langOff:"关闭",
+      togglePrompt:"提词条", toggleDate:"日期烙印", toggleFlip:"左右翻转",
+      noSignalDesc:"还没有画面。按下面的开启画面，浏览器会问你要摄像头或屏幕权限。",
+      editTip:"拖两端的圆点定义这道纹路的起止和倾斜，白点整体移动，方块调粗细。",
+      btnRec:"录这一段", btnConnect:"开启画面", btnPause:"暂停", btnDiscard:"丢弃这条",
+      livePlaceholder:"录制时，语音转成的文字会出现在这里。",
+      tabCue:"提词", tabSkin:"面部", tabFx:"滤镜", tabMo:"马赛克",
+      cueScriptHead:"稿子（一行一句，空行分段）",
+      cueTextPlaceholder:"一行写一句话。\n录的时候它会跟着你讲到哪句自动往下走。\n讲错了没关系，这条不要就重录。",
+      cuePrev:"上一句", cueNext:"下一句", cueTop:"回到开头",
+      cueFollowHead:"跟读",
+      cueAuto:"自动跟读", cueRehearse:"排练监听",
+      cueStatDefault:"自动跟读靠语音识别判断你讲到哪句。录制时自动生效；不录制想练习就开排练监听。",
+      cuePosHead:"位置和外观",
+      cuePosTop:"贴顶", cuePosMid:"居中", cuePosBot:"贴底",
+      cueAlignL:"左对齐", cueAlignC:"居中",
+      cueFooterDesc:"在画面上直接拖提词条就能换位置。字号、透明度、行数、背景都在上面调。",
+      faceStatusDefault:"面部追踪：正在加载模型",
+      toggleFace:"面捕", toggleEdit:"调整纹路",
+      warpHead:"五官微调", localHead:"局部修饰", skinHead:"整脸质感",
+      btnResetSkin:"恢复默认", btnZeroSkin:"全部归零", btnResetRgn:"重置纹路",
+      btnResetFx:"恢复这个滤镜的默认",
+      indexHeadCn:"已录片段",
+      noTakesDesc:"还没有片段。第一条通常会僵，很正常，先录三十秒再决定留不留。",
+      note1:"主屏比例跟着画面走，看到的每一个像素都跟导出文件一致，不裁切。",
+      note2:"五官微调、面部修饰、滤镜、马赛克、日期烙印会烧进文件；提词条、红点、时码、音量条、编辑手柄只在屏幕上，不会录进去。",
+      note3:"美颜、滤镜、纹路位置和提词设置会存在这台电脑的浏览器里，下次打开自动恢复；换电脑用底部的导出设置。",
+      note4:"选好保存文件夹之后，所有片段和文字都会直接写进那个文件夹，下次打开还是它。",
+      note5:"视频只存在这次会话里，关掉页面就没了，录完记得保存。",
+      btnFolder:"选择保存文件夹", btnDownloadAll:"保存全部片段",
+      btnExportMd:"导出文字稿", btnExportSrt:"导出字幕",
+      btnExportCfg:"导出设置", btnExportCfgTip:"把当前所有参数存成文件，换电脑时导入",
+      btnImportCfg:"导入设置", btnClear:"清空",
+      takeMoveUp:"上移", takeMoveDown:"下移", takeRetake:"重录",
+      takeSub:"字幕", takeSave:"保存", takeDelete:"删除", takeCover:"封面",
+      coverPickFrame:"● 用这一帧做封面", coverPlaceholder:"封面上的标题文字",
+      coverDurLabel:"封面停留时长", coverExport:"导出带封面的视频",
+      coverNoFrame:"先选一帧做封面", coverNoText:"先给封面加点文字",
+      coverEmptyTip:"播放到喜欢的画面，点下面的「用这一帧做封面」。",
+      coverBurning:"渲染封面中 ", coverStop:"正在停止", coverCancelled:"封面导出已取消。",
+      coverSaved:"带封面的视频已存到 ", coverDownloaded:"带封面的视频已下载",
+      coverLabel:"封面预览 · "
+    }
+  };
+  /* 给还没转换成双语的地方（比如各个滑块的中文名、滤镜名）用的兜底翻译函数：
+     查得到就翻，查不到就原样返回中文——不会因为漏掉几个词就报错。 */
+  function T(key){
+    var d = I18N[S.uiLang] || I18N.en;
+    return (d && d[key] !== undefined) ? d[key] : (I18N.zh[key] !== undefined ? I18N.zh[key] : key);
+  }
+  function BI(zh,en){ return { zh:zh, en:en }; }
+  function L(v){
+    if (v && typeof v === "object" && (v.zh !== undefined || v.en !== undefined)){
+      return (S.uiLang === "zh" ? v.zh : v.en) || v.zh || v.en || "";
+    }
+    return v;
+  }
+  function applyLang(lang){
+    S.uiLang = (lang === "zh") ? "zh" : "en";
+    document.documentElement.lang = S.uiLang === "zh" ? "zh-CN" : "en";
+    $("langSwitch").textContent = S.uiLang === "zh" ? "中 / EN" : "EN / 中";
+    var dict = I18N[S.uiLang];
+    document.querySelectorAll("[data-i18n]").forEach(function(el){
+      var k = el.getAttribute("data-i18n");
+      if (dict[k] !== undefined) el.textContent = dict[k];
+    });
+    document.querySelectorAll("[data-i18n-title]").forEach(function(el){
+      var k = el.getAttribute("data-i18n-title");
+      if (dict[k] !== undefined) el.title = dict[k];
+    });
+    document.querySelectorAll("[data-i18n-placeholder]").forEach(function(el){
+      var k = el.getAttribute("data-i18n-placeholder");
+      if (dict[k] !== undefined) el.placeholder = dict[k];
+    });
+    document.querySelectorAll("[data-i18n-aria]").forEach(function(el){
+      var k = el.getAttribute("data-i18n-aria");
+      if (dict[k] !== undefined) el.setAttribute("aria-label", dict[k]);
+    });
+    /* 滑块面板、滤镜/马赛克名称、片段列表这些是JS动态生成的，
+       切语言的时候得手动喊它们重新刷一遍标签 */
+    [typeof fxUI!=="undefined"&&fxUI, typeof warpUI!=="undefined"&&warpUI,
+     typeof localUI!=="undefined"&&localUI, typeof skinUI!=="undefined"&&skinUI,
+     typeof moUI!=="undefined"&&moUI, typeof cueUI!=="undefined"&&cueUI]
+      .forEach(function(ui){ if (ui && ui.relabel) ui.relabel(); });
+    if (typeof relabelChips === "function") relabelChips();
+    if (typeof render === "function" && document.getElementById("takes")) render();
+    if (typeof folderLabel === "function") folderLabel();
+    /* REC/开启画面 这两个按钮录制过程中会被整段替换掉文字，
+       切语言时按当前状态把文字重新填一遍 */
+    try {
+      if (typeof btnRec !== "undefined" && btnRec){
+        btnRec.innerHTML = S.recording
+          ? ('<span class="en">STOP</span>' + (S.uiLang==="zh"?"结束这一段":"Stop this take"))
+          : ('<span class="en">REC</span>' + T("btnRec"));
+      }
+      if (typeof btnConnect !== "undefined" && btnConnect){
+        btnConnect.innerHTML = '<span class="en">' + (S.stream?"SOURCE":"POWER") + '</span>' +
+          (S.stream ? (S.uiLang==="zh"?"换个来源":"Change source") : T("btnConnect"));
+      }
+      if (typeof btnPause !== "undefined" && btnPause && !btnPause.disabled){
+        btnPause.innerHTML = S.paused
+          ? ('<span class="en">RESUME</span>' + (S.uiLang==="zh"?"继续":"Resume"))
+          : ('<span class="en">PAUSE</span>' + T("btnPause"));
+      }
+    } catch(e){}
+  }
+  $("langSwitch").onclick = function(){ applyLang(S.uiLang === "en" ? "zh" : "en"); save(); };
+
 
   /* ================== 滤镜 ================== */
   var PRESETS = {
-    ccd:  { cn:"CCD", en:"CCD", desc:"二〇〇几年卡片机：对比高、颜色浓、微微偏绿，带细颗粒和一点镜头光晕。",
+    ccd:  { cn:BI("CCD","CCD"), en:"CCD", desc:BI("二〇〇几年卡片机：对比高、颜色浓、微微偏绿，带细颗粒和一点镜头光晕。","Early-2000s point-and-shoot: high contrast, rich color, a faint green cast, fine grain, and a touch of lens bloom."),
             tintColor:"#7FBF6A",
             p:{bri:1.06,con:1.12,sat:1.18,hue:-3,sep:0,gry:0,blr:0,tint:0,bloom:.10,grain:.05,scan:0,vig:.4} },
-    kodak:{ cn:"暖胶片", en:"KODAK", desc:"暖黄底子，肤色红润，高光化开。拍人最讨好的一档。",
+    kodak:{ cn:BI("暖胶片","Warm film"), en:"KODAK", desc:BI("暖黄底子，肤色红润，高光化开。拍人最讨好的一档。","A warm yellow base with rosy skin tones and glowing highlights — the most flattering one for people."),
             tintColor:"#FFC46B", warm:1,
             p:{bri:1.06,con:1.06,sat:1.18,hue:-6,sep:.10,gry:0,blr:.1,tint:.14,bloom:.16,grain:.05,scan:0,vig:.3} },
-    cream:{ cn:"奶油", en:"CREAM", desc:"高调柔和，对比压低，气色好、不锐利，适合近距离说话。",
+    cream:{ cn:BI("奶油","Cream"), en:"CREAM", desc:BI("高调柔和，对比压低，气色好、不锐利，适合近距离说话。","Bright and soft, low contrast — good color without harshness, nice for close-up talking."),
             tintColor:"#FFE3C0", warm:1,
             p:{bri:1.12,con:.9,sat:.98,hue:0,sep:.1,gry:0,blr:.25,tint:.16,bloom:.22,grain:.03,scan:0,vig:.2} },
-    fuji: { cn:"冷胶片", en:"FUJI", desc:"青绿底子，通透干净，白天靠窗最好看。",
+    fuji: { cn:BI("冷胶片","Cool film"), en:"FUJI", desc:BI("青绿底子，通透干净，白天靠窗最好看。","A teal-green base, clean and airy — looks best by a window in daylight."),
             tintColor:"#7FD4C0",
             p:{bri:1.06,con:1.04,sat:1.02,hue:7,sep:0,gry:0,blr:0,tint:.10,bloom:.10,grain:.04,scan:0,vig:.28} },
-    pola: { cn:"拍立得", en:"POLA", desc:"一次成像：亮、对比低、泛奶黄，边缘轻轻发白。",
+    pola: { cn:BI("拍立得","Polaroid"), en:"POLA", desc:BI("一次成像：亮、对比低、泛奶黄，边缘轻轻发白。","Instant-film look: bright, low contrast, a milky-yellow cast, edges fading slightly white."),
             tintColor:"#FFD9A0", warm:1,
             p:{bri:1.12,con:.9,sat:1.12,hue:0,sep:.18,gry:0,blr:.1,tint:.13,bloom:.2,grain:.05,scan:0,vig:.28} },
-    teal: { cn:"青橙", en:"TEAL", desc:"电影调色方向：暗部偏青，肤色偏暖，立体感强。",
+    teal: { cn:BI("青橙","Teal & orange"), en:"TEAL", desc:BI("电影调色方向：暗部偏青，肤色偏暖，立体感强。","A film-grade look: shadows lean teal, skin tones lean warm, strong sense of depth."),
             tintColor:"#2E8B8B",
             p:{bri:1.02,con:1.14,sat:1.15,hue:-6,sep:0,gry:0,blr:0,tint:.14,bloom:.08,grain:.03,scan:0,vig:.4} },
-    crt:  { cn:"显像管", en:"CRT", desc:"老电视的荧光感：颜色发亮、高光化开、边角发暗，没有横条纹。",
+    crt:  { cn:BI("显像管","CRT tube"), en:"CRT", desc:BI("老电视的荧光感：颜色发亮、高光化开、边角发暗，没有横条纹。","An old TV's phosphor glow: vivid color, blooming highlights, darkened corners — no scanlines."),
             tintColor:"#8FD8FF",
             p:{bri:1.05,con:1.12,sat:1.24,hue:0,sep:0,gry:0,blr:.35,tint:.06,bloom:.34,grain:.05,scan:0,vig:.42} },
-    vhs:  { cn:"录像带", en:"VHS", desc:"家用录像带：色彩溢出、轻微失焦、亮部发糊，没有雪花和条纹。",
+    vhs:  { cn:BI("录像带","VHS tape"), en:"VHS", desc:BI("家用录像带：色彩溢出、轻微失焦、亮部发糊，没有雪花和条纹。","A home camcorder tape: color bleeding, slight softness, hazy highlights — no static or streaks."),
             tintColor:"#FFB0C8",
             p:{bri:1.08,con:.94,sat:1.42,hue:0,sep:0,gry:0,blr:.75,tint:.08,bloom:.28,grain:.06,scan:0,vig:.32} },
-    "8mm":{ cn:"八毫米", en:"8MM", desc:"老家庭录像的暖棕调，柔和、边缘压暗。", warm:1,
+    "8mm":{ cn:BI("八毫米","8mm film"), en:"8MM", desc:BI("老家庭录像的暖棕调，柔和、边缘压暗。","The warm brown tone of an old home movie — soft, with darkened edges."), warm:1,
             p:{bri:1.02,con:1.1,sat:1.28,hue:0,sep:.45,gry:0,blr:.25,tint:0,bloom:.18,grain:.10,scan:0,vig:.55} },
-    fade: { cn:"褪色", en:"FADE", desc:"放旧了的照片，颜色掉一半，黑位发灰。",
+    fade: { cn:BI("褪色","Faded"), en:"FADE", desc:BI("放旧了的照片，颜色掉一半，黑位发灰。","A photo that's aged — half the color gone, blacks turned grey."),
             tintColor:"#E8D8C0",
             p:{bri:1.1,con:.82,sat:.7,hue:0,sep:.25,gry:0,blr:0,tint:.15,bloom:.12,grain:.06,scan:0,vig:.2} },
-    cool: { cn:"冷调", en:"COOL", desc:"偏蓝的清冷调子，深夜说话的感觉。", tintColor:"#4A78FF", cold:1,
+    cool: { cn:BI("冷调","Cool tone"), en:"COOL", desc:BI("偏蓝的清冷调子，深夜说话的感觉。","A cool blue-leaning tone — the feel of talking late at night."), tintColor:"#4A78FF", cold:1,
             p:{bri:1.04,con:1.12,sat:.82,hue:-16,sep:0,gry:0,blr:0,tint:.10,bloom:.1,grain:.04,scan:0,vig:.5} },
-    bw:   { cn:"黑白", en:"B&W", desc:"高反差黑白，只剩表情和光线。",
+    bw:   { cn:BI("黑白","Black & white"), en:"B&W", desc:BI("高反差黑白，只剩表情和光线。","High-contrast black and white — just expression and light left."),
             p:{bri:1.05,con:1.32,sat:1,hue:0,sep:0,gry:1,blr:0,tint:0,bloom:.1,grain:.06,scan:0,vig:.5} },
-    silver:{cn:"银盐", en:"SILVER", desc:"柔一点的黑白，中灰厚，接近老照片。",
+    silver:{cn:BI("银盐","Silver print"), en:"SILVER", desc:BI("柔一点的黑白，中灰厚，接近老照片。","A softer black and white with rich mid-greys, close to an old photograph."),
             p:{bri:1.06,con:1.1,sat:1,hue:0,sep:.15,gry:1,blr:.2,tint:0,bloom:.16,grain:.09,scan:0,vig:.4} },
-    off:  { cn:"原图", en:"OFF", desc:"不做任何颜色处理。",
+    off:  { cn:BI("原图","Original"), en:"OFF", desc:BI("不做任何颜色处理。","No color processing at all."),
             p:{bri:1,con:1,sat:1,hue:0,sep:0,gry:0,blr:0,tint:0,bloom:0,grain:0,scan:0,vig:0} }
   };
   var SLIDERS = [
-    { k:"bri",cn:"亮度",tip:"整体明暗",min:.4,max:1.8,step:.01,fmt:x2 },
-    { k:"con",cn:"对比",tip:"黑白拉开程度",min:.4,max:2.2,step:.01,fmt:x2 },
-    { k:"sat",cn:"饱和",tip:"颜色浓淡",min:0,max:4,step:.05,fmt:x2 },
-    { k:"hue",cn:"色相",tip:"偏色方向",min:-180,max:180,step:1,fmt:function(v){return Math.round(v)+"°"} },
-    { k:"sep",cn:"怀旧棕",tip:"往老照片的棕靠",min:0,max:1,step:.01,fmt:pc },
-    { k:"gry",cn:"去色",tip:"抽掉原始颜色",min:0,max:1,step:.01,fmt:pc },
-    { k:"tint",cn:"染色",tip:"滤镜自带的颜色",min:0,max:.5,step:.01,fmt:pc },
-    { k:"blr",cn:"柔焦",tip:"轻微失焦",min:0,max:4,step:.05,fmt:function(v){return v.toFixed(2)+"px"} },
-    { k:"bloom",cn:"光晕",tip:"亮部化开，古早镜头感",min:0,max:.8,step:.01,fmt:pc },
-    { k:"grain",cn:"颗粒",tip:"胶片噪点",min:0,max:.4,step:.01,fmt:function(v){return Math.round(v*250)+""} },
-    { k:"scan",cn:"横纹",tip:"默认关闭",min:0,max:.35,step:.01,fmt:function(v){return v<=0?"关":Math.round(v*280)+""} },
-    { k:"vig",cn:"暗角",tip:"四周压暗",min:0,max:1,step:.01,fmt:pc }
+    { k:"bri",cn:BI("亮度","Brightness"),tip:BI("整体明暗","Overall lightness"),min:.4,max:1.8,step:.01,fmt:x2 },
+    { k:"con",cn:BI("对比","Contrast"),tip:BI("黑白拉开程度","How far apart light and dark are pushed"),min:.4,max:2.2,step:.01,fmt:x2 },
+    { k:"sat",cn:BI("饱和","Saturation"),tip:BI("颜色浓淡","Color intensity"),min:0,max:4,step:.05,fmt:x2 },
+    { k:"hue",cn:BI("色相","Hue"),tip:BI("偏色方向","Color-shift direction"),min:-180,max:180,step:1,fmt:function(v){return Math.round(v)+"°"} },
+    { k:"sep",cn:BI("怀旧棕","Sepia"),tip:BI("往老照片的棕靠","Pulls toward an old-photo brown"),min:0,max:1,step:.01,fmt:pc },
+    { k:"gry",cn:BI("去色","Desaturate"),tip:BI("抽掉原始颜色","Strips out the original color"),min:0,max:1,step:.01,fmt:pc },
+    { k:"tint",cn:BI("染色","Color tint"),tip:BI("滤镜自带的颜色","The filter's built-in color cast"),min:0,max:.5,step:.01,fmt:pc },
+    { k:"blr",cn:BI("柔焦","Soft focus"),tip:BI("轻微失焦","A slight out-of-focus feel"),min:0,max:4,step:.05,fmt:function(v){return v.toFixed(2)+"px"} },
+    { k:"bloom",cn:BI("光晕","Bloom"),tip:BI("亮部化开，古早镜头感","Highlights glow outward, an old-lens feel"),min:0,max:.8,step:.01,fmt:pc },
+    { k:"grain",cn:BI("颗粒","Grain"),tip:BI("胶片噪点","Film grain noise"),min:0,max:.4,step:.01,fmt:function(v){return Math.round(v*250)+""} },
+    { k:"scan",cn:BI("横纹","Scanlines"),tip:BI("默认关闭","Off by default"),min:0,max:.35,step:.01,fmt:function(v){return v<=0?(S.uiLang==="zh"?"关":"Off"):Math.round(v*280)+""} },
+    { k:"vig",cn:BI("暗角","Vignette"),tip:BI("四周压暗","Darkens the edges"),min:0,max:1,step:.01,fmt:pc }
   ];
 
   var WARP = [
-    { k:"eye",cn:"大眼",tip:"以眼球为中心放大",min:0,max:1,step:.01,fmt:pc },
-    { k:"nose",cn:"缩鼻",tip:"鼻头鼻翼收小",min:0,max:1,step:.01,fmt:pc },
-    { k:"mouth",cn:"嘴型",tip:"左小右大",min:-1,max:1,step:.01,fmt:function(v){return Math.round(v*100)+""} },
-    { k:"slim",cn:"瘦脸",tip:"颧骨到下颌整条轮廓收窄",min:0,max:1,step:.01,fmt:pc },
-    { k:"chin",cn:"下巴",tip:"嘴以下垂直收短",min:0,max:1,step:.01,fmt:pc },
-    { k:"brow",cn:"开眼角",tip:"眼尾往外拉一点",min:0,max:1,step:.01,fmt:pc }
+    { k:"eye",cn:BI("大眼","Bigger eyes"),tip:BI("以眼球为中心放大","Enlarges around the eyeball center"),min:0,max:1,step:.01,fmt:pc },
+    { k:"nose",cn:BI("缩鼻","Slim nose"),tip:BI("鼻头鼻翼收小","Shrinks the nose tip and sides"),min:0,max:1,step:.01,fmt:pc },
+    { k:"mouth",cn:BI("嘴型","Mouth shape"),tip:BI("左小右大","Smaller on the left, bigger on the right"),min:-1,max:1,step:.01,fmt:function(v){return Math.round(v*100)+""} },
+    { k:"slim",cn:BI("瘦脸","Slim face"),tip:BI("颧骨到下颌整条轮廓收窄","Narrows the whole jawline from cheekbone to chin"),min:0,max:1,step:.01,fmt:pc },
+    { k:"chin",cn:BI("下巴","Chin"),tip:BI("嘴以下垂直收短","Shortens vertically below the mouth"),min:0,max:1,step:.01,fmt:pc },
+    { k:"brow",cn:BI("开眼角","Open eye corners"),tip:BI("眼尾往外拉一点","Pulls the outer eye corner out a bit"),min:0,max:1,step:.01,fmt:pc }
   ];
   var WARP_DEFAULT = { eye:.25, nose:.15, mouth:0, slim:.2, chin:.1, brow:.1 };
 
   var LOCAL = [
-    { k:"trough",cn:"淡化泪沟",tip:"取旁边的皮肤填平凹陷",min:0,max:1,step:.01,fmt:pc },
-    { k:"fold",cn:"淡化法令纹",tip:"取脸颊外侧皮肤填平",min:0,max:1,step:.01,fmt:pc },
-    { k:"eyeLight",cn:"眼神提亮",tip:"眼睛更清楚",min:0,max:1,step:.01,fmt:pc },
-    { k:"lipBoost",cn:"唇色",tip:"嘴唇加一点血色",min:0,max:1,step:.01,fmt:pc },
-    { k:"teeth",cn:"牙齿提亮",tip:"张嘴时才看得出",min:0,max:1,step:.01,fmt:pc }
+    { k:"trough",cn:BI("淡化泪沟","Soften tear troughs"),tip:BI("取旁边的皮肤填平凹陷","Fills the hollow using nearby skin"),min:0,max:1,step:.01,fmt:pc },
+    { k:"fold",cn:BI("淡化法令纹","Soften nasolabial folds"),tip:BI("取脸颊外侧皮肤填平","Fills it using skin from the outer cheek"),min:0,max:1,step:.01,fmt:pc },
+    { k:"eyeLight",cn:BI("眼神提亮","Brighten eyes"),tip:BI("眼睛更清楚","Makes the eyes read more clearly"),min:0,max:1,step:.01,fmt:pc },
+    { k:"lipBoost",cn:BI("唇色","Lip color"),tip:BI("嘴唇加一点血色","Adds a bit of color to the lips"),min:0,max:1,step:.01,fmt:pc },
+    { k:"teeth",cn:BI("牙齿提亮","Whiten teeth"),tip:BI("张嘴时才看得出","Only noticeable when the mouth is open"),min:0,max:1,step:.01,fmt:pc }
   ];
   var SKIN = [
-    { k:"smooth",cn:"磨皮",tip:"皮肤变均匀",min:0,max:1,step:.01,fmt:pc },
-    { k:"detail",cn:"保留细节",tip:"找回真实质感",min:0,max:1,step:.01,fmt:pc },
-    { k:"even",cn:"匀肤色",tip:"减轻泛红和色块",min:0,max:1,step:.01,fmt:pc },
-    { k:"warm",cn:"肤色暖度",tip:"往红润方向拉",min:0,max:1,step:.01,fmt:pc },
-    { k:"lift",cn:"面部提亮",tip:"整张脸抬亮一点",min:0,max:1,step:.01,fmt:pc },
-    { k:"glow",cn:"柔光",tip:"高光晕开",min:0,max:1,step:.01,fmt:pc },
-    { k:"range",cn:"作用范围",tip:"面部遮罩大小",min:.7,max:1.3,step:.01,fmt:x2 },
-    { k:"feather",cn:"边缘羽化",tip:"过渡宽度",min:.2,max:2,step:.05,fmt:x2 }
+    { k:"smooth",cn:BI("磨皮","Smooth skin"),tip:BI("皮肤变均匀","Evens out the skin"),min:0,max:1,step:.01,fmt:pc },
+    { k:"detail",cn:BI("保留细节","Keep detail"),tip:BI("找回真实质感","Brings back a bit of real texture"),min:0,max:1,step:.01,fmt:pc },
+    { k:"even",cn:BI("匀肤色","Even tone"),tip:BI("减轻泛红和色块","Reduces redness and blotches"),min:0,max:1,step:.01,fmt:pc },
+    { k:"warm",cn:BI("肤色暖度","Skin warmth"),tip:BI("往红润方向拉","Pulls toward a rosier tone"),min:0,max:1,step:.01,fmt:pc },
+    { k:"lift",cn:BI("面部提亮","Brighten face"),tip:BI("整张脸抬亮一点","Lifts the brightness of the whole face"),min:0,max:1,step:.01,fmt:pc },
+    { k:"glow",cn:BI("柔光","Soft glow"),tip:BI("高光晕开","Highlights bloom outward"),min:0,max:1,step:.01,fmt:pc },
+    { k:"range",cn:BI("作用范围","Coverage"),tip:BI("面部遮罩大小","Size of the face mask"),min:.7,max:1.3,step:.01,fmt:x2 },
+    { k:"feather",cn:BI("边缘羽化","Edge feather"),tip:BI("过渡宽度","Width of the blend transition"),min:.2,max:2,step:.05,fmt:x2 }
   ];
   var SKIN_DEFAULT = {
     trough:.6, fold:.5, eyeLight:.2, lipBoost:.15, teeth:.15,
@@ -705,29 +877,29 @@
   };
 
   var MOSAIC = {
-    off:{cn:"关闭",en:"OFF",desc:"不打码。"},
-    block:{cn:"方块",en:"BLOCK",desc:"最经典的马赛克，整块色。"},
-    dot:{cn:"圆点",en:"DOT",desc:"每格一个圆点，之间露底色。"},
-    diamond:{cn:"菱形",en:"DIA",desc:"方块转四十五度，像织物纹样。"},
-    half:{cn:"半调",en:"HALF",desc:"报纸印刷网点：越亮点越小。"},
-    hbar:{cn:"横条",en:"HBAR",desc:"横向色带，像老式液晶。"},
-    vbar:{cn:"竖条",en:"VBAR",desc:"竖向色带，像百叶窗。"},
-    cross:{cn:"十字",en:"CROSS",desc:"十字针脚，像十字绣。"},
-    ring:{cn:"空心圈",en:"RING",desc:"描边圆环，轻薄不闷。"},
-    ascii:{cn:"字符",en:"ASCII",desc:"用符号疏密拼明暗，脸完全认不出。"}
+    off:{cn:"关闭",en:"OFF",desc:BI("不打码。","No mosaic.")},
+    block:{cn:"方块",en:"BLOCK",desc:BI("最经典的马赛克，整块色。","The classic mosaic — flat blocks of color.")},
+    dot:{cn:"圆点",en:"DOT",desc:BI("每格一个圆点，之间露底色。","One dot per cell, with the background peeking through between them.")},
+    diamond:{cn:"菱形",en:"DIA",desc:BI("方块转四十五度，像织物纹样。","Blocks rotated 45°, like a woven pattern.")},
+    half:{cn:"半调",en:"HALF",desc:BI("报纸印刷网点：越亮点越小。","Newspaper halftone dots — the brighter it is, the smaller the dot.")},
+    hbar:{cn:"横条",en:"HBAR",desc:BI("横向色带，像老式液晶。","Horizontal color bands, like an old LCD.")},
+    vbar:{cn:"竖条",en:"VBAR",desc:BI("竖向色带，像百叶窗。","Vertical color bands, like window blinds.")},
+    cross:{cn:"十字",en:"CROSS",desc:BI("十字针脚，像十字绣。","Cross stitches, like embroidery.")},
+    ring:{cn:"空心圈",en:"RING",desc:BI("描边圆环，轻薄不闷。","Outlined rings — light, not heavy.")},
+    ascii:{cn:"字符",en:"ASCII",desc:BI("用符号疏密拼明暗，脸完全认不出。","Light and dark built from character density — the face becomes totally unrecognizable.")}
   };
   var MOSLIDERS = [
-    { k:"cell",cn:"格子大小",tip:"越大越糊",min:4,max:48,step:1,fmt:function(v){return Math.round(v)+"px"} },
-    { k:"gap",cn:"格子间隙",tip:"露出多少底色",min:0,max:.6,step:.02,fmt:pc },
-    { k:"amount",cn:"覆盖强度",tip:"和原画面的混合",min:.1,max:1,step:.01,fmt:pc },
-    { k:"bg",cn:"底色明度",tip:"格子之间那层深浅",min:0,max:1,step:.01,fmt:pc },
-    { k:"faceOnly",cn:"只打码脸部",tip:"需要面捕",min:0,max:1,step:1,fmt:function(v){return v>=1?"开":"关"} }
+    { k:"cell",cn:BI("格子大小","Cell size"),tip:BI("越大越糊","Bigger means blurrier"),min:4,max:48,step:1,fmt:function(v){return Math.round(v)+"px"} },
+    { k:"gap",cn:BI("格子间隙","Cell gap"),tip:BI("露出多少底色","How much background shows through"),min:0,max:.6,step:.02,fmt:pc },
+    { k:"amount",cn:BI("覆盖强度","Coverage strength"),tip:BI("和原画面的混合","Blend with the original picture"),min:.1,max:1,step:.01,fmt:pc },
+    { k:"bg",cn:BI("底色明度","Background brightness"),tip:BI("格子之间那层深浅","How dark or light the gaps between cells are"),min:0,max:1,step:.01,fmt:pc },
+    { k:"faceOnly",cn:BI("只打码脸部","Face only"),tip:BI("需要面捕","Needs face tracking on"),min:0,max:1,step:1,fmt:function(v){return v>=1?(S.uiLang==="zh"?"开":"On"):(S.uiLang==="zh"?"关":"Off")} }
   ];
   var MO_DEFAULT = { cell:14, gap:.12, amount:1, bg:.06, faceOnly:0 };
 
   /* 纹路：一条从 A 到 B 的曲线带，偏移量以脸长为单位，存的是未翻转的图像空间 */
   var RGN_KEYS = ["troughL","troughR","foldL","foldR"];
-  var RGN_LABEL = { troughL:"泪沟一", troughR:"泪沟二", foldL:"法令纹一", foldR:"法令纹二" };
+  var RGN_LABEL = { troughL:BI("泪沟一","Tear trough L"), troughR:BI("泪沟二","Tear trough R"), foldL:BI("法令纹一","Nasolabial L"), foldR:BI("法令纹二","Nasolabial R") };
   function rgnDefault(){
     var o = {};
     RGN_KEYS.forEach(function(k){ o[k] = { ax:0, ay:0, bx:0, by:0, w:1 }; });
@@ -735,12 +907,12 @@
   }
 
   var CUE_SLIDERS = [
-    { k:"size",cn:"字号",tip:"占画面高度的比例",min:2.5,max:9,step:.1,fmt:function(v){return v.toFixed(1)+"%"} },
-    { k:"opacity",cn:"文字透明度",tip:"当前这句的浓淡",min:.2,max:1,step:.01,fmt:pc },
-    { k:"dim",cn:"其他句透明度",tip:"前后文的浓淡",min:0,max:1,step:.01,fmt:pc },
-    { k:"lines",cn:"显示行数",tip:"当前句上下各留几行",min:1,max:7,step:1,fmt:function(v){return Math.round(v)+" 行"} },
-    { k:"bg",cn:"背景条",tip:"底色深浅，0 是全透明",min:0,max:.8,step:.01,fmt:pc },
-    { k:"width",cn:"宽度",tip:"提词条占画面宽度",min:30,max:96,step:1,fmt:function(v){return Math.round(v)+"%"} }
+    { k:"size",cn:BI("字号","Text size"),tip:BI("占画面高度的比例","Proportion of the frame's height"),min:2.5,max:9,step:.1,fmt:function(v){return v.toFixed(1)+"%"} },
+    { k:"opacity",cn:BI("文字透明度","Text opacity"),tip:BI("当前这句的浓淡","How solid the current line looks"),min:.2,max:1,step:.01,fmt:pc },
+    { k:"dim",cn:BI("其他句透明度","Other-lines opacity"),tip:BI("前后文的浓淡","How solid the surrounding lines look"),min:0,max:1,step:.01,fmt:pc },
+    { k:"lines",cn:BI("显示行数","Visible lines"),tip:BI("当前句上下各留几行","How many lines to show above and below the current one"),min:1,max:7,step:1,fmt:function(v){return Math.round(v)+(S.uiLang==="zh"?" 行":" lines")} },
+    { k:"bg",cn:BI("背景条","Background bar"),tip:BI("底色深浅，0 是全透明","How dark the backing is — 0 is fully transparent"),min:0,max:.8,step:.01,fmt:pc },
+    { k:"width",cn:BI("宽度","Width"),tip:BI("提词条占画面宽度","How much of the frame's width the box takes up"),min:30,max:96,step:1,fmt:function(v){return Math.round(v)+"%"} }
   ];
   var CUE_DEFAULT = { size:4.2, opacity:.95, dim:.3, lines:2, bg:.22, width:88 };
   var CUE_COLORS = ["#FBFDF8","#FFD9A8","#B8E6A0","#9CD2FF","#FFB3C7","#2B2A25"];
@@ -760,7 +932,7 @@
     cue: JSON.parse(JSON.stringify(CUE_DEFAULT)),
     sub: null,
     cueColor:"#FBFDF8", cueAlign:"center", cuePos:{x:6,y:66},
-    cueLines:[], cueIdx:0, cueAuto:true, cueRehearse:false, cueOn:true, cueRaw:""
+    cueLines:[], cueIdx:0, cueAuto:true, cueRehearse:false, cueOn:true, cueRaw:"", uiLang:"en"
   };
 
   var preview = $("preview"), cv = $("canvas"), stage = $("stage"), stageEmpty = $("stageEmpty");
@@ -886,11 +1058,8 @@
       var el = document.createElement("div");
       el.className = "sl";
       el.innerHTML = '<div class="lab"><b></b><span class="tp"></span><span class="val"></span></div><input type="range">';
-      el.querySelector("b").textContent = d.cn;
-      el.querySelector(".tp").textContent = d.tip;
       var r = el.querySelector("input");
       r.min = d.min; r.max = d.max; r.step = d.step;
-      r.setAttribute("aria-label", d.cn + "，" + d.tip);
       r.oninput = function(){
         getObj()[d.k] = parseFloat(r.value);
         el.querySelector(".val").textContent = d.fmt(parseFloat(r.value));
@@ -898,9 +1067,18 @@
         save();
       };
       container.appendChild(el);
-      refs[d.k] = { range:r, val:el.querySelector(".val") };
+      refs[d.k] = { range:r, val:el.querySelector(".val"), lab:el.querySelector("b"), tip:el.querySelector(".tp") };
     });
-    return { sync:function(){
+    function relabel(){
+      defs.forEach(function(d){
+        var cn = L(d.cn), tip = L(d.tip);
+        refs[d.k].lab.textContent = cn;
+        refs[d.k].tip.textContent = tip;
+        refs[d.k].range.setAttribute("aria-label", cn + "，" + tip);
+      });
+    }
+    relabel();
+    return { relabel:relabel, sync:function(){
       var o = getObj();
       defs.forEach(function(d){
         var v = (o[d.k] === undefined) ? d.min : o[d.k];
@@ -925,34 +1103,49 @@
 
   Object.keys(PRESETS).forEach(function(k){
     var b = document.createElement("button");
-    b.className = "chip"; b.type = "button"; b.dataset.fx = k; b.title = PRESETS[k].desc;
+    b.className = "chip"; b.type = "button"; b.dataset.fx = k; b.title = L(PRESETS[k].desc);
     b.innerHTML = "<b></b><span></span>";
-    b.querySelector("b").textContent = PRESETS[k].cn;
+    b.querySelector("b").textContent = L(PRESETS[k].cn);
     b.querySelector("span").textContent = PRESETS[k].en;
     b.onclick = function(){ setFx(k); };
     $("chips").appendChild(b);
   });
   Object.keys(MOSAIC).forEach(function(k){
     var b = document.createElement("button");
-    b.className = "chip"; b.type = "button"; b.dataset.mo = k; b.title = MOSAIC[k].desc;
+    b.className = "chip"; b.type = "button"; b.dataset.mo = k; b.title = L(MOSAIC[k].desc);
     b.innerHTML = "<b></b><span></span>";
-    b.querySelector("b").textContent = MOSAIC[k].cn;
+    b.querySelector("b").textContent = L(MOSAIC[k].cn);
     b.querySelector("span").textContent = MOSAIC[k].en;
     b.onclick = function(){ setMo(k); };
     $("mochips").appendChild(b);
   });
+  function relabelChips(){
+    document.querySelectorAll("#chips .chip").forEach(function(b){
+      b.title = L(PRESETS[b.dataset.fx].desc);
+      b.querySelector("b").textContent = L(PRESETS[b.dataset.fx].cn);
+    });
+    document.querySelectorAll("#mochips .chip").forEach(function(b){
+      b.title = L(MOSAIC[b.dataset.mo].desc);
+      b.querySelector("b").textContent = L(MOSAIC[b.dataset.mo].cn);
+    });
+    $("fxdesc").textContent = L(PRESETS[S.fx].desc);
+    $("modesc").textContent = L(MOSAIC[S.mo].desc);
+    document.querySelectorAll("#rgnChips .chip").forEach(function(b){
+      b.querySelector("b").textContent = L(RGN_LABEL[b.dataset.rgn]);
+    });
+  }
   RGN_KEYS.forEach(function(k){
     var b = document.createElement("button");
     b.className = "chip"; b.type = "button"; b.dataset.rgn = k;
     b.innerHTML = "<b></b>";
-    b.querySelector("b").textContent = RGN_LABEL[k];
+    b.querySelector("b").textContent = L(RGN_LABEL[k]);
     b.onclick = function(){ setRgn(k); };
     $("rgnChips").appendChild(b);
   });
   CUE_COLORS.forEach(function(c){
     var b = document.createElement("button");
     b.className = "swatch"; b.type = "button"; b.style.background = c;
-    b.setAttribute("aria-label","提词颜色 " + c);
+    b.setAttribute("aria-label",(S.uiLang==="zh"?"提词颜色 ":"Cue color ") + c);
     b.onclick = function(){
       S.cueColor = c;
       document.querySelectorAll(".swatch").forEach(function(o){ o.setAttribute("aria-pressed", o === b); });
@@ -965,19 +1158,21 @@
   function setFx(v){
     S.fx = v;
     document.querySelectorAll("#chips .chip").forEach(function(b){ b.setAttribute("aria-pressed", b.dataset.fx === v); });
-    $("fxdesc").textContent = PRESETS[v].desc;
+    $("fxdesc").textContent = L(PRESETS[v].desc);
     params(v); fxUI.sync(); vigKey = ""; save();
   }
   function setMo(v){
     S.mo = v;
     document.querySelectorAll("#mochips .chip").forEach(function(b){ b.setAttribute("aria-pressed", b.dataset.mo === v); });
-    $("modesc").textContent = MOSAIC[v].desc;
+    $("modesc").textContent = L(MOSAIC[v].desc);
     save();
   }
   function setRgn(v){
     S.rgnSel = v;
     document.querySelectorAll("#rgnChips .chip").forEach(function(b){ b.setAttribute("aria-pressed", b.dataset.rgn === v); });
-    $("editTip").textContent = "正在调整「" + RGN_LABEL[v] + "」。拖两端圆点定起止和倾斜，白点整体移动，方块调粗细。";
+    $("editTip").textContent = S.uiLang==="zh"
+      ? ("正在调整「" + L(RGN_LABEL[v]) + "」。拖两端圆点定起止和倾斜，白点整体移动，方块调粗细。")
+      : ("Adjusting \u201c" + L(RGN_LABEL[v]) + "\u201d. Drag the two dots to set start/end and tilt; the white dot moves the whole line; the square adjusts thickness.");
   }
   $("btnResetFx").onclick = function(){
     S.custom[S.fx] = JSON.parse(JSON.stringify(PRESETS[S.fx].p));
@@ -2116,7 +2311,7 @@
     $("srcCam").setAttribute("aria-pressed", v==="cam");
     $("srcScreen").setAttribute("aria-pressed", v==="screen");
     $("srcBoth").setAttribute("aria-pressed", v==="both");
-    if (S.stream){ warn("画面来源改了，按一下开启画面重新连接。"); }
+    if (S.stream){ warn(S.uiLang==="zh"?"画面来源改了，按一下开启画面重新连接。":"Video source changed — press Turn on camera to reconnect."); }
   }
   $("srcCam").onclick = function(){ setSource("cam"); };
   $("srcScreen").onclick = function(){ setSource("screen"); };
@@ -2166,13 +2361,13 @@
       osd.classList.add("on");
       recWord.textContent = "STBY";
       btnRec.disabled = false;
-      btnConnect.innerHTML = '<span class="en">SOURCE</span>换个来源';
+      btnConnect.innerHTML = '<span class="en">SOURCE</span>' + (S.uiLang==="zh"?"换个来源":"Change source");
       setupMeter(stream);
       if (!S.raf) drawFrame();
-      if (!FILTER_OK) warn("这个浏览器的画布不支持滤镜和磨皮，会按原样录制。用 Chrome 打开就正常。");
-      else if (!mp4Status()) warn("这个浏览器不能直接录 MP4，会存成 WebM（画质一样，多数剪辑软件都能读）。想要 MP4 请把浏览器升级到新版 Chrome 或用 Safari。");
+      if (!FILTER_OK) warn(S.uiLang==="zh"?"这个浏览器的画布不支持滤镜和磨皮，会按原样录制。用 Chrome 打开就正常。":"This browser's canvas doesn't support filters or skin smoothing — it'll record as-is. Open it in Chrome for full support.");
+      else if (!mp4Status()) warn(S.uiLang==="zh"?"这个浏览器不能直接录 MP4，会存成 WebM（画质一样，多数剪辑软件都能读）。想要 MP4 请把浏览器升级到新版 Chrome 或用 Safari。":"This browser can't record MP4 directly, so it'll save as WebM instead (same quality, readable by most editors). For MP4, use an up-to-date Chrome or Safari.");
       stream.getVideoTracks()[0].addEventListener("ended", function(){
-        warn("画面来源断了。按一下开启画面重新连接。");
+        warn(S.uiLang==="zh"?"画面来源断了。按一下开启画面重新连接。":"The video source disconnected. Press Turn on camera to reconnect.");
         if (S.recording) stopRec(true);
         btnRec.disabled = true;
         osd.classList.remove("on");
@@ -2213,7 +2408,7 @@
   function startRecog(){
     if (S.lang === "off") return;
     var SR = window.SpeechRecognition || window.webkitSpeechRecognition;
-    if (!SR){ warn("这个浏览器不支持实时转录和自动跟读，录制照常可用。"); return; }
+    if (!SR){ warn(S.uiLang==="zh"?"这个浏览器不支持实时转录和自动跟读，录制照常可用。":"This browser doesn't support live transcription or auto-follow — recording still works fine."); return; }
     if (S.recog) return;
     try {
       S.recog = new SR();
@@ -2237,7 +2432,7 @@
       };
       S.recog.onend = function(){ if (S.recogWanted){ try{ S.recog.start(); }catch(e){} } };
       S.recog.onerror = function(e){
-        if (e.error === "not-allowed"){ warn("语音识别被拒绝了，录制不受影响。"); S.recogWanted = false; }
+        if (e.error === "not-allowed"){ warn(S.uiLang==="zh"?"语音识别被拒绝了，录制不受影响。":"Speech recognition permission was denied — recording is unaffected."); S.recogWanted = false; }
       };
       S.recogWanted = true; S.recog.start();
     } catch(e){}
@@ -2248,7 +2443,7 @@
     if (S.recog){ try{ S.recog.stop(); }catch(e){} S.recog = null; }
   }
   function renderLive(){
-    if (!S.finalText && !S.interimText){ liveEl.innerHTML = "<i>在听……</i>"; return; }
+    if (!S.finalText && !S.interimText){ liveEl.innerHTML = S.uiLang==="zh"?"<i>在听……</i>":"<i>Listening…</i>"; return; }
     liveEl.innerHTML = "<b></b><i></i>";
     liveEl.querySelector("b").textContent = S.finalText;
     liveEl.querySelector("i").textContent = S.interimText;
@@ -2298,7 +2493,7 @@
     var mime = pickMime();
     try {
       S.recorder = new MediaRecorder(buildRecStream(), mime ? { mimeType:mime, videoBitsPerSecond:4000000 } : undefined);
-    } catch(e){ warn("这个浏览器不支持录制。试试 Chrome。"); return; }
+    } catch(e){ warn(S.uiLang==="zh"?"这个浏览器不支持录制。试试 Chrome。":"This browser doesn't support recording. Try Chrome."); return; }
     S.recorder.ondataavailable = function(e){ if (e.data && e.data.size) S.chunks.push(e.data); };
     S.recorder.onstop = function(){ finishTake(); };
     S.recorder.start(1000);
@@ -2307,12 +2502,12 @@
     S.recFx = PRESETS[S.fx].en + (S.mo !== "off" ? "+" + MOSAIC[S.mo].en : "");
     S.thumb = grabThumb();
     S.cueIdx = 0; syncPtr(); renderCue();
-    btnRec.innerHTML = '<span class="en">STOP</span>结束这一段';
+    btnRec.innerHTML = '<span class="en">STOP</span>' + (S.uiLang==="zh"?"结束这一段":"Stop this take");
     btnRec.classList.add("armed");
     btnPause.disabled = false; btnDiscard.disabled = false;
     osd.classList.add("on"); osd.classList.add("rec");
     recWord.textContent = "REC";
-    liveEl.innerHTML = "<i>在听……</i>";
+    liveEl.innerHTML = S.uiLang==="zh"?"<i>在听……</i>":"<i>Listening…</i>";
     startRecog();
     S.tick = setInterval(function(){
       if (!S.paused) timerEl.textContent = fmt(S.elapsed + (Date.now()-S.startAt));
@@ -2324,14 +2519,14 @@
     S.elapsed += Date.now() - S.startAt;
     stopRecog(); osd.classList.remove("rec");
     recWord.textContent = "PAUSE";
-    btnPause.innerHTML = '<span class="en">RESUME</span>继续';
+    btnPause.innerHTML = '<span class="en">RESUME</span>' + (S.uiLang==="zh"?"继续":"Resume");
   }
   function resumeRec(){
     if (!S.recorder || S.recorder.state !== "paused") return;
     S.recorder.resume(); S.paused = false;
     S.startAt = Date.now(); startRecog();
     osd.classList.add("rec"); recWord.textContent = "REC";
-    btnPause.innerHTML = '<span class="en">PAUSE</span>暂停';
+    btnPause.innerHTML = '<span class="en">PAUSE</span>' + T("btnPause");
   }
   var discardFlag = false;
   function stopRec(discard){
@@ -2343,9 +2538,9 @@
     try { S.recorder.stop(); } catch(e){}
     S.paused = false;
     clearInterval(S.tick);
-    btnRec.innerHTML = '<span class="en">REC</span>录这一段';
+    btnRec.innerHTML = '<span class="en">REC</span>' + T("btnRec");
     btnRec.classList.remove("armed");
-    btnPause.disabled = true; btnPause.innerHTML = '<span class="en">PAUSE</span>暂停';
+    btnPause.disabled = true; btnPause.innerHTML = '<span class="en">PAUSE</span>' + T("btnPause");
     btnDiscard.disabled = true;
     osd.classList.remove("rec");
     recWord.textContent = "STBY";
@@ -2355,8 +2550,8 @@
     var dur = S.elapsed;
     var text = (S.finalText + S.interimText).trim();
     S.finalText = ""; S.interimText = "";
-    if (discardFlag){ liveEl.innerHTML = "<i>这条丢掉了。</i>"; S.chunks = []; return; }
-    if (!S.chunks.length || dur < 400){ liveEl.innerHTML = "<i>这段太短，没有保存。</i>"; S.chunks = []; return; }
+    if (discardFlag){ liveEl.innerHTML = S.uiLang==="zh"?"<i>这条丢掉了。</i>":"<i>Take discarded.</i>"; S.chunks = []; return; }
+    if (!S.chunks.length || dur < 400){ liveEl.innerHTML = S.uiLang==="zh"?"<i>这段太短，没有保存。</i>":"<i>Too short — not saved.</i>"; S.chunks = []; return; }
     var blob = new Blob(S.chunks, { type:S.chunks[0].type || "video/webm" });
     var subs = buildSubs(dur);
     S.counter += 1;
@@ -2367,7 +2562,7 @@
       ext:(blob.type.indexOf("mp4")>-1)?"mp4":"webm"
     });
     S.chunks = [];
-    liveEl.innerHTML = "<i>已存为第 " + S.counter + " 段。</i>";
+    liveEl.innerHTML = S.uiLang==="zh" ? ("<i>已存为第 " + S.counter + " 段。</i>") : ("<i>Saved as take " + S.counter + ".</i>");
     render(); save();
   }
 
@@ -2375,31 +2570,51 @@
      字体都选了有年代感的：点阵、打字机、老宋体。
      样式是全局的，逐条改的是文字和时间。 */
   var SUB_FONTS = [
-    { k:"vt",    cn:"点阵终端", css:'"VT323", monospace', sc:false, scale:1.35 },
-    { k:"px",    cn:"像素游戏", css:'"Press Start 2P", monospace', sc:false, scale:0.72 },
-    { k:"dot",   cn:"点阵日文", css:'"DotGothic16", "VT323", sans-serif', sc:true, scale:1.0 },
-    { k:"type",  cn:"打字机",   css:'"Special Elite", "Courier Prime", monospace', sc:false, scale:1.0 },
-    { k:"cour",  cn:"老式等宽", css:'"Courier Prime", "Courier New", monospace', sc:false, scale:1.0 },
-    { k:"kai",   cn:"手写楷体", css:'"LXGW WenKai TC", "Kaiti SC", serif', sc:true, scale:1.05 },
-    { k:"song",  cn:"老宋体",   css:'"Noto Serif SC", "Songti SC", serif', sc:true, scale:1.0 },
-    { k:"zen",   cn:"圆点标题", css:'"Zen Dots", sans-serif', sc:false, scale:0.85 },
-    { k:"sys",   cn:"系统黑体", css:'-apple-system, "PingFang SC", "Microsoft YaHei", sans-serif', sc:true, scale:1.0 }
+    { k:"vt",    cn:BI("点阵终端","Terminal dot-matrix"), css:'"VT323", monospace', sc:false, scale:1.35, noBold:true },
+    { k:"px",    cn:BI("像素游戏","Pixel game"), css:'"Press Start 2P", monospace', sc:false, scale:0.72, noBold:true },
+    { k:"wq",    cn:BI("老式点阵宋体","Classic bitmap Song"), css:'"WenQuanYi Bitmap Song 13px", "DotGothic16", sans-serif', sc:true, scale:1.1, noBold:true },
+    { k:"dot",   cn:BI("点阵黑体","Dot-matrix gothic"), css:'"DotGothic16", "VT323", sans-serif', sc:true, scale:1.0, noBold:true },
+    { k:"type",  cn:BI("打字机","Typewriter"),   css:'"Special Elite", "Courier Prime", monospace', sc:false, scale:1.0, noBold:true },
+    { k:"cour",  cn:BI("老式等宽","Vintage monospace"), css:'"Courier Prime", "Courier New", monospace', sc:false, scale:1.0 },
+    { k:"zen",   cn:BI("圆点标题","Dot display"), css:'"Zen Dots", sans-serif', sc:false, scale:0.85, noBold:true },
+    { k:"sys",   cn:BI("系统黑体","System sans"), css:'-apple-system, "PingFang SC", "Microsoft YaHei", sans-serif', sc:true, scale:1.0 }
   ];
+  /* 好几个字体(点阵终端/像素游戏/打字机/老式等宽/圆点标题/点阵日文)本身只有西文字形，
+     没有中文字，选中文文案时会悄悄退回系统默认字体——这才是"切换几种字体看不出区别"
+     的真正原因，不是bug是字体本身没有这些字。这里给下拉菜单标注清楚，并在检测到
+     中文+不支持中文的字体组合时提示一句，而不是让用户自己猜。 */
+  function fontLabel(f){
+    return L(f.cn) + (f.sc ? "" : (S.uiLang==="zh"?"（不支持中文）":" (Latin only)"));
+  }
+  function fontCjkWarn(text, fontKey){
+    if (!text || !isCJK(text)) return "";
+    var f = subFont(fontKey);
+    if (f.sc) return "";
+    return S.uiLang==="zh"
+      ? "这个字体没有中文字形，中文部分会显示成系统默认字体，跟别的西文风格字体看着会很像。"
+      : "This font has no Chinese glyphs — Chinese characters will fall back to the system default, which is why a few fonts can look alike.";
+  }
   var SUB_COLORS = ["#FBFDF8","#FFD9A8","#FF8A1E","#B8E6A0","#9CD2FF","#FFB3C7","#F2E14C","#2B2A25"];
   var SUB_BOX_COLORS = ["#0A0C08","#000000","#2B2A25","#3A2A1A","#0F1F2E","#FBFDF8"];
   var SUB_DEFAULT = {
     font:"vt", size:6.4, color:"#FBFDF8", x:50, y:86, align:"center", width:88, bold:0,
-    box:0.3, boxColor:"#0A0C08", stroke:0.5, strokeColor:"#000000", shadow:0.7, letter:0.02, upper:0
+    box:0.3, boxColor:"#0A0C08", stroke:0.5, strokeColor:"#000000", shadow:0.7, letter:0.02, upper:0, squeeze:1
+  };
+  /* 封面文字复用跟字幕一样的样式结构，直接喂给 drawSub 用，不用另外写一套渲染逻辑 */
+  var COVER_DEFAULT = {
+    font:"vt", size:11, color:"#FBFDF8", x:50, y:50, align:"center", width:82, bold:1,
+    box:0.35, boxColor:"#0A0C08", stroke:0.6, strokeColor:"#000000", shadow:0.6, letter:0.02, upper:0, squeeze:1
   };
   var SUB_SL = [
-    { k:"size",   cn:"字号",   tip:"占画面高度，也可以直接拖右下角的点缩放", min:2.5, max:14, step:.1, fmt:function(v){return v.toFixed(1)+"%"} },
-    { k:"x",      cn:"左右位置", tip:"离左边距离，也可以直接在画面上拖字幕", min:0,   max:100, step:.5, fmt:function(v){return v.toFixed(0)+"%"} },
-    { k:"y",      cn:"上下位置", tip:"离画面顶部，也可以直接在画面上拖字幕", min:2,   max:96, step:.5, fmt:function(v){return v.toFixed(0)+"%"} },
-    { k:"width",  cn:"宽度",   tip:"每行最宽，超过就换行",     min:30,  max:100, step:1, fmt:function(v){return Math.round(v)+"%"} },
-    { k:"box",    cn:"背景条", tip:"底色深浅，拉到最低就是没有背景条",     min:0,   max:1,  step:.02, fmt:pc },
-    { k:"stroke", cn:"描边",   tip:"字的边框，粗一点更有立体感",     min:0,   max:1,  step:.02, fmt:pc },
-    { k:"shadow", cn:"阴影",   tip:"字下面的暗影，也是立体感的一部分",  min:0,   max:1,  step:.02, fmt:pc },
-    { k:"letter", cn:"字距",   tip:"字与字的间隔",  min:0,   max:.3, step:.01, fmt:pc }
+    { k:"size",   cn:BI("字号","Size"),   tip:BI("占画面高度，也可以直接拖右下角的点缩放","% of frame height — or drag the bottom-right dot"), min:2.5, max:14, step:.1, fmt:function(v){return v.toFixed(1)+"%"} },
+    { k:"x",      cn:BI("左右位置","Horizontal"), tip:BI("离左边距离，也可以直接在画面上拖字幕","Distance from the left — or drag the caption on screen"), min:0,   max:100, step:.5, fmt:function(v){return v.toFixed(0)+"%"} },
+    { k:"y",      cn:BI("上下位置","Vertical"), tip:BI("离画面顶部，也可以直接在画面上拖字幕","Distance from the top — or drag the caption on screen"), min:2,   max:96, step:.5, fmt:function(v){return v.toFixed(0)+"%"} },
+    { k:"width",  cn:BI("宽度","Width"),   tip:BI("每行最宽，超过就换行","Max width per line before wrapping"),     min:30,  max:100, step:1, fmt:function(v){return Math.round(v)+"%"} },
+    { k:"box",    cn:BI("背景条","Background"), tip:BI("底色深浅，拉到最低就是没有背景条","Backing darkness — all the way down means no background"),     min:0,   max:1,  step:.02, fmt:pc },
+    { k:"stroke", cn:BI("描边","Outline"),   tip:BI("字的边框，粗一点更有立体感","The text's outline — thicker feels more three-dimensional"),     min:0,   max:1,  step:.02, fmt:pc },
+    { k:"shadow", cn:BI("阴影","Shadow"),   tip:BI("字下面的暗影，也是立体感的一部分","The shadow beneath the text — also part of the depth effect"),  min:0,   max:1,  step:.02, fmt:pc },
+    { k:"letter", cn:BI("字距","Letter spacing"),   tip:BI("字与字的间隔","Space between characters"),  min:0,   max:.3, step:.01, fmt:pc },
+    { k:"squeeze",cn:BI("压缩","Compress"),   tip:BI("横向压扁文字，老式压缩字幕的感觉","Squeezes text horizontally, like old compressed captions"),  min:0.5, max:1.5, step:.02, fmt:function(v){return v.toFixed(2)+"x"} }
   ];
   S.sub = S.sub || JSON.parse(JSON.stringify(SUB_DEFAULT));
   function subFont(k){
@@ -2448,12 +2663,12 @@
   /* 位置用一个可以自由拖动的锚点(st.x,st.y)表示，对齐方式只决定文字挂在锚点的哪一侧，
      不再用宽度去反推位置，这样拖动、缩放才能不受宽度/对齐设置牵连。
      返回文字外框（画布像素坐标），供编辑器里的拖拽浮层跟着贴上去。 */
-  function drawSub(c, W, H, text){
+  function drawSub(c, W, H, text, styleOverride){
     if (!text) return null;
-    var st = S.sub, f = subFont(st.font);
+    var st = styleOverride || S.sub, f = subFont(st.font);
     var px = H * st.size / 100 * f.scale;
     c.save();
-    c.font = (st.bold ? "bold " : "") + px + "px " + f.css;
+    c.font = (st.bold && !f.noBold ? "bold " : "") + px + "px " + f.css;
     c.textAlign = st.align === "left" ? "left" : (st.align === "right" ? "right" : "center");
     c.textBaseline = "alphabetic";
     var maxW = W * st.width / 100;
@@ -2486,6 +2701,12 @@
     var descent = (lastM.actualBoundingBoxDescent || px*0.25) + strokeHalf;
     var boxTop = top - ascent - px*0.16;
     var boxH = (top + (lines.length-1)*lh + descent + px*0.16) - boxTop;
+    /* 压缩：以文字锚点x为轴心整体横向缩放，背景框跟文字一起压，常见于老式字幕的"长仿宋"效果。
+       1=不压缩，小于1越扁，大于1越宽。 */
+    var squeeze = (st.squeeze === undefined || !st.squeeze) ? 1 : st.squeeze;
+    if (squeeze !== 1){
+      c.translate(x, 0); c.scale(squeeze, 1); c.translate(-x, 0);
+    }
     if (st.box > 0){
       c.fillStyle = "rgba(" + hexRgb(st.boxColor).join(",") + "," + st.box + ")";
       c.fillRect(bx, boxTop, bw, boxH);
@@ -2512,7 +2733,8 @@
     });
     if (c.letterSpacing !== undefined) c.letterSpacing = "0px";
     c.restore();
-    return { left:bx, top:boxTop, width:bw, height:boxH, fontPx:px };
+    var visBx = x + (bx - x)*squeeze, visBw = bw*squeeze;
+    return { left:visBx, top:boxTop, width:visBw, height:boxH, fontPx:px };
   }
   function subAt(subs, ms){
     if (!subs) return "";
@@ -2552,34 +2774,34 @@
 
     /* ---- 撤销：每次改动前拍一张快照，什么都能退回去 ---- */
     function snap(label){
-      undo.push({ d:JSON.stringify(t.subs), label:label||"上一步" });
+      undo.push({ d:JSON.stringify(t.subs), label:label||(S.uiLang==="zh"?"上一步":"previous step") });
       if (undo.length > 60) undo.shift();
       redo.length = 0;
       refreshUndo();
     }
     function doUndo(){
       if (!undo.length) return;
-      var cur = { d:JSON.stringify(t.subs), label:"重做" };
+      var cur = { d:JSON.stringify(t.subs), label:S.uiLang==="zh"?"重做":"redo" };
       var st = undo.pop();
       redo.push(cur);
       t.subs = JSON.parse(st.d);
       if (sel >= t.subs.length) sel = Math.max(0, t.subs.length-1);
       redraw(); paintCap(); save(); refreshUndo();
-      flash("已撤销：" + st.label);
+      flash((S.uiLang==="zh"?"已撤销：":"Undone: ") + st.label);
     }
     function doRedo(){
       if (!redo.length) return;
-      undo.push({ d:JSON.stringify(t.subs), label:"撤销" });
+      undo.push({ d:JSON.stringify(t.subs), label:S.uiLang==="zh"?"撤销":"undo" });
       var st = redo.pop();
       t.subs = JSON.parse(st.d);
       if (sel >= t.subs.length) sel = Math.max(0, t.subs.length-1);
       redraw(); paintCap(); save(); refreshUndo();
-      flash("已重做");
+      flash(S.uiLang==="zh"?"已重做":"Redone");
     }
     function refreshUndo(){
       undoB.disabled = !undo.length;
       redoB.disabled = !redo.length;
-      undoB.title = undo.length ? ("撤销：" + undo[undo.length-1].label) : "没有可撤销的操作";
+      undoB.title = undo.length ? ((S.uiLang==="zh"?"撤销：":"Undo: ") + undo[undo.length-1].label) : (S.uiLang==="zh"?"没有可撤销的操作":"Nothing to undo");
     }
 
     var wrap = document.createElement("div");
@@ -2599,9 +2821,9 @@
     capCv.className = "subcapcv";
     var capDrag = document.createElement("div");
     capDrag.className = "subcapdrag"; capDrag.hidden = true;
-    capDrag.title = "拖动改位置，拖右下角圆点改大小";
+    capDrag.title = S.uiLang==="zh"?"拖动改位置，拖右下角圆点改大小":"Drag to move; drag the bottom-right dot to resize";
     var capHandle = document.createElement("div");
-    capHandle.className = "rh"; capHandle.title = "拖动改字号大小";
+    capHandle.className = "rh"; capHandle.title = S.uiLang==="zh"?"拖动改字号大小":"Drag to resize the text";
     capDrag.appendChild(capHandle);
     vw.appendChild(vid); vw.appendChild(capCv); vw.appendChild(capDrag);
 
@@ -2611,27 +2833,27 @@
     /* 传输控制 */
     var ctl = document.createElement("div");
     ctl.className = "subctl";
-    var playB = mkBtn("▶ 播放", togglePlay);
+    var playB = mkBtn(S.uiLang==="zh"?"▶ 播放":"▶ Play", togglePlay);
     playB.className = "playbtn";
     ctl.appendChild(playB);
-    ctl.appendChild(mkBtn("◀ 帧", function(){ step(-1); }));
-    ctl.appendChild(mkBtn("帧 ▶", function(){ step(1); }));
+    ctl.appendChild(mkBtn(S.uiLang==="zh"?"◀ 帧":"◀ Frame", function(){ step(-1); }));
+    ctl.appendChild(mkBtn(S.uiLang==="zh"?"帧 ▶":"Frame ▶", function(){ step(1); }));
     var tcBox = document.createElement("span");
     tcBox.className = "tc"; tcBox.textContent = "00:00:00";
-    tcBox.title = "当前播放位置，分:秒:帧";
+    tcBox.title = S.uiLang==="zh"?"当前播放位置，分:秒:帧":"Current position — min:sec:frame";
     ctl.appendChild(tcBox);
-    var loopB = mkBtn("↺ 循环这条", function(){
+    var loopB = mkBtn(S.uiLang==="zh"?"↺ 循环这条":"↺ Loop this take", function(){
       loop = !loop;
       loopB.setAttribute("aria-pressed", loop);
-      flash(loop ? "循环播放当前这条" : "已关闭循环");
+      flash(loop ? (S.uiLang==="zh"?"循环播放当前这条":"Looping this take") : (S.uiLang==="zh"?"已关闭循环":"Loop off"));
     });
     ctl.appendChild(loopB);
-    var undoB = mkBtn("↶ 撤销", doUndo);
-    var redoB = mkBtn("↷ 重做", doRedo);
+    var undoB = mkBtn(S.uiLang==="zh"?"↶ 撤销":"↶ Undo", doUndo);
+    var redoB = mkBtn(S.uiLang==="zh"?"↷ 重做":"↷ Redo", doRedo);
     ctl.appendChild(undoB); ctl.appendChild(redoB);
-    var bigB = mkBtn("⤢ 收起大屏", function(){
-      if (stageSub && stageSub.vw === vw){ retractStageSub(); bigB.textContent = "⤢ 放大到屏幕"; }
-      else { elevateBig(); bigB.textContent = "⤢ 收起大屏"; }
+    var bigB = mkBtn(S.uiLang==="zh"?"⤢ 收起大屏":"⤢ Collapse", function(){
+      if (stageSub && stageSub.vw === vw){ retractStageSub(); bigB.textContent = S.uiLang==="zh"?"⤢ 放大到屏幕":"⤢ Expand to screen"; }
+      else { elevateBig(); bigB.textContent = S.uiLang==="zh"?"⤢ 收起大屏":"⤢ Collapse"; }
     });
     ctl.appendChild(bigB);
     side.appendChild(ctl);
@@ -2655,10 +2877,10 @@
     var zoomRow = document.createElement("div");
     zoomRow.className = "subzoom";
     var zLab = document.createElement("span");
-    zLab.textContent = "时间轴";
-    var zIn = mkBtn("放大", function(){ setZoom(tlZoom*1.6); });
-    var zOut = mkBtn("缩小", function(){ setZoom(tlZoom/1.6); });
-    var zFit = mkBtn("看全部", function(){ setZoom(1); });
+    zLab.textContent = S.uiLang==="zh"?"时间轴":"Timeline";
+    var zIn = mkBtn(S.uiLang==="zh"?"放大":"Zoom in", function(){ setZoom(tlZoom*1.6); });
+    var zOut = mkBtn(S.uiLang==="zh"?"缩小":"Zoom out", function(){ setZoom(tlZoom/1.6); });
+    var zFit = mkBtn(S.uiLang==="zh"?"看全部":"Fit all", function(){ setZoom(1); });
     zoomRow.appendChild(zLab); zoomRow.appendChild(zOut); zoomRow.appendChild(zIn); zoomRow.appendChild(zFit);
     var stat = document.createElement("span");
     stat.className = "substat";
@@ -2669,8 +2891,8 @@
     wrap.appendChild(head);
 
     function elevateBig(){
-      elevateStageSub("字幕预览 · " + (t.n?("第"+t.n+"条"):""), vw, head, vid, function(){
-        bigB.textContent = "⤢ 放大到屏幕";
+      elevateStageSub((S.uiLang==="zh"?"字幕预览 · ":"Caption preview · ") + (t.n?((S.uiLang==="zh"?"第":"Take ")+t.n+(S.uiLang==="zh"?"条":"")):""), vw, head, vid, function(){
+        bigB.textContent = S.uiLang==="zh"?"⤢ 放大到屏幕":"⤢ Expand to screen";
       });
     }
     elevateBig();
@@ -2685,15 +2907,15 @@
       bar.appendChild(b);
       return b;
     }
-    tool("＋ 在播放处新建", addHere, "在当前播放位置插入一条新字幕", true);
-    tool("✂ 在播放处拆开", splitHere, "把当前这条从播放位置切成两条");
-    tool("⇥ 与下一条合并", mergeNext, "把这一条和下一条并成一条");
-    var shiftB = tool("⇄ 整体平移", toggleShift, "所有字幕一起提前或延后");
-    tool("✓ 检查并修正", autoFix, "排好顺序、消除重叠、补齐过短的条目");
-    tool("↻ 从提词稿重建", rebuild, "按稿子重新生成，会覆盖现有字幕");
-    tool("↧ 导入 SRT", importSrt, "读入一个字幕文件，会覆盖现有字幕");
-    tool("↥ 导出 SRT", exportSrt);
-    var burnB = tool("● 烧录进视频", function(){ burnIn(t, burnB); }, "把字幕画进画面并导出视频");
+    tool(S.uiLang==="zh"?"＋ 在播放处新建":"＋ New at playhead", addHere, S.uiLang==="zh"?"在当前播放位置插入一条新字幕":"Insert a new caption at the current playback position", true);
+    tool(S.uiLang==="zh"?"✂ 在播放处拆开":"✂ Split at playhead", splitHere, S.uiLang==="zh"?"把当前这条从播放位置切成两条":"Cuts the current caption into two at the playback position");
+    tool(S.uiLang==="zh"?"⇥ 与下一条合并":"⇥ Merge with next", mergeNext, S.uiLang==="zh"?"把这一条和下一条并成一条":"Merges this caption with the next one into one");
+    var shiftB = tool(S.uiLang==="zh"?"⇄ 整体平移":"⇄ Shift all", toggleShift, S.uiLang==="zh"?"所有字幕一起提前或延后":"Moves every caption earlier or later together");
+    tool(S.uiLang==="zh"?"✓ 检查并修正":"✓ Check & fix", autoFix, S.uiLang==="zh"?"排好顺序、消除重叠、补齐过短的条目":"Sorts, removes overlaps, and pads out any captions that are too short");
+    tool(S.uiLang==="zh"?"↻ 从提词稿重建":"↻ Rebuild from script", rebuild, S.uiLang==="zh"?"按稿子重新生成，会覆盖现有字幕":"Regenerates from the cue script — overwrites the current captions");
+    tool(S.uiLang==="zh"?"↧ 导入 SRT":"↧ Import SRT", importSrt, S.uiLang==="zh"?"读入一个字幕文件，会覆盖现有字幕":"Loads a caption file — overwrites the current captions");
+    tool(S.uiLang==="zh"?"↥ 导出 SRT":"↥ Export SRT", exportSrt);
+    var burnB = tool(S.uiLang==="zh"?"● 烧录进视频":"● Burn into video", function(){ burnIn(t, burnB); }, S.uiLang==="zh"?"把字幕画进画面并导出视频":"Draws the captions into the picture and exports the video");
     if (!t.url) burnB.disabled = true;
     wrap.appendChild(bar);
 
@@ -2701,9 +2923,11 @@
     var shiftPanel = document.createElement("div");
     shiftPanel.className = "shiftpanel"; shiftPanel.hidden = true;
     var spTip = document.createElement("span");
-    spTip.textContent = "字幕比画面早就点减，晚就点加：";
+    spTip.textContent = S.uiLang==="zh"?"字幕比画面早就点减，晚就点加：":"Captions running early? Subtract. Running late? Add:";
     shiftPanel.appendChild(spTip);
-    [["-1 秒",-1000],["-0.5 秒",-500],["-1 帧",-FRAME],["+1 帧",FRAME],["+0.5 秒",500],["+1 秒",1000]]
+    (S.uiLang==="zh"
+      ? [["-1 秒",-1000],["-0.5 秒",-500],["-1 帧",-FRAME],["+1 帧",FRAME],["+0.5 秒",500],["+1 秒",1000]]
+      : [["-1 s",-1000],["-0.5 s",-500],["-1 frame",-FRAME],["+1 frame",FRAME],["+0.5 s",500],["+1 s",1000]])
       .forEach(function(b){
         shiftPanel.appendChild(mkBtn(b[0], function(){ shiftAll(b[1]); }));
       });
@@ -2722,9 +2946,9 @@
     style.className = "substyle";
     var sBody = document.createElement("div");
     sBody.hidden = false;
-    var sTog = mkBtn("字幕外观 ▴", function(){
+    var sTog = mkBtn(S.uiLang==="zh"?"字幕外观 ▴":"Caption style ▴", function(){
       sBody.hidden = !sBody.hidden;
-      sTog.textContent = sBody.hidden ? "字幕外观 ▾" : "字幕外观 ▴";
+      sTog.textContent = sBody.hidden ? (S.uiLang==="zh"?"字幕外观 ▾":"Caption style ▾") : (S.uiLang==="zh"?"字幕外观 ▴":"Caption style ▴");
     });
     sTog.className = "subsecbtn";
     style.appendChild(sTog); style.appendChild(sBody);
@@ -2732,19 +2956,30 @@
     var fRow = document.createElement("div");
     fRow.className = "row";
     var fLab = document.createElement("span");
-    fLab.className = "lbl"; fLab.textContent = "字体";
+    fLab.className = "lbl"; fLab.textContent = S.uiLang==="zh"?"字体":"Font";
     var fsel = document.createElement("select");
     SUB_FONTS.forEach(function(f){
       var o = document.createElement("option");
-      o.value = f.k; o.textContent = f.cn; o.style.fontFamily = f.css;
+      o.value = f.k; o.textContent = fontLabel(f); o.style.fontFamily = f.css;
       fsel.appendChild(o);
     });
     fsel.value = S.sub.font;
-    fsel.onchange = function(){ S.sub.font = fsel.value; paintCap(); save(); };
+    var fontHint = document.createElement("p");
+    fontHint.className = "desc";
+    function refreshFontHint(){
+      var msg = fontCjkWarn(subAt(t.subs, ms()) || (t.subs[0]&&t.subs[0].text) || "", S.sub.font);
+      fontHint.textContent = msg;
+      fontHint.hidden = !msg;
+      var noBold = !!subFont(S.sub.font).noBold;
+      boldB.disabled = noBold;
+      boldB.title = noBold ? (S.uiLang==="zh"?"这个字体没有粗体字重":"This font has no bold weight") : "";
+    }
+    fsel.onchange = function(){ S.sub.font = fsel.value; paintCap(); save(); refreshFontHint(); };
     fRow.appendChild(fLab); fRow.appendChild(fsel);
     var alignSeg = document.createElement("div");
     alignSeg.className = "seg";
-    [["left","左"],["center","中"],["right","右"]].forEach(function(a){
+    (S.uiLang==="zh" ? [["left","左"],["center","中"],["right","右"]]
+                     : [["left","L"],["center","C"],["right","R"]]).forEach(function(a){
       var b = document.createElement("button");
       b.type = "button"; b.textContent = a[1];
       b.setAttribute("aria-pressed", S.sub.align === a[0]);
@@ -2758,14 +2993,14 @@
       alignSeg.appendChild(b);
     });
     fRow.appendChild(alignSeg);
-    var upB = mkBtn("全大写", function(){
+    var upB = mkBtn(S.uiLang==="zh"?"全大写":"UPPERCASE", function(){
       S.sub.upper = S.sub.upper ? 0 : 1;
       upB.setAttribute("aria-pressed", !!S.sub.upper);
       paintCap(); save();
     });
     upB.setAttribute("aria-pressed", !!S.sub.upper);
     fRow.appendChild(upB);
-    var boldB = mkBtn("粗体", function(){
+    var boldB = mkBtn(S.uiLang==="zh"?"粗体":"Bold", function(){
       S.sub.bold = S.sub.bold ? 0 : 1;
       boldB.setAttribute("aria-pressed", !!S.sub.bold);
       paintCap(); save();
@@ -2773,6 +3008,8 @@
     boldB.setAttribute("aria-pressed", !!S.sub.bold);
     fRow.appendChild(boldB);
     sBody.appendChild(fRow);
+    sBody.appendChild(fontHint);
+    refreshFontHint();
 
     function colorRow(label, getVal, setVal, palette, noneOpt){
       var row = document.createElement("div");
@@ -2786,7 +3023,7 @@
       }
       if (noneOpt){
         var nb = document.createElement("button");
-        nb.type = "button"; nb.className = "swatch none"; nb.title = "无颜色（不显示背景）";
+        nb.type = "button"; nb.className = "swatch none"; nb.title = S.uiLang==="zh"?"无颜色（不显示背景）":"No color (hide background)";
         nb.onclick = function(){ noneOpt.onClick(); refresh(); paintCap(); save(); };
         row.appendChild(nb);
         swatches.push({ btn:nb, isActive:noneOpt.isActive });
@@ -2801,9 +3038,9 @@
       refresh();
       sBody.appendChild(row);
     }
-    colorRow("文字颜色", function(){ return S.sub.color; }, function(v){ S.sub.color = v; }, SUB_COLORS);
-    colorRow("描边颜色", function(){ return S.sub.strokeColor; }, function(v){ S.sub.strokeColor = v; }, SUB_COLORS);
-    colorRow("背景颜色", function(){ return S.sub.boxColor; }, function(v){ S.sub.boxColor = v; if (S.sub.box<=0) S.sub.box=.3; },
+    colorRow(S.uiLang==="zh"?"文字颜色":"Text color", function(){ return S.sub.color; }, function(v){ S.sub.color = v; }, SUB_COLORS);
+    colorRow(S.uiLang==="zh"?"描边颜色":"Outline color", function(){ return S.sub.strokeColor; }, function(v){ S.sub.strokeColor = v; }, SUB_COLORS);
+    colorRow(S.uiLang==="zh"?"背景颜色":"Background color", function(){ return S.sub.boxColor; }, function(v){ S.sub.boxColor = v; if (S.sub.box<=0) S.sub.box=.3; },
       SUB_BOX_COLORS, {
         isActive:function(){ return S.sub.box<=0; },
         onClick:function(){ S.sub.box = 0; if (subSlUI) subSlUI.sync(); }
@@ -2838,11 +3075,11 @@
     }
     function togglePlay(){
       if (!t.url) return;
-      if (vid.paused){ vid.play(); playB.textContent = "❚❚ 暂停"; }
-      else { vid.pause(); playB.textContent = "▶ 播放"; }
+      if (vid.paused){ vid.play(); playB.textContent = S.uiLang==="zh"?"❚❚ 暂停":"❚❚ Pause"; }
+      else { vid.pause(); playB.textContent = S.uiLang==="zh"?"▶ 播放":"▶ Play"; }
     }
     function step(n){
-      vid.pause(); playB.textContent = "▶ 播放";
+      vid.pause(); playB.textContent = S.uiLang==="zh"?"▶ 播放":"▶ Play";
       seek(ms() + n*FRAME);
     }
     function setZoom(z){
@@ -2880,6 +3117,7 @@
         capDrag.hidden = true;
       }
     }
+    pendingRepaints.push(paintCap);
     /* 容器尺寸只要一变（借用大屏、大屏异步同步宽高比、缩放窗口……）就重画，
        不依赖某个具体事件"刚好"也会触发重绘 */
     if (window.ResizeObserver){
@@ -2957,7 +3195,7 @@
         if (issue) b.classList.add("warnblk");
         b.style.left = (c.s/D*100) + "%";
         b.style.width = Math.max(0.4, cueDur(c)/D*100) + "%";
-        b.title = (i+1) + ". " + (c.text||"(空)") + "\n拖两边改时间，拖中间整条移动";
+        b.title = (i+1) + ". " + (c.text||(S.uiLang==="zh"?"(空)":"(empty)")) + (S.uiLang==="zh"?"\n拖两边改时间，拖中间整条移动":"\nDrag the edges to change timing, drag the middle to move the whole block");
         var lb = document.createElement("span");
         lb.className = "tlbl"; lb.textContent = (c.text||"").slice(0,14);
         b.appendChild(lb);
@@ -3000,14 +3238,15 @@
     }
     function issues(){
       var bad = [];
+      var sep = S.uiLang==="zh" ? "、" : ", ";
       t.subs.forEach(function(c,i){
         var m = [];
-        if (cueDur(c) < MIN_DUR) m.push("时间太短");
-        if (c.e > dur() + 200) m.push("超出片长");
-        if (i+1 < t.subs.length && t.subs[i+1].s < c.e - 20) m.push("和下一条重叠");
-        if (!(c.text||"").trim()) m.push("没有文字");
-        if (cps(c) > CPS_WARN) m.push("字太多来不及读");
-        if (m.length) bad.push({ i:i, msg:m.join("、") });
+        if (cueDur(c) < MIN_DUR) m.push(S.uiLang==="zh"?"时间太短":"too short");
+        if (c.e > dur() + 200) m.push(S.uiLang==="zh"?"超出片长":"runs past the clip");
+        if (i+1 < t.subs.length && t.subs[i+1].s < c.e - 20) m.push(S.uiLang==="zh"?"和下一条重叠":"overlaps the next one");
+        if (!(c.text||"").trim()) m.push(S.uiLang==="zh"?"没有文字":"no text");
+        if (cps(c) > CPS_WARN) m.push(S.uiLang==="zh"?"字太多来不及读":"too much text to read in time");
+        if (m.length) bad.push({ i:i, msg:m.join(sep) });
       });
       return bad;
     }
@@ -3015,18 +3254,18 @@
       var bad = issues();
       stat.innerHTML = "";
       var a = document.createElement("span");
-      a.textContent = t.subs.length + " 条";
+      a.textContent = t.subs.length + (S.uiLang==="zh"?" 条":" lines");
       stat.appendChild(a);
       if (bad.length){
         var b = document.createElement("button");
         b.type = "button"; b.className = "badbtn";
-        b.textContent = bad.length + " 条要看一下";
-        b.title = bad.map(function(x){ return (x.i+1) + "：" + x.msg; }).join("\n");
-        b.onclick = function(){ select(bad[0].i, true); flash("第 " + (bad[0].i+1) + " 条：" + bad[0].msg); };
+        b.textContent = S.uiLang==="zh" ? (bad.length + " 条要看一下") : (bad.length + " to check");
+        b.title = bad.map(function(x){ return (x.i+1) + (S.uiLang==="zh"?"：":": ") + x.msg; }).join("\n");
+        b.onclick = function(){ select(bad[0].i, true); flash((S.uiLang==="zh"?("第 " + (bad[0].i+1) + " 条：") : ("Line " + (bad[0].i+1) + ": ")) + bad[0].msg); };
         stat.appendChild(b);
       } else if (t.subs.length){
         var g = document.createElement("span");
-        g.className = "good"; g.textContent = "没有问题";
+        g.className = "good"; g.textContent = S.uiLang==="zh"?"没有问题":"No issues";
         stat.appendChild(g);
       }
     }
@@ -3071,11 +3310,11 @@
         var em = document.createElement("div");
         em.className = "subempty";
         var p1 = document.createElement("p");
-        p1.textContent = "这段还没有字幕。三种起手方式：";
-        var b1 = mkBtn("按提词稿生成", rebuild);
+        p1.textContent = S.uiLang==="zh"?"这段还没有字幕。三种起手方式：":"No captions yet for this take. Three ways to start:";
+        var b1 = mkBtn(S.uiLang==="zh"?"按提词稿生成":"Generate from script", rebuild);
         b1.classList.add("primary");
-        var b2 = mkBtn("播到某处新建一条", addHere);
-        var b3 = mkBtn("导入 SRT 文件", importSrt);
+        var b2 = mkBtn(S.uiLang==="zh"?"播到某处新建一条":"Add one while playing", addHere);
+        var b3 = mkBtn(S.uiLang==="zh"?"导入 SRT 文件":"Import an SRT file", importSrt);
         var box = document.createElement("div");
         box.className = "row";
         box.appendChild(b1); box.appendChild(b2); box.appendChild(b3);
@@ -3092,14 +3331,14 @@
         var idx = document.createElement("button");
         idx.type = "button"; idx.className = "subidx";
         idx.textContent = String(i+1);
-        idx.title = "跳到这一条";
+        idx.title = S.uiLang==="zh"?"跳到这一条":"Jump to this line";
         idx.onclick = function(e){ e.stopPropagation(); select(i, true); };
 
         var mid = document.createElement("div");
         mid.className = "submid";
         var ta = document.createElement("textarea");
         ta.value = c.text; ta.rows = 2;
-        ta.placeholder = "这一条说的话";
+        ta.placeholder = S.uiLang==="zh"?"这一条说的话":"What's said in this line";
         var typing = false;
         ta.onfocus = function(){ sel = i; markRows(); typing = false; };
         ta.oninput = function(){
@@ -3113,7 +3352,7 @@
 
         var times = document.createElement("div");
         times.className = "subtimes";
-        [["s","入"],["e","出"]].forEach(function(kk){
+        (S.uiLang==="zh" ? [["s","入"],["e","出"]] : [["s","In"],["e","Out"]]).forEach(function(kk){
           var key = kk[0];
           var g = document.createElement("div");
           g.className = "tgroup";
@@ -3122,11 +3361,11 @@
           /* 时间码是输入框，可以直接打字；也能按住左右拖着调 */
           var val = document.createElement("input");
           val.className = "tval"; val.value = tc(c[key]);
-          val.title = "可以直接输入 分:秒:帧，也可以按住左右拖";
+          val.title = S.uiLang==="zh"?"可以直接输入 分:秒:帧，也可以按住左右拖":"You can type min:sec:frame directly, or drag left/right";
           val.onfocus = function(){ sel = i; markRows(); };
           val.onchange = function(){
             var v = parseTC(val.value, dur());
-            if (v === null){ val.value = tc(c[key]); flash("时间格式看不懂，写成 00:12:15 这样"); return; }
+            if (v === null){ val.value = tc(c[key]); flash(S.uiLang==="zh"?"时间格式看不懂，写成 00:12:15 这样":"Couldn't read that time — write it like 00:12:15"); return; }
             snap("改第 " + (i+1) + " 条的时间");
             c[key] = v;
             if (key==="s" && c.s > c.e - MIN_DUR) c.e = c.s + MIN_DUR;
@@ -3159,9 +3398,9 @@
           var mB = mkBtn("−", function(){ nudge(-1); });
           var pB = mkBtn("＋", function(){ nudge(1); });
           mB.className = pB.className = "nudge";
-          mB.title = pB.title = "一帧，按住 Shift 是十帧";
+          mB.title = pB.title = S.uiLang==="zh"?"一帧，按住 Shift 是十帧":"One frame; hold Shift for ten";
           function nudge(dir){
-            snap("改第 " + (i+1) + " 条的时间");
+            snap((S.uiLang==="zh"?"改第 ":"Change take ") + (i+1) + (S.uiLang==="zh"?" 条的时间":"'s time"));
             var k = (window.event && window.event.shiftKey) ? 10 : 1;
             c[key] = Math.max(0, c[key] + dir*k*FRAME);
             if (key==="s" && c.s > c.e - MIN_DUR) c.e = c.s + MIN_DUR;
@@ -3169,14 +3408,14 @@
             redrawTimes(i); seek(c[key]); paintCap(); paintTL(); save();
           }
           var setB = mkBtn("⌖", function(){
-            snap("把第 " + (i+1) + " 条的" + kk[1] + "点设到播放处");
+            snap(S.uiLang==="zh" ? ("把第 " + (i+1) + " 条的" + kk[1] + "点设到播放处") : ("Set line " + (i+1) + "'s " + kk[1] + " point to playhead"));
             c[key] = Math.round(ms());
             if (key==="s" && c.s > c.e - MIN_DUR) c.e = c.s + MIN_DUR;
             if (key==="e" && c.e < c.s + MIN_DUR) c.s = Math.max(0, c.e - MIN_DUR);
             redrawTimes(i); paintCap(); paintTL(); save();
           });
           setB.className = "nudge";
-          setB.title = "设成当前播放位置";
+          setB.title = S.uiLang==="zh"?"设成当前播放位置":"Set to current playback position";
           g.appendChild(lab); g.appendChild(mB); g.appendChild(val); g.appendChild(pB); g.appendChild(setB);
           times.appendChild(g);
         });
@@ -3184,23 +3423,23 @@
         var ops = document.createElement("div");
         ops.className = "subops";
         var opBtns = [
-          ["插入", function(){
-            snap("插入一条");
+          [S.uiLang==="zh"?"插入":"Insert", function(){
+            snap(S.uiLang==="zh"?"插入一条":"Insert a line");
             var end = (i+1 < t.subs.length) ? t.subs[i+1].s : Math.min(dur(), c.e + 1800);
             t.subs.splice(i+1, 0, { s:c.e, e:Math.max(c.e + MIN_DUR, end), text:"" });
             redraw(); select(i+1, false); save();
           }],
-          ["合并下一条", function(){ sel = i; mergeNext(); }],
-          ["删除", function(){
-            snap("删除第 " + (i+1) + " 条");
+          [S.uiLang==="zh"?"合并下一条":"Merge next", function(){ sel = i; mergeNext(); }],
+          [S.uiLang==="zh"?"删除":"Delete", function(){
+            snap((S.uiLang==="zh"?"删除第 ":"Delete line ") + (i+1) + (S.uiLang==="zh"?" 条":""));
             t.subs.splice(i,1);
             if (sel >= t.subs.length) sel = Math.max(0, t.subs.length-1);
-            redraw(); save(); flash("已删除，可以按撤销找回");
+            redraw(); save(); flash(S.uiLang==="zh"?"已删除，可以按撤销找回":"Deleted — press Undo to bring it back");
           }]
         ];
         opBtns.forEach(function(b){
           var el2 = mkBtn(b[0], function(e){ b[1](); });
-          if (b[0] === "合并下一条" && i === t.subs.length-1) el2.disabled = true;
+          if ((b[0] === "合并下一条" || b[0] === "Merge next") && i === t.subs.length-1) el2.disabled = true;
           ops.appendChild(el2);
         });
 
@@ -3213,7 +3452,7 @@
 
     /* ---- 工具动作 ---- */
     function addHere(){
-      snap("新建一条");
+      snap(S.uiLang==="zh"?"新建一条":"Add a line");
       var at = Math.round(ms());
       var end = dur();
       for (var k=0;k<t.subs.length;k++){ if (t.subs[k].s > at){ end = t.subs[k].s; break; } }
@@ -3224,22 +3463,22 @@
       var el = rows.children[t.subs.indexOf(c)];
       var ta = el && el.querySelector("textarea");
       if (ta) ta.focus();
-      flash("已新建，直接打字");
+      flash(S.uiLang==="zh"?"已新建，直接打字":"Added — start typing");
     }
     function splitHere(){
       var at = Math.round(ms());
       var i = activeIndex();
       if (i < 0){ addHere(); return; }
       var c = t.subs[i];
-      if (at <= c.s + FRAME || at >= c.e - FRAME){ flash("播放头要停在这一条中间才能拆"); return; }
-      snap("拆开第 " + (i+1) + " 条");
+      if (at <= c.s + FRAME || at >= c.e - FRAME){ flash(S.uiLang==="zh"?"播放头要停在这一条中间才能拆":"The playhead needs to be inside this line to split it"); return; }
+      snap((S.uiLang==="zh"?"拆开第 ":"Split line ") + (i+1) + (S.uiLang==="zh"?" 条":""));
       t.subs.splice(i+1, 0, { s:at, e:c.e, text:"" });
       c.e = at;
       redraw(); select(i+1, false); save();
     }
     function mergeNext(){
-      if (sel < 0 || sel+1 >= t.subs.length){ flash("这已经是最后一条了"); return; }
-      snap("合并第 " + (sel+1) + " 和 " + (sel+2) + " 条");
+      if (sel < 0 || sel+1 >= t.subs.length){ flash(S.uiLang==="zh"?"这已经是最后一条了":"This is already the last line"); return; }
+      snap(S.uiLang==="zh" ? ("合并第 " + (sel+1) + " 和 " + (sel+2) + " 条") : ("Merge lines " + (sel+1) + " and " + (sel+2)));
       var a = t.subs[sel], b = t.subs[sel+1];
       a.e = b.e;
       a.text = (a.text + (a.text && b.text ? " " : "") + b.text).trim();
@@ -3250,12 +3489,14 @@
       if (!t.subs.length) return;
       var c = t.subs[sel];
       if (!c) return;
-      snap("设第 " + (sel+1) + " 条的" + (kk==="s"?"入":"出") + "点");
+      snap(S.uiLang==="zh"
+        ? ("设第 " + (sel+1) + " 条的" + (kk==="s"?"入":"出") + "点")
+        : ("Set line " + (sel+1) + "'s " + (kk==="s"?"in":"out") + " point"));
       c[kk] = Math.round(ms());
       if (kk==="s" && c.s > c.e - MIN_DUR) c.e = c.s + MIN_DUR;
       if (kk==="e" && c.e < c.s + MIN_DUR) c.s = Math.max(0, c.e - MIN_DUR);
       redrawTimes(sel); paintTL(); paintCap(); save();
-      flash((kk==="s"?"入":"出") + "点已设为 " + tc(c[kk]));
+      flash((S.uiLang==="zh" ? ((kk==="s"?"入":"出") + "点已设为 ") : ((kk==="s"?"In":"Out") + " point set to ")) + tc(c[kk]));
     }
     function toggleShift(){
       shiftPanel.hidden = !shiftPanel.hidden;
@@ -3263,19 +3504,21 @@
     }
     function shiftAll(d){
       if (!t.subs.length) return;
-      snap("整体平移");
+      snap(S.uiLang==="zh"?"整体平移":"Shift all");
       t.subs.forEach(function(c){
         c.s = Math.max(0, c.s + d);
         c.e = Math.max(c.s + MIN_DUR, c.e + d);
       });
       redraw(); paintCap(); save();
-      flash("全部" + (d>0?"延后":"提前") + " " + Math.abs(Math.round(d)) + " 毫秒");
+      flash(S.uiLang==="zh"
+        ? ("全部" + (d>0?"延后":"提前") + " " + Math.abs(Math.round(d)) + " 毫秒")
+        : ("Shifted all " + (d>0?"later":"earlier") + " by " + Math.abs(Math.round(d)) + " ms"));
     }
     function autoFix(){
       if (!t.subs.length) return;
       var bad = issues();
-      if (!bad.length){ flash("检查过了，没有问题"); return; }
-      snap("自动修正");
+      if (!bad.length){ flash(S.uiLang==="zh"?"检查过了，没有问题":"Checked — no issues found"); return; }
+      snap(S.uiLang==="zh"?"自动修正":"Auto-fix");
       sortSubs(t.subs);
       var D = dur();
       for (var i=0;i<t.subs.length;i++){
@@ -3291,12 +3534,14 @@
       }
       t.subs = t.subs.filter(function(c){ return c.e > c.s + 60; });
       redraw(); paintCap(); save();
-      flash("修好了 " + bad.length + " 处，不满意可以撤销");
+      flash(S.uiLang==="zh" ? ("修好了 " + bad.length + " 处，不满意可以撤销") : ("Fixed " + bad.length + " issue(s) — press Undo if you don't like it"));
     }
     function rebuild(){
-      if (!S.cueLines.length){ flash("提词稿是空的，先去右上角提词标签写几句"); return; }
-      if (t.subs.length && !confirm("会用提词稿覆盖现在的 " + t.subs.length + " 条字幕。继续吗？\n（做完还可以按撤销）")) return;
-      snap("从提词稿重建");
+      if (!S.cueLines.length){ flash(S.uiLang==="zh"?"提词稿是空的，先去右上角提词标签写几句":"The cue script is empty — write a few lines in the Cue tab first"); return; }
+      if (t.subs.length && !confirm(S.uiLang==="zh"
+        ? ("会用提词稿覆盖现在的 " + t.subs.length + " 条字幕。继续吗？\n（做完还可以按撤销）")
+        : ("This will overwrite the current " + t.subs.length + " caption(s) with the cue script. Continue?\n(You can still Undo afterward)"))) return;
+      snap(S.uiLang==="zh"?"从提词稿重建":"Rebuild from script");
       var lens = S.cueLines.map(function(l){ return Math.max(2, l.replace(/\s/g,"").length); });
       var total = lens.reduce(function(a,b){ return a+b; }, 0);
       var D = dur(), at = 0;
@@ -3307,7 +3552,7 @@
         return c;
       });
       redraw(); paintCap(); save();
-      flash("按字数分配了时间，接下来逐条对一下");
+      flash(S.uiLang==="zh"?"按字数分配了时间，接下来逐条对一下":"Timing split by character count — go through and check each line");
     }
     function importSrt(){
       var inp = document.createElement("input");
@@ -3329,12 +3574,12 @@
               text:lines.slice(skip).join("\n").trim()
             });
           });
-          if (!out.length){ flash("这个文件里没读到字幕"); return; }
-          if (t.subs.length && !confirm("会覆盖现在的 " + t.subs.length + " 条字幕。继续吗？")) return;
-          snap("导入 SRT");
+          if (!out.length){ flash(S.uiLang==="zh"?"这个文件里没读到字幕":"No captions found in this file"); return; }
+          if (t.subs.length && !confirm(S.uiLang==="zh" ? ("会覆盖现在的 " + t.subs.length + " 条字幕。继续吗？") : ("This will overwrite the current " + t.subs.length + " caption(s). Continue?"))) return;
+          snap(S.uiLang==="zh"?"导入 SRT":"Import SRT");
           t.subs = out; sortSubs(t.subs);
           redraw(); paintCap(); save();
-          flash("导入了 " + out.length + " 条");
+          flash((S.uiLang==="zh"?"导入了 ":"Imported ") + out.length + (S.uiLang==="zh"?" 条":" caption(s)"));
         };
         fr.readAsText(f);
       };
@@ -3342,9 +3587,9 @@
     }
     function exportSrt(){
       var srt = subsToSrt(t.subs, 0);
-      if (!srt){ flash("还没有字幕内容"); return; }
+      if (!srt){ flash(S.uiLang==="zh"?"还没有字幕内容":"No captions yet"); return; }
       dlText(srt, stampName(t) + ".srt", "text/plain;charset=utf-8");
-      flash("已导出 SRT");
+      flash(S.uiLang==="zh"?"已导出 SRT":"SRT exported");
     }
 
     /* ---- 播放事件 ---- */
@@ -3359,7 +3604,7 @@
     vid.addEventListener("loadedmetadata", function(){ paintCap(); paintTL(true); });
     vid.addEventListener("timeupdate", onTime);
     vid.addEventListener("seeked", onTime);
-    vid.addEventListener("ended", function(){ playB.textContent = "▶ 播放"; });
+    vid.addEventListener("ended", function(){ playB.textContent = S.uiLang==="zh"?"▶ 播放":"▶ Play"; });
     window.addEventListener("resize", function(){ paintCap(); paintTL(true); });
 
     /* ---- 键盘：点一下编辑器就接管，点外面就交还 ---- */
@@ -3367,9 +3612,13 @@
       if (active === on) return;
       active = on;
       wrap.classList.toggle("armed", on);
-      keyhint.innerHTML = on
-        ? '<b>键盘已接管</b> · 空格 播放暂停 · ←→ 一帧（按住 Shift 十帧） · ↑↓ 选上下条 · I 设入点 · O 设出点 · Enter 在播放处拆开 · Ctrl+Z 撤销'
-        : '点一下编辑器空白处，就能用键盘操作（空格播放、方向键走帧、I 和 O 设入出点）。';
+      keyhint.innerHTML = S.uiLang==="zh"
+        ? (on
+          ? '<b>键盘已接管</b> · 空格 播放暂停 · ←→ 一帧（按住 Shift 十帧） · ↑↓ 选上下条 · I 设入点 · O 设出点 · Enter 在播放处拆开 · Ctrl+Z 撤销'
+          : '点一下编辑器空白处，就能用键盘操作（空格播放、方向键走帧、I 和 O 设入出点）。')
+        : (on
+          ? '<b>Keyboard active</b> · Space play/pause · ←→ one frame (Shift = ten) · ↑↓ select line · I set in-point · O set out-point · Enter split at playhead · Ctrl+Z undo'
+          : 'Click an empty area of the editor to use the keyboard (Space to play, arrows to step frames, I/O to set in/out points).');
     }
     setActive(false);
     wrap.addEventListener("pointerdown", function(){ setActive(true); });
@@ -3406,12 +3655,14 @@
   var burnAbort = false;
   async function burnIn(t, btn){
     if (!t.url) return;
-    if (btn.dataset.busy === "1"){ burnAbort = true; btn.textContent = "正在停止"; return; }
+    if (btn.dataset.busy === "1"){ burnAbort = true; btn.textContent = S.uiLang==="zh"?"正在停止":"Stopping"; return; }
     var v = document.createElement("video");
     v.src = t.url; v.muted = false; v.playsInline = true;
     await new Promise(function(res){ v.onloadedmetadata = res; });
     var secs = Math.ceil(v.duration || t.dur/1000);
-    if (!confirm("烧录要把视频完整放一遍，大约需要 " + secs + " 秒。期间别关页面。\n开始吗？")) return;
+    if (!confirm(S.uiLang==="zh"
+      ? ("烧录要把视频完整放一遍，大约需要 " + secs + " 秒。期间别关页面。\n开始吗？")
+      : ("Burning in plays the whole video once, taking about " + secs + " seconds. Don't close the page while it runs.\nStart?"))) return;
     var W = v.videoWidth || 1280, H = v.videoHeight || 720;
     var c = mkc(); c.width = W; c.height = H;
     var cx2 = c.getContext("2d");
@@ -3427,7 +3678,7 @@
     var mime = pickMime();
     var rec;
     try { rec = new MediaRecorder(stream, mime ? { mimeType:mime, videoBitsPerSecond:5000000 } : undefined); }
-    catch(e){ warn("这个浏览器不支持烧录导出。"); return; }
+    catch(e){ warn(S.uiLang==="zh"?"这个浏览器不支持烧录导出。":"This browser doesn't support burn-in export."); return; }
     var parts = [];
     rec.ondataavailable = function(e){ if (e.data && e.data.size) parts.push(e.data); };
     var done = new Promise(function(res){ rec.onstop = res; });
@@ -3441,7 +3692,7 @@
     function tick(){
       cx2.drawImage(v, 0, 0, W, H);
       drawSub(cx2, W, H, subAt(t.subs, v.currentTime*1000));
-      btn.textContent = "烧录中 " + Math.round(v.currentTime/(v.duration||1)*100) + "%（点这里停止）";
+      btn.textContent = (S.uiLang==="zh"?"烧录中 ":"Burning in ") + Math.round(v.currentTime/(v.duration||1)*100) + (S.uiLang==="zh"?"%（点这里停止）":"% (click to stop)");
       if (burnAbort){ v.pause(); v.dispatchEvent(new Event("ended")); return; }
       raf2 = requestAnimationFrame(tick);
     }
@@ -3453,11 +3704,421 @@
     try { if (ac) ac.close(); } catch(e){}
     btn.dataset.busy = "0";
     btn.textContent = old;
-    if (burnAbort){ liveEl.innerHTML = "<i>烧录已取消。</i>"; return; }
+    if (burnAbort){ liveEl.innerHTML = S.uiLang==="zh"?"<i>烧录已取消。</i>":"<i>Burn-in cancelled.</i>"; return; }
     var blob = new Blob(parts, { type:parts.length ? parts[0].type : "video/mp4" });
     var ext = blob.type.indexOf("mp4") > -1 ? "mp4" : "webm";
-    var where = await saveBlob(blob, stampName(t) + " 字幕." + ext);
-    liveEl.innerHTML = "<i>" + (where ? ("带字幕的视频已存到 " + where) : "带字幕的视频已下载") + "。</i>";
+    var where = await saveBlob(blob, stampName(t) + (S.uiLang==="zh"?" 字幕.":" captions.") + ext);
+    liveEl.innerHTML = S.uiLang==="zh"
+      ? ("<i>" + (where ? ("带字幕的视频已存到 " + where) : "带字幕的视频已下载") + "。</i>")
+      : ("<i>" + (where ? ("Video with captions saved to " + where) : "Video with captions downloaded") + ".</i>");
+  }
+
+  /* ================== 封面 ==================
+     封面文字复用字幕那套 drawSub 渲染/包围盒逻辑，样式结构跟字幕一样(COVER_DEFAULT)，
+     所以这里不用重新写一遍拖拽定位/缩放的算法，只是换了个数据对象喂给同一批函数。 */
+  function buildCoverEditor(t, host){
+    host.innerHTML = "";
+    if (!t.cover) t.cover = { img:null, text:"", dur:1500, style:JSON.parse(JSON.stringify(COVER_DEFAULT)) };
+    if (!t.cover.style) t.cover.style = JSON.parse(JSON.stringify(COVER_DEFAULT));
+
+    var wrap = document.createElement("div");
+    wrap.className = "subeditor";
+    wrap.tabIndex = 0;
+
+    var head = document.createElement("div");
+    head.className = "subhead2";
+
+    var vw = document.createElement("div");
+    vw.className = "subvidwrap";
+    var vid = document.createElement("video");
+    vid.className = "subvid"; vid.playsInline = true;
+    if (t.url) vid.src = t.url;
+    var capCv = document.createElement("canvas");
+    capCv.className = "subcapcv";
+    var capDrag = document.createElement("div");
+    capDrag.className = "subcapdrag"; capDrag.hidden = true;
+    capDrag.title = S.uiLang==="zh"?"拖动改位置，拖右下角圆点改大小":"Drag to move; drag the bottom-right dot to resize";
+    var capHandle = document.createElement("div");
+    capHandle.className = "rh"; capHandle.title = S.uiLang==="zh"?"拖动改字号大小":"Drag to resize the text";
+    capDrag.appendChild(capHandle);
+    vw.appendChild(vid); vw.appendChild(capCv); vw.appendChild(capDrag);
+
+    var side = document.createElement("div");
+    side.className = "subside";
+
+    var ctl = document.createElement("div");
+    ctl.className = "subctl";
+    var playB = mkBtn(S.uiLang==="zh"?"▶ 播放":"▶ Play", togglePlay);
+    playB.className = "playbtn";
+    ctl.appendChild(playB);
+    ctl.appendChild(mkBtn(S.uiLang==="zh"?"◀ 帧":"◀ Frame", function(){ step(-1); }));
+    ctl.appendChild(mkBtn(S.uiLang==="zh"?"帧 ▶":"Frame ▶", function(){ step(1); }));
+    var tcBox = document.createElement("span");
+    tcBox.className = "tc"; tcBox.textContent = "00:00:00";
+    ctl.appendChild(tcBox);
+    var bigB = mkBtn(S.uiLang==="zh"?"⤢ 收起大屏":"⤢ Collapse", function(){
+      if (stageSub && stageSub.vw === vw){ retractStageSub(); bigB.textContent = S.uiLang==="zh"?"⤢ 放大到屏幕":"⤢ Expand to screen"; }
+      else { elevateBig(); bigB.textContent = S.uiLang==="zh"?"⤢ 收起大屏":"⤢ Collapse"; }
+    });
+    ctl.appendChild(bigB);
+    side.appendChild(ctl);
+
+    var seekWrap = document.createElement("div");
+    seekWrap.className = "sl";
+    seekWrap.style.margin = "2px 0 6px";
+    var seekBar = document.createElement("input");
+    seekBar.type = "range"; seekBar.min = "0"; seekBar.max = "1000"; seekBar.step = "1"; seekBar.value = "0";
+    seekBar.title = S.uiLang==="zh"?"拖动跳到视频的任意位置":"Drag to jump to any point in the video";
+    var seeking = false;
+    seekBar.addEventListener("pointerdown", function(){ seeking = true; });
+    window.addEventListener("pointerup", function(){ seeking = false; });
+    seekBar.oninput = function(){
+      if (vid.duration) vid.currentTime = (seekBar.value/1000) * vid.duration;
+    };
+    seekWrap.appendChild(seekBar);
+    side.appendChild(seekWrap);
+
+    var grabRow = document.createElement("div");
+    grabRow.className = "subctl";
+    var grabB = mkBtn(T("coverPickFrame"), grabFrame);
+    grabB.classList.add("primary");
+    grabRow.appendChild(grabB);
+    var viewB = mkBtn("", toggleView);
+    grabRow.appendChild(viewB);
+    side.appendChild(grabRow);
+
+    var taRow = document.createElement("div");
+    taRow.className = "row";
+    var ta = document.createElement("textarea");
+    ta.className = "cueText"; ta.style.minHeight = "50px";
+    ta.value = t.cover.text || "";
+    ta.placeholder = T("coverPlaceholder");
+    ta.oninput = function(){ t.cover.text = ta.value; paintCap(); save(); refreshFontHint(); };
+    taRow.appendChild(ta);
+    side.appendChild(taRow);
+
+    var fRow = document.createElement("div");
+    fRow.className = "row";
+    var fLab = document.createElement("span");
+    fLab.className = "lbl"; fLab.textContent = S.uiLang==="zh"?"字体":"Font";
+    var fsel = document.createElement("select");
+    SUB_FONTS.forEach(function(f){
+      var o = document.createElement("option");
+      o.value = f.k; o.textContent = fontLabel(f); o.style.fontFamily = f.css;
+      fsel.appendChild(o);
+    });
+    fsel.value = t.cover.style.font;
+    var fontHint = document.createElement("p");
+    fontHint.className = "desc";
+    function refreshFontHint(){
+      var msg = fontCjkWarn(t.cover.text, t.cover.style.font);
+      fontHint.textContent = msg;
+      fontHint.hidden = !msg;
+      var noBold = !!subFont(t.cover.style.font).noBold;
+      boldB2.disabled = noBold;
+      boldB2.title = noBold ? (S.uiLang==="zh"?"这个字体没有粗体字重":"This font has no bold weight") : "";
+    }
+    fsel.onchange = function(){ t.cover.style.font = fsel.value; paintCap(); save(); refreshFontHint(); };
+    fRow.appendChild(fLab); fRow.appendChild(fsel);
+    var alignSeg = document.createElement("div");
+    alignSeg.className = "seg";
+    (S.uiLang==="zh" ? [["left","左"],["center","中"],["right","右"]]
+                     : [["left","L"],["center","C"],["right","R"]]).forEach(function(a){
+      var b = document.createElement("button");
+      b.type = "button"; b.textContent = a[1];
+      b.setAttribute("aria-pressed", t.cover.style.align === a[0]);
+      b.onclick = function(){
+        t.cover.style.align = a[0];
+        alignSeg.querySelectorAll("button").forEach(function(o,oi){
+          o.setAttribute("aria-pressed", ["left","center","right"][oi] === a[0]);
+        });
+        paintCap(); save();
+      };
+      alignSeg.appendChild(b);
+    });
+    fRow.appendChild(alignSeg);
+    var boldB2 = mkBtn(S.uiLang==="zh"?"粗体":"Bold", function(){
+      t.cover.style.bold = t.cover.style.bold ? 0 : 1;
+      boldB2.setAttribute("aria-pressed", !!t.cover.style.bold);
+      paintCap(); save();
+    });
+    boldB2.setAttribute("aria-pressed", !!t.cover.style.bold);
+    fRow.appendChild(boldB2);
+    side.appendChild(fRow);
+    side.appendChild(fontHint);
+    refreshFontHint();
+
+    var styleBox = document.createElement("div");
+    styleBox.className = "sliders";
+    side.appendChild(styleBox);
+    var COVER_SL = [
+      { k:"size",    cn:BI("字号","Text size"), tip:BI("占画面高度的比例，也可以直接拖右下角的点缩放","% of frame height — or drag the bottom-right dot"), min:4, max:20, step:.5, fmt:function(v){return v.toFixed(1)+"%"} },
+      { k:"box",     cn:BI("背景条","Background"), tip:BI("底色深浅，拉到最低就是没有背景条","Backing darkness — all the way down means none"), min:0, max:1, step:.02, fmt:pc },
+      { k:"stroke",  cn:BI("描边","Outline"), tip:BI("字的边框，粗一点更有立体感","The text's outline — thicker feels more three-dimensional"), min:0, max:1, step:.02, fmt:pc },
+      { k:"shadow",  cn:BI("阴影","Shadow"), tip:BI("字下面的暗影，也是立体感的一部分","The shadow beneath the text — also part of the depth effect"), min:0, max:1, step:.02, fmt:pc },
+      { k:"letter",  cn:BI("字距","Letter spacing"), tip:BI("字与字的间隔","Space between characters"), min:0, max:.3, step:.01, fmt:pc },
+      { k:"squeeze", cn:BI("压缩","Compress"), tip:BI("横向压扁文字，老式压缩字幕的感觉","Squeezes text horizontally, like old compressed captions"), min:0.5, max:1.5, step:.02, fmt:function(v){return v.toFixed(2)+"x"} }
+    ];
+    var coverSlUI = buildSliders(styleBox, COVER_SL, function(){ return t.cover.style; }, paintCap);
+    coverSlUI.sync();
+
+    function coverColorRow(label, getVal, setVal, palette, noneOpt){
+      var row = document.createElement("div");
+      row.className = "row";
+      var lab = document.createElement("span");
+      lab.className = "lbl"; lab.textContent = label;
+      row.appendChild(lab);
+      var swatches = [];
+      function refresh(){ swatches.forEach(function(o){ o.btn.setAttribute("aria-pressed", o.isActive()); }); }
+      if (noneOpt){
+        var nb = document.createElement("button");
+        nb.type = "button"; nb.className = "swatch none"; nb.title = S.uiLang==="zh"?"无颜色（不显示背景）":"No color (hide background)";
+        nb.onclick = function(){ noneOpt.onClick(); refresh(); paintCap(); save(); };
+        row.appendChild(nb);
+        swatches.push({ btn:nb, isActive:noneOpt.isActive });
+      }
+      palette.forEach(function(col){
+        var b = document.createElement("button");
+        b.type = "button"; b.className = "swatch"; b.style.background = col;
+        b.onclick = function(){ setVal(col); refresh(); coverSlUI.sync(); paintCap(); save(); };
+        row.appendChild(b);
+        swatches.push({ btn:b, isActive:function(){ return !(noneOpt&&noneOpt.isActive()) && getVal()===col; } });
+      });
+      refresh();
+      side.appendChild(row);
+    }
+    coverColorRow(S.uiLang==="zh"?"文字颜色":"Text color", function(){ return t.cover.style.color; }, function(v){ t.cover.style.color = v; }, SUB_COLORS);
+    coverColorRow(S.uiLang==="zh"?"描边颜色":"Outline color", function(){ return t.cover.style.strokeColor; }, function(v){ t.cover.style.strokeColor = v; }, SUB_COLORS);
+    coverColorRow(S.uiLang==="zh"?"背景颜色":"Background color", function(){ return t.cover.style.boxColor; }, function(v){ t.cover.style.boxColor = v; if (t.cover.style.box<=0) t.cover.style.box=.35; },
+      SUB_BOX_COLORS, {
+        isActive:function(){ return t.cover.style.box<=0; },
+        onClick:function(){ t.cover.style.box = 0; coverSlUI.sync(); }
+      });
+
+    var durBox = document.createElement("div");
+    durBox.className = "sliders";
+    side.appendChild(durBox);
+    var DUR_SL = [
+      { k:"dur", cn:BI("停留时长","Duration"), tip:BI("封面播放几秒，别太长","How many seconds the cover shows — keep it short"), min:200, max:4000, step:50, fmt:function(v){return (v/1000).toFixed(2)+"s"} }
+    ];
+    var durUI = buildSliders(durBox, DUR_SL, function(){ return t.cover; }, null);
+    durUI.sync();
+
+    var tip = document.createElement("p");
+    tip.className = "desc";
+    tip.textContent = T("coverEmptyTip");
+    side.appendChild(tip);
+
+    var burnRow = document.createElement("div");
+    burnRow.className = "btnrow";
+    var burnB = mkBtn(T("coverExport"), function(){ burnCover(t, burnB); });
+    burnB.classList.add("primary");
+    if (!t.url) burnB.disabled = true;
+    burnRow.appendChild(burnB);
+    side.appendChild(burnRow);
+
+    head.appendChild(vw); head.appendChild(side);
+    wrap.appendChild(head);
+
+    var toast = document.createElement("div");
+    toast.className = "subtoast"; toast.hidden = true;
+    wrap.appendChild(toast);
+    var toastT = 0;
+    function flash(msg){
+      toast.textContent = msg; toast.hidden = false;
+      clearTimeout(toastT);
+      toastT = setTimeout(function(){ toast.hidden = true; }, 2200);
+    }
+
+    host.appendChild(wrap);
+
+    function elevateBig(){
+      elevateStageSub(T("coverLabel") + (t.n?((S.uiLang==="zh"?"第":"Take ")+t.n+(S.uiLang==="zh"?"条":"")):""), vw, head, vid, function(){
+        bigB.textContent = S.uiLang==="zh"?"⤢ 放大到屏幕":"⤢ Expand to screen";
+      });
+    }
+    elevateBig();
+
+    var cvW = 480, cvH = 270, capDragging = null;
+    var showCover = !!t.cover.img;
+    var coverImgEl = new Image(), imgReady = false;
+    function loadCoverImg(){
+      imgReady = false;
+      if (!t.cover.img) return;
+      coverImgEl = new Image();
+      coverImgEl.onload = function(){ imgReady = true; paintCap(); };
+      coverImgEl.src = t.cover.img;
+    }
+    loadCoverImg();
+
+    function refreshViewBtn(){
+      viewB.disabled = !t.cover.img;
+      viewB.textContent = showCover
+        ? (S.uiLang==="zh"?"查看原始画面":"View original clip")
+        : (S.uiLang==="zh"?"查看封面预览":"Preview cover");
+    }
+    function toggleView(){ showCover = !showCover; refreshViewBtn(); paintCap(); }
+    refreshViewBtn();
+
+    function fitCanvas(){
+      var r = vw.getBoundingClientRect();
+      if (!r.width) return;
+      var ar = (vid.videoWidth && vid.videoHeight) ? vid.videoHeight/vid.videoWidth : 0.5625;
+      var h = r.height > 4 ? r.height : r.width*ar;
+      var w = Math.round(r.width), hh = Math.round(h);
+      if (capCv.width !== w || capCv.height !== hh){ capCv.width = w; capCv.height = hh; }
+      cvW = w; cvH = hh;
+    }
+    function paintCap(){
+      fitCanvas();
+      var c = capCv.getContext("2d");
+      c.clearRect(0,0,cvW,cvH);
+      if (!(showCover && t.cover.img)){ capDrag.hidden = true; return; }
+      if (imgReady) c.drawImage(coverImgEl, 0, 0, cvW, cvH);
+      var box = t.cover.text ? drawSub(c, cvW, cvH, t.cover.text, t.cover.style) : null;
+      if (box){
+        capDrag.hidden = false;
+        capDrag.style.left = box.left + "px";
+        capDrag.style.top = box.top + "px";
+        capDrag.style.width = box.width + "px";
+        capDrag.style.height = box.height + "px";
+      } else {
+        capDrag.hidden = true;
+      }
+    }
+    pendingRepaints.push(paintCap);
+    if (window.ResizeObserver){ new ResizeObserver(function(){ paintCap(); }).observe(vw); }
+
+    function grabFrame(){
+      if (!vid.videoWidth){ flash(S.uiLang==="zh"?"画面还没准备好，等一下再试":"Video isn't ready yet — try again in a moment"); return; }
+      var cvs = mkc(); cvs.width = vid.videoWidth; cvs.height = vid.videoHeight;
+      cvs.getContext("2d").drawImage(vid, 0, 0);
+      t.cover.img = cvs.toDataURL("image/jpeg", 0.85);
+      showCover = true;
+      loadCoverImg();
+      refreshViewBtn(); save();
+      flash(S.uiLang==="zh"?"已捕获这一帧":"Frame captured");
+    }
+    function togglePlay(){
+      if (!t.url) return;
+      if (vid.paused){ vid.play(); playB.textContent = S.uiLang==="zh"?"❚❚ 暂停":"❚❚ Pause"; }
+      else { vid.pause(); playB.textContent = S.uiLang==="zh"?"▶ 播放":"▶ Play"; }
+    }
+    function step(n){
+      vid.pause(); playB.textContent = S.uiLang==="zh"?"▶ 播放":"▶ Play";
+      if (vid.duration) vid.currentTime = Math.max(0, Math.min(vid.duration, vid.currentTime + n*FRAME/1000));
+    }
+    vid.addEventListener("loadedmetadata", function(){ paintCap(); });
+    vid.addEventListener("timeupdate", function(){
+      tcBox.textContent = tc(vid.currentTime*1000);
+      if (!seeking && vid.duration) seekBar.value = Math.round(vid.currentTime/vid.duration*1000);
+    });
+    vid.addEventListener("ended", function(){ playB.textContent = S.uiLang==="zh"?"▶ 播放":"▶ Play"; });
+    window.addEventListener("resize", function(){ paintCap(); });
+
+    capDrag.addEventListener("pointerdown", function(e){
+      if (e.target === capHandle) return;
+      e.preventDefault();
+      capDragging = { mode:"move", x:e.clientX, y:e.clientY, ox:t.cover.style.x, oy:t.cover.style.y };
+      capDrag.setPointerCapture && capDrag.setPointerCapture(e.pointerId);
+    });
+    capHandle.addEventListener("pointerdown", function(e){
+      e.preventDefault(); e.stopPropagation();
+      capDragging = { mode:"resize", x:e.clientX, y:e.clientY, osize:t.cover.style.size };
+      capHandle.setPointerCapture && capHandle.setPointerCapture(e.pointerId);
+    });
+    window.addEventListener("pointermove", function(e){
+      if (!capDragging || !cvW || !cvH) return;
+      var dx = e.clientX - capDragging.x, dy = e.clientY - capDragging.y;
+      if (capDragging.mode === "move"){
+        t.cover.style.x = Math.max(0, Math.min(100, capDragging.ox + dx/cvW*100));
+        t.cover.style.y = Math.max(2, Math.min(96, capDragging.oy + dy/cvH*100));
+      } else {
+        var f = subFont(t.cover.style.font);
+        t.cover.style.size = Math.max(4, Math.min(20, capDragging.osize + dy*100/(cvH*f.scale)));
+      }
+      paintCap(); coverSlUI.sync();
+    });
+    window.addEventListener("pointerup", function(){
+      if (capDragging){ capDragging = null; paintCap(); save(); }
+    });
+
+    paintCap();
+  }
+
+  var coverAbort = false;
+  async function burnCover(t, btn){
+    if (!t.url) return;
+    if (!t.cover || !t.cover.img){ flash2(T("coverNoFrame")); return; }
+    if (!t.cover.text){ flash2(T("coverNoText")); return; }
+    if (btn.dataset.busy === "1"){ coverAbort = true; btn.textContent = T("coverStop"); return; }
+    var v = document.createElement("video");
+    v.src = t.url; v.muted = false; v.playsInline = true;
+    await new Promise(function(res){ v.onloadedmetadata = res; });
+    var W = v.videoWidth || 1280, H = v.videoHeight || 720;
+    var c = mkc(); c.width = W; c.height = H;
+    var cx2 = c.getContext("2d");
+    var stream = c.captureStream(FPS);
+    var ac = null;
+    try {
+      ac = new (window.AudioContext || window.webkitAudioContext)();
+      var srcN = ac.createMediaElementSource(v);
+      var dest = ac.createMediaStreamDestination();
+      srcN.connect(dest);
+      dest.stream.getAudioTracks().forEach(function(tr){ stream.addTrack(tr); });
+    } catch(e){}
+    var mime = pickMime();
+    var rec;
+    try { rec = new MediaRecorder(stream, mime ? { mimeType:mime, videoBitsPerSecond:5000000 } : undefined); }
+    catch(e){ warn(S.uiLang==="zh"?"这个浏览器不支持导出。":"This browser doesn't support export."); return; }
+    var parts = [];
+    rec.ondataavailable = function(e){ if (e.data && e.data.size) parts.push(e.data); };
+    var done = new Promise(function(res){ rec.onstop = res; });
+    var old = btn.textContent;
+    btn.dataset.busy = "1";
+    coverAbort = false;
+    rec.start(500);
+
+    var img = new Image();
+    await new Promise(function(res){ img.onload = res; img.src = t.cover.img; });
+    var t0 = performance.now();
+    await new Promise(function(res){
+      function coverTick(){
+        cx2.clearRect(0,0,W,H);
+        cx2.drawImage(img, 0, 0, W, H);
+        drawSub(cx2, W, H, t.cover.text, t.cover.style);
+        btn.textContent = T("coverBurning") + Math.round(Math.min(1,(performance.now()-t0)/t.cover.dur)*100) + "%";
+        if (coverAbort || performance.now()-t0 >= t.cover.dur){ res(); return; }
+        requestAnimationFrame(coverTick);
+      }
+      coverTick();
+    });
+    if (!coverAbort){
+      v.currentTime = 0;
+      await v.play();
+      await new Promise(function(res){
+        v.onended = res;
+        function vtick(){
+          cx2.drawImage(v, 0, 0, W, H);
+          if (coverAbort){ v.pause(); res(); return; }
+          if (!v.paused && !v.ended) requestAnimationFrame(vtick);
+        }
+        vtick();
+      });
+    }
+    rec.stop();
+    await done;
+    try { if (ac) ac.close(); } catch(e){}
+    btn.dataset.busy = "0";
+    btn.textContent = old;
+    if (coverAbort){ liveEl.innerHTML = "<i>" + T("coverCancelled") + "</i>"; return; }
+    var blob = new Blob(parts, { type:parts.length ? parts[0].type : "video/mp4" });
+    var ext = blob.type.indexOf("mp4") > -1 ? "mp4" : "webm";
+    var where = await saveBlob(blob, stampName(t) + (S.uiLang==="zh"?" 封面版.":" with cover.") + ext);
+    liveEl.innerHTML = "<i>" + (where ? (T("coverSaved") + where) : T("coverDownloaded")) + "</i>";
+  }
+  function flash2(msg){
+    liveEl.innerHTML = "<i>" + msg + "</i>";
   }
 
   /* ================== 列表 ================== */
@@ -3468,7 +4129,7 @@
     $("noTakes").style.display = S.takes.length ? "none" : "block";
     var total = 0;
     S.takes.forEach(function(t){ total += t.dur; });
-    $("tally").textContent = S.takes.length + " 段";
+    $("tally").textContent = S.takes.length + (S.uiLang==="zh"?" 段":" take" + (S.takes.length===1?"":"s"));
     $("footTally").textContent = fmt(total);
     var hasVideo = S.takes.some(function(t){ return !!t.url; });
     $("btnDownloadAll").disabled = !hasVideo;
@@ -3480,7 +4141,7 @@
       el.className = "take" + (t.url ? "" : " dim");
       var print = document.createElement("div");
       print.className = "print";
-      print.title = t.url ? "点开预览这一段" : "视频已随会话结束，只剩文字";
+      print.title = t.url ? (S.uiLang==="zh"?"点开预览这一段":"Click to preview this take") : (S.uiLang==="zh"?"视频已随会话结束，只剩文字":"The video ended with the session — only the text remains");
       var film = document.createElement("div");
       film.className = "film";
       if (t.thumb){
@@ -3505,7 +4166,7 @@
       var body = document.createElement("div"); body.className = "body";
       var top = document.createElement("div"); top.className = "top";
       var tid = document.createElement("span");
-      tid.className = "tid"; tid.textContent = "第 " + two(t.n) + " 段";
+      tid.className = "tid"; tid.textContent = (S.uiLang==="zh" ? ("第 " + two(t.n) + " 段") : ("Take " + two(t.n)));
       top.appendChild(tid);
       if (t.note){
         var nt = document.createElement("span");
@@ -3513,26 +4174,35 @@
         top.appendChild(nt);
       }
       var tools = document.createElement("div"); tools.className = "tools";
-      tools.appendChild(mkBtn("上移", function(){ move(idx,-1); }, idx===0));
-      tools.appendChild(mkBtn("下移", function(){ move(idx,1); }, idx===S.takes.length-1));
-      tools.appendChild(mkBtn("重录", function(){ retake(idx); }));
+      tools.appendChild(mkBtn(T("takeMoveUp"), function(){ move(idx,-1); }, idx===0));
+      tools.appendChild(mkBtn(T("takeMoveDown"), function(){ move(idx,1); }, idx===S.takes.length-1));
+      tools.appendChild(mkBtn(T("takeRetake"), function(){ retake(idx); }));
       var subHost = document.createElement("div");
       subHost.className = "subhost"; subHost.hidden = true;
-      tools.appendChild(mkBtn("字幕" + ((t.subs&&t.subs.length)?(" "+t.subs.length):""), function(){
+      tools.appendChild(mkBtn(T("takeSub") + ((t.subs&&t.subs.length)?(" "+t.subs.length):""), function(){
         subHost.hidden = !subHost.hidden;
-        if (!subHost.hidden) buildSubEditor(t, subHost);
-        else retractStageSub();
+        if (subHost.hidden){ retractStageSub(); return; }
+        coverHost.hidden = true;
+        buildSubEditor(t, subHost);
       }));
-      if (t.url) tools.appendChild(mkBtn("保存", function(){ saveTake(t); }));
-      tools.appendChild(mkBtn("删除", function(){ del(idx); }));
+      var coverHost = document.createElement("div");
+      coverHost.className = "subhost"; coverHost.hidden = true;
+      tools.appendChild(mkBtn(T("takeCover") + ((t.cover&&t.cover.img)?" ✓":""), function(){
+        coverHost.hidden = !coverHost.hidden;
+        if (coverHost.hidden){ retractStageSub(); return; }
+        subHost.hidden = true;
+        buildCoverEditor(t, coverHost);
+      }));
+      if (t.url) tools.appendChild(mkBtn(T("takeSave"), function(){ saveTake(t); }));
+      tools.appendChild(mkBtn(T("takeDelete"), function(){ del(idx); }));
       top.appendChild(tools);
 
       var ta = document.createElement("textarea");
       ta.value = t.text || "";
-      ta.placeholder = "这段没有转录文字，可以自己写";
+      ta.placeholder = S.uiLang==="zh"?"这段没有转录文字，可以自己写":"No transcript for this take — you can write your own";
       ta.oninput = function(){ t.text = ta.value; save(); };
 
-      body.appendChild(top); body.appendChild(ta); body.appendChild(subHost);
+      body.appendChild(top); body.appendChild(ta); body.appendChild(subHost); body.appendChild(coverHost);
       el.appendChild(print); el.appendChild(body);
       box.appendChild(el);
     });
@@ -3588,7 +4258,7 @@
   function retake(i){
     del(i);
     S.cueIdx = 0; syncPtr(); renderCue();
-    liveEl.innerHTML = "<i>提词回到开头，重录这一段。</i>";
+    liveEl.innerHTML = S.uiLang==="zh"?"<i>提词回到开头，重录这一段。</i>":"<i>Cue back to the start — record this take again.</i>";
     window.scrollTo({ top:0, behavior:"smooth" });
   }
   /* ---------- 保存到指定文件夹 ----------
@@ -3630,9 +4300,9 @@
   function folderLabel(){
     var b = $("btnFolder");
     if (!b) return;
-    if (!FS_OK){ b.textContent = "浏览器不支持选文件夹"; b.disabled = true; b.title = "Chrome 或 Edge 才有这个功能，其他浏览器会走普通下载"; return; }
-    b.textContent = dirHandle ? ("保存到：" + dirHandle.name) : "选择保存文件夹";
-    b.title = dirHandle ? "点一下可以换成别的文件夹" : "选一次之后就会记住，下次直接存进去";
+    if (!FS_OK){ b.textContent = S.uiLang==="zh"?"浏览器不支持选文件夹":"This browser can't choose a folder"; b.disabled = true; b.title = S.uiLang==="zh"?"Chrome 或 Edge 才有这个功能，其他浏览器会走普通下载":"Only Chrome or Edge support this — other browsers will download normally"; return; }
+    b.textContent = dirHandle ? ((S.uiLang==="zh"?"保存到：":"Saving to: ") + dirHandle.name) : T("btnFolder");
+    b.title = dirHandle ? (S.uiLang==="zh"?"点一下可以换成别的文件夹":"Click to switch to a different folder") : (S.uiLang==="zh"?"选一次之后就会记住，下次直接存进去":"Pick it once and it'll be remembered — saves straight there next time");
   }
   async function ensurePerm(ask){
     if (!dirHandle) return false;
@@ -3651,7 +4321,7 @@
       dirHandle = await window.showDirectoryPicker({ id:"dv8out", mode:"readwrite", startIn:"videos" });
       await idbPut("dirHandle", dirHandle);
       folderLabel();
-      liveEl.innerHTML = "<i>以后都会存到「" + dirHandle.name + "」。</i>";
+      liveEl.innerHTML = S.uiLang==="zh" ? ("<i>以后都会存到「" + dirHandle.name + "」。</i>") : ("<i>Everything will be saved to \u201c" + dirHandle.name + "\u201d from now on.</i>");
     } catch(e){ /* 用户取消 */ }
   }
   function anchorDL(blob,name){
@@ -3670,7 +4340,7 @@
         await w.close();
         return dirHandle.name;
       } catch(e){
-        warn("写入文件夹失败，这次改成普通下载。可能是文件夹被移动或删掉了，重新选一次即可。");
+        warn(S.uiLang==="zh"?"写入文件夹失败，这次改成普通下载。可能是文件夹被移动或删掉了，重新选一次即可。":"Couldn't write to the folder, so it downloaded normally instead. The folder may have been moved or deleted — just pick it again.");
       }
     }
     anchorDL(blob,name);
@@ -3684,7 +4354,9 @@
     if (!blob) return;
     var name = filename(t);
     var where = await saveBlob(blob, name);
-    liveEl.innerHTML = "<i>" + (where ? ("已存到 " + where + "／" + name) : ("已下载 " + name)) + "</i>";
+    liveEl.innerHTML = S.uiLang==="zh"
+      ? ("<i>" + (where ? ("已存到 " + where + "／" + name) : ("已下载 " + name)) + "</i>")
+      : ("<i>" + (where ? ("Saved to " + where + " / " + name) : ("Downloaded " + name)) + "</i>");
   }
   function dlText(text,name,mime){
     saveBlob(new Blob([text], { type:mime || "text/plain;charset=utf-8" }), name);
@@ -3695,7 +4367,9 @@
       await saveTake(list[i]);
       if (!dirHandle) await new Promise(function(r){ setTimeout(r, 500); });
     }
-    if (dirHandle) liveEl.innerHTML = "<i>" + list.length + " 段已全部存到 " + dirHandle.name + "。</i>";
+    if (dirHandle) liveEl.innerHTML = S.uiLang==="zh"
+      ? ("<i>" + list.length + " 段已全部存到 " + dirHandle.name + "。</i>")
+      : ("<i>All " + list.length + " take(s) saved to " + dirHandle.name + ".</i>");
   };
   $("btnExportMd").onclick = function(){
     var lines = ["# 录制记录 " + $("today").textContent, ""], total = 0;
@@ -3722,12 +4396,12 @@
       }
       cursor += t.dur;
     });
-    if (!out.length){ warn("没有可导出的文字。"); return; }
+    if (!out.length){ warn(S.uiLang==="zh"?"没有可导出的文字。":"There's no text to export."); return; }
     dlText(out.join("\n"), "字幕-" + $("today").textContent + ".srt", "text/plain;charset=utf-8");
   };
   $("btnClear").onclick = function(){
     if (!S.takes.length) return;
-    if (!confirm("清空所有片段和文字？这个撤不回来。")) return;
+    if (!confirm(S.uiLang==="zh"?"清空所有片段和文字？这个撤不回来。":"Clear every take and all text? This can't be undone.")) return;
     S.takes.forEach(function(t){ if (t.url) URL.revokeObjectURL(t.url); });
     S.takes = []; S.counter = 0; render(); save();
   };
@@ -3756,15 +4430,19 @@
       custom:S.custom, skin:S.skin, warp:S.warp, rgn:S.rgn,
       mo:S.mo, moP:S.moP, faceOn:S.faceOn,
       cue:S.cue, cueColor:S.cueColor, cueAlign:S.cueAlign, cuePos:S.cuePos,
-      cueRaw:S.cueRaw, cueAuto:S.cueAuto, cueOn:S.cueOn, sub:S.sub
+      cueRaw:S.cueRaw, cueAuto:S.cueAuto, cueOn:S.cueOn, sub:S.sub, uiLang:S.uiLang
     };
   }
   function payloadOf(withThumbs){
     var o = settingsOnly();
     o.counter = S.counter;
     o.takes = S.takes.map(function(t){
+      var cover = t.cover ? {
+        img: withThumbs ? t.cover.img : null,
+        text: t.cover.text, dur: t.cover.dur, style: t.cover.style
+      } : null;
       return { id:t.id, n:t.n, dur:t.dur, text:t.text, note:t.note,
-               thumb: withThumbs ? t.thumb : null, stamp:t.stamp, at:t.at, fx:t.fx, subs:t.subs||null };
+               thumb: withThumbs ? t.thumb : null, stamp:t.stamp, at:t.at, fx:t.fx, subs:t.subs||null, cover:cover };
     });
     return o;
   }
@@ -3783,7 +4461,7 @@
         try { Store.set(SKEY, JSON.stringify(settingsOnly())); } catch(e3){}
         if (!saveWarned){
           saveWarned = true;
-          warn("浏览器存储空间不够，片段缩略图没能保存，但你的美颜和滤镜设置已经存下来了。");
+          warn(S.uiLang==="zh"?"浏览器存储空间不够，片段缩略图没能保存，但你的美颜和滤镜设置已经存下来了。":"The browser is out of storage space, so take thumbnails weren't saved — but your beauty and filter settings are safely saved.");
         }
       }
     }
@@ -3801,6 +4479,7 @@
     if (p.cuePos) S.cuePos = p.cuePos;
     if (p.cueRaw){ S.cueRaw = p.cueRaw; S.cueLines = splitCue(p.cueRaw); $("cueText").value = p.cueRaw; buildCueIndex(); }
     if (p.sub){ Object.keys(SUB_DEFAULT).forEach(function(k){ if (p.sub[k]!==undefined) S.sub[k]=p.sub[k]; }); }
+    if (p.uiLang) applyLang(p.uiLang);
     if (p.cueAuto === false){ S.cueAuto = false; $("cueAuto").setAttribute("aria-pressed","false"); }
     if (p.cueOn === false){ S.cueOn = false; $("togglePrompt").setAttribute("aria-pressed","false"); }
     if (p.lang) setLang(p.lang);
@@ -3818,6 +4497,7 @@
     syncPtr(); renderCue(); cueHint();
   }
   function load(){
+    applyLang(S.uiLang);
     setFx(S.fx); setMo(S.mo); setRgn(S.rgnSel);
     warpUI.sync(); localUI.sync(); skinUI.sync(); moUI.sync(); cueUI.sync();
     buildCueIndex(); renderCue(); cueHint();
@@ -3853,8 +4533,8 @@
         applySettings(JSON.parse(fr.result));
         save();
         warn("");
-        liveEl.innerHTML = "<i>设置已导入。</i>";
-      } catch(e){ warn("这个文件读不出来，可能不是导出的设置文件。"); }
+        liveEl.innerHTML = S.uiLang==="zh"?"<i>设置已导入。</i>":"<i>Settings imported.</i>";
+      } catch(e){ warn(S.uiLang==="zh"?"这个文件读不出来，可能不是导出的设置文件。":"Couldn't read this file — it may not be an exported settings file."); }
     };
     fr.readAsText(f);
     this.value = "";
@@ -3874,8 +4554,15 @@
 
   if (document.fonts && document.fonts.load){
     ['16px "VT323"','16px "Press Start 2P"','16px "DotGothic16"','16px "Special Elite"',
-     '16px "Courier Prime"','16px "LXGW WenKai TC"','16px "Noto Serif SC"','16px "Zen Dots"']
+     '16px "Courier Prime"','16px "Zen Dots"','16px "WenQuanYi Bitmap Song 13px"']
       .forEach(function(f){ document.fonts.load(f).catch(function(){}); });
+    /* 字体这时候大概率还没真的下载完，前面那个load()只是发起请求，
+       不会自动重画任何东西——真正加载完成之后，得主动把当时正开着的
+       字幕/封面编辑器画布重新画一遍，不然会一直停在系统兜底字体上，
+       看着像切了字体没反应，其实是网络字体还没下载好而已 */
+    document.fonts.ready.then(function(){
+      pendingRepaints.forEach(function(fn){ try{ fn(); }catch(e){} });
+    });
   }
   load();
 })();
