@@ -348,8 +348,9 @@
     background:#EFEBDF;border:1px solid var(--rule);border-radius:2px;padding:0 9px;min-width:96px;text-align:center}
   .subctl button[aria-pressed="true"]{background:linear-gradient(180deg,var(--groove),#787569);color:#FFD9A8;border-color:#4A4842}
 
-  .subtlwrap{overflow-x:auto;overflow-y:hidden;border:1px solid #4C4A43;border-radius:2px;background:#171B14}
-  .subtl{position:relative;height:62px;min-width:100%;cursor:crosshair}
+  .subtlwrap{overflow-x:auto;overflow-y:hidden;border:1px solid #4C4A43;border-radius:2px;background:#171B14;margin-top:6px}
+  .subtlwrap[hidden]{display:none}
+  .subtl{position:relative;height:78px;min-width:100%;cursor:crosshair}
   .subtlruler{position:absolute;left:0;top:0;height:16px;width:100%}
   .subtlruler .tick{position:absolute;top:0;height:16px;padding-left:3px;font-family:var(--lcdfont);
     font-size:12px;color:#7E8E70;border-left:1px solid rgba(143,160,127,.4);white-space:nowrap}
@@ -397,11 +398,11 @@
   .submeta{font-size:var(--fs-xs);color:var(--ink-soft)}
   .subtimes{display:flex;flex-direction:column;gap:5px}
   .tgroup{display:flex;align-items:center;gap:3px}
-  .tlab{font-size:var(--fs-sm);color:var(--ink-soft);width:14px}
-  input.tval{font-family:var(--lcdfont);font-size:16px;color:var(--ink);width:84px;text-align:center;
-    background:#EFEBDF;border:1px solid #9A968D;border-radius:2px;padding:1px 4px;cursor:ew-resize}
+  .tlab{font-size:var(--fs-xs);color:var(--ink-soft);width:11px}
+  input.tval{font-family:var(--lcdfont);font-size:13px;color:var(--ink);width:62px;text-align:center;
+    background:#EFEBDF;border:1px solid #9A968D;border-radius:2px;padding:1px 3px;cursor:ew-resize}
   input.tval:focus{border-color:var(--stamp);cursor:text}
-  .nudge{width:24px;padding:2px 0 !important;text-align:center;font-size:13px !important}
+  .nudge{width:20px;padding:1px 0 !important;text-align:center;font-size:12px !important}
   .subops{grid-column:2;display:flex;gap:5px;flex-wrap:wrap;margin-top:5px}
   @media(min-width:901px){.subops{grid-column:2 / span 2}}
   .substyle{margin-top:10px;padding-top:10px;border-top:1px solid #9A968D}
@@ -429,6 +430,21 @@
     background:#C9C5B8;padding:1px 9px;border-radius:2px;border:1px solid var(--ink-dim);
     box-shadow:inset 0 1px 3px rgba(0,0,0,.22)}
   .foot button.key{padding:7px 10px;font-size:var(--fs)}
+
+  /* 字幕时间轴的抽屉：从任何一条 take 的字幕编辑器里"借用"出来，放在
+     页面主体（视屏+设置栏那一整块）的正下方——不用 position:fixed，
+     就是普通文档流里的下一块，宽度自然跟上面那一整块一样满宽，
+     不管左边视屏多宽、右边设置栏多窄，都不影响它是满宽的横条；
+     跟 elevateStageSub 借用大屏是同一个思路，只是这次借用的是
+     "整页宽度的一块地方"而不是"整块屏幕"。用普通flow摆放而不是fixed，
+     是因为fixed在某些内嵌/缩放的预览环境里定位会不准 */
+  .tldock{flex:0 0 auto;margin-top:12px;padding:8px 16px 10px;
+    background:linear-gradient(180deg,#BEBAAF,#A8A49A);
+    border:1px solid var(--edge);border-radius:var(--r-lg);
+    box-shadow:inset 0 1px 0 rgba(255,255,255,.5),0 4px 12px rgba(0,0,0,.14);
+    max-height:42vh;overflow-y:auto}
+  .tldock[hidden]{display:none}
+  .tldock .subtlowner{font-size:var(--fs-sm);color:var(--ink-soft);margin-right:auto}
 
   @media(prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
   @media(max-width:700px){
@@ -601,6 +617,8 @@
       </p>
     </aside>
   </div>
+
+  <div class="tldock" id="tlDock" hidden></div>
 </div>
 
 <div class="foot">
@@ -674,7 +692,8 @@
       coverEmptyTip:"Play to a frame you like, then click \u201cUse this frame\u201d below.",
       coverBurning:"Rendering cover ", coverStop:"Stopping", coverCancelled:"Cover export cancelled.",
       coverSaved:"Video with cover saved to ", coverDownloaded:"Video with cover downloaded",
-      coverLabel:"Cover preview · "
+      coverLabel:"Cover preview · ",
+      coverExportImg:"Export cover (JPG)", coverImgSaved:"Cover image saved to ", coverImgDownloaded:"Cover image downloaded"
     },
     zh: {
       grpSource:"画面来源", grpLang:"转录语言", grpOsd:"屏幕显示",
@@ -721,7 +740,8 @@
       coverEmptyTip:"播放到喜欢的画面，点下面的「用这一帧做封面」。",
       coverBurning:"渲染封面中 ", coverStop:"正在停止", coverCancelled:"封面导出已取消。",
       coverSaved:"带封面的视频已存到 ", coverDownloaded:"带封面的视频已下载",
-      coverLabel:"封面预览 · "
+      coverLabel:"封面预览 · ",
+      coverExportImg:"导出封面（JPG）", coverImgSaved:"封面图已存到 ", coverImgDownloaded:"封面图已下载"
     }
   };
   /* 给还没转换成双语的地方（比如各个滑块的中文名、滤镜名）用的兜底翻译函数：
@@ -947,6 +967,27 @@
      编辑字幕时画面太小不好操作，就把这条片段的播放画面搬到最上面那块大屏里，
      跟拍摄时共用同一块地方；退出编辑或者要开摄像头、要录制了，就搬回去。 */
   var stageSub = null; /* { vw, head, tag, onRetract } */
+
+  /* 时间轴悬浮抽屉：跟上面 stageSub 一个思路——某条 take 的字幕编辑器
+     把自己的时间轴"借"到页面级的公共插槽里，横向占满整页宽度，不受
+     左右分栏（.side 那条窄栏）的宽度限制；同一时间只能有一条在抽屉里，
+     换一条、删除片段、或整个列表重新渲染时都会自动把上一条放回去 */
+  var TL_DOCK = { el:null, owner:null, retract:null };
+  function tlDockRetract(){
+    if (!TL_DOCK.owner) return;
+    var cb = TL_DOCK.retract;
+    TL_DOCK.owner = null; TL_DOCK.retract = null;
+    if (TL_DOCK.el){ TL_DOCK.el.hidden = true; TL_DOCK.el.innerHTML = ""; }
+    if (cb) cb();
+  }
+  function tlDockOpen(ownerId, content, onRetract){
+    tlDockRetract();
+    if (!TL_DOCK.el) TL_DOCK.el = $("tlDock");
+    TL_DOCK.owner = ownerId;
+    TL_DOCK.retract = onRetract;
+    TL_DOCK.el.appendChild(content);
+    TL_DOCK.el.hidden = false;
+  }
   function retractStageSub(){
     if (!stageSub) return;
     var s = stageSub; stageSub = null;
@@ -2856,10 +2897,16 @@
       else { elevateBig(); bigB.textContent = S.uiLang==="zh"?"⤢ 收起大屏":"⤢ Collapse"; }
     });
     ctl.appendChild(bigB);
+    var tlToggleB = mkBtn(S.uiLang==="zh"?"▾ 时间轴":"▾ Timeline", toggleDock);
+    ctl.appendChild(tlToggleB);
     side.appendChild(ctl);
 
+    head.appendChild(vw); head.appendChild(side);
+    wrap.appendChild(head);
 
-    /* 时间轴 */
+    /* 时间轴：默认不在页面里占地方，点上面那个小按钮时才"借"到
+       页面最下方的公共抽屉（#tlDock）里，横向占满整页宽度——不受这条
+       take 卡片本身在右侧窄栏里的宽度限制，也不用为了腾地方去收起大屏 */
     var tlWrap = document.createElement("div");
     tlWrap.className = "subtlwrap";
     var tl = document.createElement("div");
@@ -2872,23 +2919,32 @@
     tlHead.className = "subtlhead";
     tl.appendChild(tlRuler); tl.appendChild(tlTrack); tl.appendChild(tlHead);
     tlWrap.appendChild(tl);
-    side.appendChild(tlWrap);
 
+    var dockBody = document.createElement("div");
     var zoomRow = document.createElement("div");
     zoomRow.className = "subzoom";
-    var zLab = document.createElement("span");
-    zLab.textContent = S.uiLang==="zh"?"时间轴":"Timeline";
+    var dockLabel = document.createElement("span");
+    dockLabel.className = "subtlowner";
+    dockLabel.textContent = (S.uiLang==="zh"?"时间轴 · ":"Timeline · ") + (t.n?((S.uiLang==="zh"?"第":"Take ")+t.n+(S.uiLang==="zh"?"条":"")):"");
     var zIn = mkBtn(S.uiLang==="zh"?"放大":"Zoom in", function(){ setZoom(tlZoom*1.6); });
     var zOut = mkBtn(S.uiLang==="zh"?"缩小":"Zoom out", function(){ setZoom(tlZoom/1.6); });
     var zFit = mkBtn(S.uiLang==="zh"?"看全部":"Fit all", function(){ setZoom(1); });
-    zoomRow.appendChild(zLab); zoomRow.appendChild(zOut); zoomRow.appendChild(zIn); zoomRow.appendChild(zFit);
+    var closeB = mkBtn(S.uiLang==="zh"?"✕ 收起":"✕ Close", toggleDock);
+    zoomRow.appendChild(dockLabel); zoomRow.appendChild(zOut); zoomRow.appendChild(zIn); zoomRow.appendChild(zFit); zoomRow.appendChild(closeB);
     var stat = document.createElement("span");
     stat.className = "substat";
     zoomRow.appendChild(stat);
-    side.appendChild(zoomRow);
+    dockBody.appendChild(zoomRow);
+    dockBody.appendChild(tlWrap);
 
-    head.appendChild(vw); head.appendChild(side);
-    wrap.appendChild(head);
+    function toggleDock(){
+      if (TL_DOCK.owner === t.id){ tlDockRetract(); return; }
+      tlDockOpen(t.id, dockBody, function(){
+        tlToggleB.textContent = S.uiLang==="zh"?"▾ 时间轴":"▾ Timeline";
+      });
+      tlToggleB.textContent = S.uiLang==="zh"?"▴ 时间轴":"▴ Timeline";
+      paintTL(true);
+    }
 
     function elevateBig(){
       elevateStageSub((S.uiLang==="zh"?"字幕预览 · ":"Caption preview · ") + (t.n?((S.uiLang==="zh"?"第":"Take ")+t.n+(S.uiLang==="zh"?"条":"")):""), vw, head, vid, function(){
@@ -3395,18 +3451,6 @@
             else if (dragging){ val.focus(); val.select(); }
             dragging = null;
           });
-          var mB = mkBtn("−", function(){ nudge(-1); });
-          var pB = mkBtn("＋", function(){ nudge(1); });
-          mB.className = pB.className = "nudge";
-          mB.title = pB.title = S.uiLang==="zh"?"一帧，按住 Shift 是十帧":"One frame; hold Shift for ten";
-          function nudge(dir){
-            snap((S.uiLang==="zh"?"改第 ":"Change take ") + (i+1) + (S.uiLang==="zh"?" 条的时间":"'s time"));
-            var k = (window.event && window.event.shiftKey) ? 10 : 1;
-            c[key] = Math.max(0, c[key] + dir*k*FRAME);
-            if (key==="s" && c.s > c.e - MIN_DUR) c.e = c.s + MIN_DUR;
-            if (key==="e" && c.e < c.s + MIN_DUR) c.s = Math.max(0, c.e - MIN_DUR);
-            redrawTimes(i); seek(c[key]); paintCap(); paintTL(); save();
-          }
           var setB = mkBtn("⌖", function(){
             snap(S.uiLang==="zh" ? ("把第 " + (i+1) + " 条的" + kk[1] + "点设到播放处") : ("Set line " + (i+1) + "'s " + kk[1] + " point to playhead"));
             c[key] = Math.round(ms());
@@ -3416,7 +3460,7 @@
           });
           setB.className = "nudge";
           setB.title = S.uiLang==="zh"?"设成当前播放位置":"Set to current playback position";
-          g.appendChild(lab); g.appendChild(mB); g.appendChild(val); g.appendChild(pB); g.appendChild(setB);
+          g.appendChild(lab); g.appendChild(val); g.appendChild(setB);
           times.appendChild(g);
         });
 
@@ -3915,6 +3959,9 @@
     burnB.classList.add("primary");
     if (!t.url) burnB.disabled = true;
     burnRow.appendChild(burnB);
+    var imgExpB = mkBtn(T("coverExportImg"), function(){ exportCoverImage(t, imgExpB); });
+    imgExpB.disabled = !t.cover.img;
+    burnRow.appendChild(imgExpB);
     side.appendChild(burnRow);
 
     head.appendChild(vw); head.appendChild(side);
@@ -3953,6 +4000,7 @@
 
     function refreshViewBtn(){
       viewB.disabled = !t.cover.img;
+      imgExpB.disabled = !t.cover.img;
       viewB.textContent = showCover
         ? (S.uiLang==="zh"?"查看原始画面":"View original clip")
         : (S.uiLang==="zh"?"查看封面预览":"Preview cover");
@@ -4046,6 +4094,27 @@
     paintCap();
   }
 
+  async function exportCoverImage(t, btn){
+    if (!t.cover || !t.cover.img){ flash2(T("coverNoFrame")); return; }
+    var old = btn.textContent;
+    btn.disabled = true;
+    try {
+      var img = new Image();
+      await new Promise(function(res, rej){ img.onload = res; img.onerror = rej; img.src = t.cover.img; });
+      var W = img.naturalWidth || img.width, H = img.naturalHeight || img.height;
+      var c = mkc(); c.width = W; c.height = H;
+      var cx2 = c.getContext("2d");
+      cx2.drawImage(img, 0, 0, W, H);
+      if (t.cover.text) drawSub(cx2, W, H, t.cover.text, t.cover.style);
+      var blob = await new Promise(function(res){ c.toBlob(res, "image/jpeg", 0.92); });
+      if (!blob){ btn.disabled = false; btn.textContent = old; return; }
+      var where = await saveBlob(blob, stampName(t) + (S.uiLang==="zh"?" 封面.":" cover.") + "jpg");
+      liveEl.innerHTML = "<i>" + (where ? (T("coverImgSaved") + where) : T("coverImgDownloaded")) + "</i>";
+    } finally {
+      btn.disabled = !t.cover.img;
+      btn.textContent = old;
+    }
+  }
   var coverAbort = false;
   async function burnCover(t, btn){
     if (!t.url) return;
@@ -4124,6 +4193,7 @@
   /* ================== 列表 ================== */
   function render(){
     retractStageSub();
+    tlDockRetract();
     var box = $("takes");
     box.innerHTML = "";
     $("noTakes").style.display = S.takes.length ? "none" : "block";
@@ -4181,7 +4251,7 @@
       subHost.className = "subhost"; subHost.hidden = true;
       tools.appendChild(mkBtn(T("takeSub") + ((t.subs&&t.subs.length)?(" "+t.subs.length):""), function(){
         subHost.hidden = !subHost.hidden;
-        if (subHost.hidden){ retractStageSub(); return; }
+        if (subHost.hidden){ retractStageSub(); if (TL_DOCK.owner === t.id) tlDockRetract(); return; }
         coverHost.hidden = true;
         buildSubEditor(t, subHost);
       }));
@@ -4191,6 +4261,7 @@
         coverHost.hidden = !coverHost.hidden;
         if (coverHost.hidden){ retractStageSub(); return; }
         subHost.hidden = true;
+        if (TL_DOCK.owner === t.id) tlDockRetract();
         buildCoverEditor(t, coverHost);
       }));
       if (t.url) tools.appendChild(mkBtn(T("takeSave"), function(){ saveTake(t); }));
